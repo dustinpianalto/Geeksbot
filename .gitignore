@@ -1,4 +1,4 @@
 bot_secrets.json
 google_client_secret.json
-*__pycache__*
+*/__pycache__/*
 logs/*
