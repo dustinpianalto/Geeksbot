@@ -43,7 +43,7 @@ description = 'I am Geeksbot! Fear me!'
 
 class Geeksbot(commands.Bot):
     def __init__(self, **kwargs):
-        kwargs["command_prefix"] = self.command_prefix
+        kwargs["command_prefix"] = self.get_prefix
         super().__init__(**kwargs)
         self.aio_session = aiohttp.ClientSession(loop=self.loop)
         with open(f'{config_dir}{bot_config_file}') as file:
@@ -63,7 +63,7 @@ class Geeksbot(commands.Bot):
         self.spam_list = {}
         self.gcs_service = build('customsearch', 'v1', developerKey='AIzaSyAfGHj5alDWMsnVMeGUD53dI0RQij94PU4')
 
-    async def command_prefix(self, bot, message):
+    async def get_prefix(self, bot, message):
         return self.con.one(f'select prefix from guild_config where guild_id = %(id)s', {'id': message.guild.id}) or self.default_prefix
 
     async def load_ext(self, ctx, mod):
