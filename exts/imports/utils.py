@@ -75,7 +75,7 @@ def paginate(text, maxlen=1990):
             paginator.add_line(line)
     return paginator.pages
 
-async def run_command(*args):
+async def run_command(args):
     # Create subprocess
     process = await asyncio.create_subprocess_shell(
         args,
