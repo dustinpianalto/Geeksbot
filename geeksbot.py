@@ -62,7 +62,7 @@ class Geeksbot(commands.Bot):
         self.default_prefix = 'g$'
         self.voice_chans = {}
         self.spam_list = {}
-        self.gcs_service = build('customsearch', 'v1', developerKey='AIzaSyAfGHj5alDWMsnVMeGUD53dI0RQij94PU4')
+        self.gcs_service = build('customsearch', 'v1', developerKey=self.bot_secrets['google_search_key'])
 
     async def get_prefix(self, bot, message):
         return self.con.one(f'select prefix from guild_config where guild_id = %(id)s', {'id': message.guild.id}) or self.default_prefix
