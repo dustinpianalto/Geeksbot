@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import os
+import os, logging
 from .imports.utils import paginate, run_command
 
 owner_id = 351794468870946827
