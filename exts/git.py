@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import os, logging
 from .imports.utils import paginate, run_command
+import asyncio
 
 owner_id = 351794468870946827
 embed_color = discord.Colour.from_rgb(49,107,111)
