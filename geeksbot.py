@@ -65,7 +65,7 @@ class Geeksbot(commands.Bot):
         self.gcs_service = build('customsearch', 'v1', developerKey=self.bot_secrets['google_search_key'])
 
     async def get_custom_prefix(self, bot, message):
-        return self.con.one(f'select prefix from guild_config where guild_id = %(id)s', {'id': message.guild.id}) or self.default_prefix
+        return self.con.one('select prefix from guild_config where guild_id = %(id)s', {'id': message.guild.id}) or self.default_prefix
 
     async def load_ext(self, ctx, mod):
         bot.load_extension('{0}.{1}'.format(extension_dir,mod))
@@ -113,11 +113,11 @@ async def unload(ctx, mod):
 async def on_message(ctx):
     if not ctx.author.bot:
         if ctx.guild:
-            if int(bot.con.one(f"select channel_lockdown from guild_config where guild_id = {ctx.guild.id}")):
-                if ctx.channel.id in json.loads(bot.con.one(f"select allowed_channels from guild_config where guild_id = {ctx.guild.id}")):
+            if int(bot.con.one(f"select channel_lockdown from guild_config where guild_id = %(id)s", {'id':ctx.guild.id})):
+                if ctx.channel.id in json.loads(bot.con.one(f"select allowed_channels from guild_config where guild_id = %(id)s", {'id':ctx.guild.id}))):
                     await bot.process_commands(ctx)
             elif ctx.channel.id == 418452585683484680:
-                prefix = bot.con.one(f'select prefix from guild_config where guild_id = {ctx.guild.id}')
+                prefix = bot.con.one('select prefix from guild_config where guild_id = %(id)s", {'id':ctx.guild.id}))
                 prefix = prefix[0] if prefix else bot.default_prefix
                 ctx.content = f'{prefix}{ctx.content}'
                 await bot.process_commands(ctx)

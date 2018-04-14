@@ -33,7 +33,7 @@ class rcon():
         response = con.exec_command('listplayers')
         rcon_log.info(response)
         while response == b'Keep Alive\x00\x00':
-            asyncio.sleep(5)            
+            asyncio.sleep(5)
             response = con.exec_command('listplayers')
             rcon_log.info(response)
         return response.strip(b'\n \x00\x00').decode('ascii').strip()
@@ -44,7 +44,7 @@ class rcon():
         response = con.exec_command('saveworld')
         rcon_log.info(response)
         while response == b'Keep Alive\x00\x00':
-            asyncio.sleep(5)            
+            asyncio.sleep(5)
             response = con.exec_command('saveworld')
             rcon_log.info(response)
         return response.strip(b'\n \x00\x00').decode('ascii').strip()
@@ -57,7 +57,7 @@ class rcon():
             response = con.exec_command('AllowPlayerToJoinNoCheck {0}'.format(steam_id))
             rcon_log.info(response)
             while response == b'Keep Alive\x00\x00':
-                asyncio.sleep(5)            
+                asyncio.sleep(5)
                 response = con.exec_command('AllowPlayerToJoinNoCheck {0}'.format(steam_id))
                 rcon_log.info(response)
             messages.append(response.strip(b'\n \x00\x00').decode('ascii').strip())
@@ -70,7 +70,7 @@ class rcon():
         response = con.exec_command('broadcast {0}'.format(message))
         rcon_log.info(response)
         while response == b'Keep Alive\x00\x00':
-            asyncio.sleep(5)            
+            asyncio.sleep(5)
             response = con.exec_command('broadcast {0}'.format(message))
             rcon_log.info(response)
         messages.append(response.strip(b'\n \x00\x00').decode('ascii').strip())
@@ -92,7 +92,7 @@ class rcon():
                 time.sleep(1)
             if 'Server received, But no response!!' not in message:
                 for msg in message.split('\n'):
-                    msg = '{0} ||| {1}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),msg.strip())                        
+                    msg = '{0} ||| {1}'.format(datetime.now().strftime('%Y-%m-%d %H:%M:%S'),msg.strip())
                     return_messages.append(msg)
         except rcon_con.RconError as e:
             rcon_log.error('RCON Error {0}\n{1}'.format(guild_id,traceback.format_exc()))
@@ -131,11 +131,11 @@ class rcon():
         To view all the valid ARK servers for this guild see list_ark_servers.'''
         if checks.is_rcon_admin(self.bot, ctx):
             if server != None:
-                rcon_connections = json.loads(self.bot.con.one(f"select rcon_connections from guild_config where guild_id = {ctx.guild.id}"))
+                rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
                 server = server.replace('_',' ').title()
                 if server in rcon_connections:
                     rcon_connections[server]["monitoring_chat"] = 1
-                    self.bot.con.run(f"update guild_config set rcon_connections = '{json.dumps(rcon_connections)}' where guild_id = {ctx.guild.id}")
+                    self.bot.con.run('update guild_config set rcon_connections = %(json)s where guild_id = %(id)s', {'id':ctx.guild.id, 'json': json.dumps(rcon_connections)})
                     channel = self.bot.get_channel(rcon_connections[server]['game_chat_chan_id'])
                     await channel.send('Started monitoring on the {0} server.'.format(server))
                     await ctx.message.add_reaction('✅')
@@ -169,7 +169,7 @@ class rcon():
                                             message = func(ctx, message, rcon_connections['server'])
                                 await channel.send('{0}'.format(message))
                         await asyncio.sleep(1)
-                        rcon_connections = json.loads(self.bot.con.one(f"select rcon_connections from guild_config where guild_id = {ctx.guild.id}"))
+                        rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
                     await channel.send('Monitoring Stopped')
                 else:
                     await ctx.send(f'Server not found: {server}')
@@ -185,11 +185,11 @@ class rcon():
         Context is the same as monitor_chat'''
         if checks.is_rcon_admin(self.bot, ctx):
             if server != None:
-                rcon_connections = json.loads(self.bot.con.one(f"select rcon_connections from guild_config where guild_id = {ctx.guild.id}"))
+                rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
                 server = server.replace('_',' ').title()
                 if server in rcon_connections:
                     rcon_connections[server]["monitoring_chat"] = 0
-                    self.bot.con.run(f"update guild_config set rcon_connections = '{json.dumps(rcon_connections)}' where guild_id = {ctx.guild.id}")
+                    self.bot.con.run('update guild_config set rcon_connections = %(json)s where guild_id = %(id)s', {'id':ctx.guild.id, 'json': json.dumps(rcon_connections)})
                 else:
                     await ctx.send(f'Server not found: {server}')
             else:
@@ -209,7 +209,7 @@ class rcon():
         "first last"
         To view all the valid ARK servers for this guild see list_ark_servers.'''
         if checks.is_rcon_admin(self.bot, ctx):
-            rcon_connections = json.loads(self.bot.con.one(f"select rcon_connections from guild_config where guild_id = {ctx.guild.id}"))
+            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
             if server != None:
                 server = server.replace('_',' ').title()
                 if server in rcon_connections:
@@ -245,7 +245,7 @@ class rcon():
         All strings (<server>, <ip>, <password>) must be contained inside double quotes.'''
         if checks.is_rcon_admin(self.bot, ctx):
             server = server.title()
-            rcon_connections = json.loads(self.bot.con.one(f"select rcon_connections from guild_config where guild_id = {ctx.guild.id}"))
+            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
             if server not in rcon_connections:
                 rcon_connections[server] = {
                     'ip': ip,
@@ -256,7 +256,7 @@ class rcon():
                     'msg_chan_id': 0,
                     'monitoring_chat': 0
                 }
-                self.bot.con.run(f"update guild_config set rcon_connections = %(connections)s where guild_id = {ctx.guild.id}", {'connections':json.dumps(rcon_connections)})
+                self.bot.con.run('update guild_config set rcon_connections = %(connections)s where guild_id = %(id)s', {'id':ctx.guild.id, 'connections':json.dumps(rcon_connections)})
                 await ctx.send('{0} server has been added to my configuration.'.format(server))
             else:
                 await ctx.send('This server name is already in my configuration. Please choose another.')
@@ -272,10 +272,10 @@ class rcon():
         All strings <server> must be contained inside double quotes.'''
         if checks.is_rcon_admin(self.bot, ctx):
             server = server.title()
-            rcon_connections = json.loads(self.bot.con.one(f"select rcon_connections from guild_config where guild_id = {ctx.guild.id}"))
+            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
             if server in rcon_connections:
                 del rcon_connections[server]
-                self.bot.con.run(f"update guild_config set rcon_connections = %(connections)s where guild_id = {ctx.guild.id}", {'connections':json.dumps(rcon_connections)})
+                self.bot.con.run('update guild_config set rcon_connections = %(connections)s where guild_id = %(id)s', {'id':ctx.guild.id, 'connections':json.dumps(rcon_connections)})
                 await ctx.send('{0} has been removed from my configuration.'.format(server))
             else:
                 await ctx.send('{0} is not in my configuration.'.format(server))
@@ -290,7 +290,7 @@ class rcon():
         Example: 76561198024193239,76561198024193239,76561198024193239'''
         if checks.is_rcon_admin(self.bot, ctx):
             if steam_ids != None:
-                rcon_connections = json.loads(self.bot.con.one(f"select rcon_connections from guild_config where guild_id = {ctx.guild.id}"))
+                rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
                 error = 0
                 error_msg = ''
                 success_msg = 'Adding to the running whitelist on all servers.'
@@ -332,7 +332,7 @@ class rcon():
         If a server is not specified it will default to running saveworld on all servers in the guild\'s config.
         Will print out "World Saved" for each server when the command completes sucessfully.'''
         if checks.is_rcon_admin(self.bot, ctx):
-            rcon_connections = json.loads(self.bot.con.one(f"select rcon_connections from guild_config where guild_id = {ctx.guild.id}"))
+            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
             success_msg = 'Running saveworld'
             if server == None:
                 success_msg += ' on all the servers:'
@@ -376,7 +376,7 @@ class rcon():
         The message will be prefixed with the Discord name of the person running the command.
         Will print "Success" for each server once the broadcast is sent.'''
         if checks.is_rcon_admin(self.bot, ctx):
-            rcon_connections = json.loads(self.bot.con.one(f"select rcon_connections from guild_config where guild_id = {ctx.guild.id}"))
+            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
             if message != None:
                 message = f'{ctx.author.display_name}: {message}'
                 success_msg = f'Broadcasting "{message}" to all servers.'
@@ -408,7 +408,7 @@ class rcon():
         The message will be prefixed with the Discord name of the person running the command.
         If <server> has more than one word in it's name it will either need to be sorrounded by double quotes or the words seperated by _'''
         if checks.is_rcon_admin(self.bot, ctx):
-            rcon_connections = json.loads(self.bot.con.one(f"select rcon_connections from guild_config where guild_id = {ctx.guild.id}"))
+            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
             if server != None:
                 server = server.replace('_',' ').title()
                 if message != None:
@@ -440,7 +440,7 @@ class rcon():
         Inside this category a channel will be created for each server in the current guild's rcon config and these channel's permissions will be synced to the category.
         These channels will be added to the guild's rcon config and are where the server chat messages will be sent when monitor_chat is run.'''
         if checks.is_rcon_admin(self.bot, ctx):
-            rcon_connections = json.loads(self.bot.con.one(f"select rcon_connections from guild_config where guild_id = {ctx.guild.id}"))
+            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
             edited = 0
             category = discord.utils.get(ctx.guild.categories, name='Server Chats')
             if category == None:
@@ -463,7 +463,7 @@ class rcon():
                     rcon_connections[server]['game_chat_chan_id'] = chan.id
                     edited = 1
             if edited == 1:
-                self.bot.con.run(f"update guild_config set rcon_connections = '{json.dumps(rcon_connections)}' where guild_id = {ctx.guild.id}")
+                self.bot.con.run('update guild_config set rcon_connections = %(json)s where guild_id = %(id)s', {'id':ctx.guild.id, 'json': json.dumps(rcon_connections)})
             await ctx.message.add_reaction('✅')
         else:
             await ctx.send(f'You are not authorized to run this command.')
@@ -473,7 +473,7 @@ class rcon():
     @commands.check(checks.is_restricted_chan)
     async def list_ark_servers(self, ctx):
         '''Returns a list of all the ARK servers in the current guild\'s config.'''
-        servers = json.loads(self.bot.con.one(f"select rcon_connections from guild_config where guild_id = {ctx.guild.id}"))
+        servers = json.loads(self.bot.con.one('select rcon_connections from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
         em = discord.Embed( style='rich',
                             title=f'__**There are currently {len(servers)} ARK servers in my config:**__',
                             color=discord.Colour.green()

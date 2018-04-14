@@ -144,7 +144,7 @@ class utils():
         time = (msg.created_at - time1).total_seconds() * 1000
         em.description = f'Response Time: **{math.ceil(time)}ms**\nDiscord Latency: **{math.ceil(self.bot.latency*1000)}ms**'
         await msg.edit(embed=em)
-        
+
         if mode == 'comp':
             try:
                 count = int(count)
@@ -229,7 +229,7 @@ class utils():
 
         If a user runs this command it will return all the requests that they have submitted and are still open.
             - The [assigned_to] argument is ignored but will still give an error if an incorrect value is entered.
-        
+
         If an admin runs this command it will return all the open requests for this guild.
             - If the [assigned_to] argument is included it will instead return all open requests that are assigned to the specified admin.
         '''
@@ -369,7 +369,7 @@ class utils():
         def is_me(message):
             if message.author == self.bot.user:
                 return True
-            prefixes = self.bot.con.one(f'select prefix from guild_config where guild_id = {ctx.guild.id}')
+            prefixes = self.bot.con.one('select prefix from guild_config where guild_id = %(id)s', {'id':ctx.guild.id})
             if prefixes:
                 for prefix in prefixes:
                     if message.content.startswith(prefix):

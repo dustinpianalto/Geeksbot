@@ -94,7 +94,7 @@ class bot_events():
             if ctx.author != ctx.guild.me:
                 if self.bot.con.one(f"select pg_filter from guild_config where guild_id = {ctx.guild.id}"):
                     profane = 0
-                    for word in self.bot.con.one(f'select profane_words from guild_config where guild_id = {ctx.guild.id}'):
+                    for word in self.bot.con.one('select profane_words from guild_config where guild_id = {ctx.guild.id}'):
                         word = word.strip()
                         if word in ctx.content.lower():
                             events_log.info(f'Found non PG word {word}')
@@ -121,15 +121,15 @@ class bot_events():
             await react.message.channel.send(f"You can't Poop on me {user.mention} :P")
         reactions = react.message.reactions
         reacts = [json.dumps({'emoji': r.emoji, 'count': r.count}) for r in reactions]
-        self.bot.con.run(f'update messages set reactions = %(reacts)s where id = {react.message.id}', {'reacts': reacts})
+        self.bot.con.run('update messages set reactions = %(reacts)s where id = {react.message.id}', {'reacts': reacts})
 
     async def on_message_edit(self, before, ctx):
-        previous_content = self.bot.con.one(f'select previous_content from messages where id = {ctx.id}')
+        previous_content = self.bot.con.one('select previous_content from messages where id = {ctx.id}')
         if previous_content:
             previous_content.append(before.content)
         else:
             previous_content = [before.content]
-        previous_embeds = self.bot.con.one(f'select previous_embeds from messages where id = {ctx.id}')
+        previous_embeds = self.bot.con.one('select previous_embeds from messages where id = {ctx.id}')
         if previous_embeds:
             previous_embeds.append([json.dumps(e.to_dict()) for e in before.embeds])
         else:
@@ -184,12 +184,12 @@ class bot_events():
         # await guild.owner.send(f'Geeksbot has joined your guild {guild.name}!\nYour current configuration is:\n```{config_str}```\nEnjoy!')
 
     async def on_guild_remove(self, guild):
-        self.bot.con.run(f'delete from guild_config where guild_id = {guild.id}')
+        self.bot.con.run(f'delete from guild_config where guild_id = %(id)s', {'id':ctx.guild.id})
         events_log.info(f'Left the {guild.name} guild.')
 
     async def on_member_join(self, member):
         events_log.info(f'Member joined: {member.name} {member.id} Guild: {member.guild.name} {member.guild.id}')
-        join_chan = self.bot.con.one(f'select join_leave_chat from guild_config where guild_id = {member.guild.id}')
+        join_chan = self.bot.con.one('select join_leave_chat from guild_config where guild_id = %(id)s', {'id':member.guild.id})
         if join_chan:
             em = discord.Embed( style='rich',
                                 color=embed_color
@@ -205,22 +205,22 @@ class bot_events():
                     'discriminator': member.discriminator,
                     'bot': member.bot
                     }
-        mem = self.bot.con.one(f'select guilds,nicks from user_data where id = {member.id}')
+        mem = self.bot.con.one('select guilds,nicks from user_data where id = {member.id}')
         if mem:
             mem[1].append(json.dumps({member.guild.id: member.display_name}))
             mem[0].append(member.guild.id)
             mem_data['nicks'] = mem[1]
             mem_data['guilds'] = mem[0]
-            self.bot.con.run(f'update user_data set (name, discriminator, bot, nicks, guilds) = (%(name)s, %(discriminator)s, %(bot)s, %(nicks)s, %(guilds)s) where id = %(id)s',mem_data)
+            self.bot.con.run('update user_data set (name, discriminator, bot, nicks, guilds) = (%(name)s, %(discriminator)s, %(bot)s, %(nicks)s, %(guilds)s) where id = %(id)s',mem_data)
         else:
             mem_data['nicks'] = [json.dumps({member.guild.id: member.display_name})]
             mem_data['guilds'] = [member.guild.id]
-            self.bot.con.run(f'insert into user_data (id, name, discriminator, bot, nicks, guilds) values (%(id)s, %(name)s, %(discriminator)s, %(bot)s, %(nicks)s, %(guilds)s)',mem_data)            
+            self.bot.con.run('insert into user_data (id, name, discriminator, bot, nicks, guilds) values (%(id)s, %(name)s, %(discriminator)s, %(bot)s, %(nicks)s, %(guilds)s)',mem_data)
 
     async def on_member_remove(self, member):
         leave_time = datetime.utcnow()
         events_log.info(f'Member left: {member.name} {member.id} Guild: {member.guild.name} {member.guild.id}')
-        join_chan = self.bot.con.one(f'select join_leave_chat from guild_config where guild_id = {member.guild.id}')
+        join_chan = self.bot.con.one('select join_leave_chat from guild_config where guild_id = %(id)s', {'id':member.guild.id})
         if join_chan:
             em = discord.Embed( style='rich',
                                 color=red_color
