@@ -114,7 +114,7 @@ async def on_message(ctx):
     if not ctx.author.bot:
         if ctx.guild:
             if int(bot.con.one(f"select channel_lockdown from guild_config where guild_id = %(id)s", {'id':ctx.guild.id})):
-                if ctx.channel.id in json.loads(bot.con.one(f"select allowed_channels from guild_config where guild_id = %(id)s", {'id':ctx.guild.id}))):
+                if ctx.channel.id in json.loads(bot.con.one(f"select allowed_channels from guild_config where guild_id = %(id)s", {'id':ctx.guild.id})):
                     await bot.process_commands(ctx)
             elif ctx.channel.id == 418452585683484680:
                 prefix = bot.con.one('select prefix from guild_config where guild_id = %(id)s", {'id':ctx.guild.id}))
