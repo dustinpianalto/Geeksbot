@@ -85,7 +85,7 @@ class admin():
     @commands.command(hidden=True)
     @commands.check(checks.is_guild_owner)
     async def get_guild_config(self, ctx):
-        config = self.bot.con.one('select * from guild_config where guild_id = %(id)s', {'id':ctx.guild.id}))
+        config = self.bot.con.one('select * from guild_config where guild_id = %(id)s', {'id':ctx.guild.id})
         configs = [str(config)[i:i+1990] for i in range(0, len(config), 1990)]
         await ctx.message.author.send(f'The current config for the {ctx.guild.name} guild is:\n')
         admin_log.info(configs)
