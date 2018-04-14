@@ -50,7 +50,7 @@ class Geeksbot(commands.Bot):
         with open(f'{config_dir}{bot_config_file}') as file:
             self.bot_config = json.load(file)
         with open(f'{config_dir}{secrets_file}') as file:
-            self.bot_secrets = son.load(file)
+            self.bot_secrets = json.load(file)
         # with open(f'{config_dir}{profane_words_file}') as file:
         #     self.profane_words = file.readlines()
         self.guild_config = {}
