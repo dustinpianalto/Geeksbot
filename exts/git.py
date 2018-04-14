@@ -1,5 +1,5 @@
 import discord
-from discord.exts import commands
+from discord.ext import commands
 import os
 from .imports.utils import paginate, run_command
 
