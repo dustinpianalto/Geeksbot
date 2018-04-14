@@ -27,7 +27,7 @@ class Git():
         em.set_thumbnail(url=f'{ctx.guild.me.avatar_url}')
         result = await asyncio.wait_for(self.bot.loop.create_task(run_command('git','fetch','--all')),10) + '\n'
         result += await asyncio.wait_for(self.bot.loop.create_task(run_command('git','reset','--hard','origin/master')),10) + '\n'
-        result += await asyncio.wait_for(self.bot.loop.create_task(run_command('git','show','--stat')),10)
+        result += await asyncio.wait_for(self.bot.loop.create_task(run_command('git','show','--stat','|','sed','"s/.*@.*[.].*/<email>/g"')),10)
         results = paginate(result, maxlen=1014)
         for page in results[:5]:
             em.add_field(name='￲', value=f'{page}')
