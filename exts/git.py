@@ -27,11 +27,11 @@ class Git():
         em.set_thumbnail(url=f'{ctx.guild.me.avatar_url}')
         result = await asyncio.wait_for(self.bot.loop.create_task(run_command('git','fetch','--all')),10)
         results = paginate(result, maxlen=1014)
-        for page in results[0]:
+        for page in results[:1]:
             em.add_field(name='￲', value=f'```{page}```')
-        result = await asyncio.wait_for(self.bot.loop.create_task(run_command('git','reset','--hard','origin/$(git rev-parse --symbolic-full-name --abbrev-ref HEAD)')),10)
+        result = await asyncio.wait_for(self.bot.loop.create_task(run_command('git','reset','--hard','origin/master')),10)
         results = paginate(result, maxlen=1014)
-        for page in results[0]:
+        for page in results[:1]:
             em.add_field(name='￲', value=f'```{page}```')
         result = await asyncio.wait_for(self.bot.loop.create_task(run_command('git','show','--stat')),10)
         results = paginate(result, maxlen=1014)
