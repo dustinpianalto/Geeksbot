@@ -76,7 +76,7 @@ class REPL():
                         await ctx.send(page)
             else:
                 self._last_result = ret
-                if value:                
+                if value:
                     for page in paginate(value):
                         await ctx.send(page)
                 for page in paginate(ret):
@@ -160,7 +160,7 @@ class REPL():
             return
         try:
             body = self.cleanup_code(body).split(' ')
-            result = await asyncio.wait_for(self.bot.loop.create_task(run_command(*body)),10)
+            result = await asyncio.wait_for(self.bot.loop.create_task(run_command(body)),10)
             value = result
             for page in paginate(value):
                 await ctx.send(page)

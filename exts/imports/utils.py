@@ -77,8 +77,8 @@ def paginate(text, maxlen=1990):
 
 async def run_command(*args):
     # Create subprocess
-    process = await asyncio.create_subprocess_exec(
-        *args,
+    process = await asyncio.create_subprocess_shell(
+        args,
         # stdout must a pipe to be accessible as process.stdout
         stdout=asyncio.subprocess.PIPE)
     # Wait for the subprocess to finish
