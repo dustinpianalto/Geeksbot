@@ -25,7 +25,7 @@ class Git():
                             title=f'Git Pull',
                             color=embed_color)
         em.set_thumbnail(url=f'{ctx.guild.me.avatar_url}')
-        result = await asyncio.wait_for(self.bot.loop.create_task(run_command('git pull')),10)
+        result = await asyncio.wait_for(self.bot.loop.create_task(run_command('git','pull')),10)
         em.add_field(name='Results:', value=f'```{result}```')
         await ctx.send(embed=em)
 
@@ -36,7 +36,7 @@ class Git():
                             title=f'Git Pull',
                             color=embed_color)
         em.set_thumbnail(url=f'{ctx.guild.me.avatar_url}')
-        result = await asyncio.wait_for(self.bot.loop.create_task(run_command('git status')),10)
+        result = await asyncio.wait_for(self.bot.loop.create_task(run_command('git','status')),10)
         em.add_field(name='Results:', value=f'```{result}```')
         await ctx.send(embed=em)
 
