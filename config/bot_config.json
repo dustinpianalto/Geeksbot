@@ -1,0 +1,11 @@
+{
+    "load_list": [
+        "admin",
+        "events",
+        "rcon",
+        "repl",
+        "patreon",
+        "fun",
+        "utils"
+    ]
+}

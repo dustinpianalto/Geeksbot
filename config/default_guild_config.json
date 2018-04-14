@@ -1,0 +1,8 @@
+{
+    "rcon_enabled" : false,
+    "channel_lockdown" : false,
+    "raid_status" : 0,
+    "pg_filter" : true,
+    "patreon_enabled" : false,
+    "referral_enabled" : false
+}
