@@ -6,6 +6,7 @@
         "repl",
         "patreon",
         "fun",
-        "utils"
+        "utils",
+        "git"
     ]
 }
