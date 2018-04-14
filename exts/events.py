@@ -175,8 +175,18 @@ class bot_events():
         default_config['name'] = guild.name.replace("'","\\'")
         default_config['guild_id'] = guild.id
         events_log.info(default_config)
-        self.bot.con.run(f"insert into guild_config(guild_id,guild_name,admin_roles,rcon_enabled,channel_lockdown,raid_status,pg_filter,patreon_enabled,referral_enabled)\
-                            values ({default_config['guild_id']},E'{default_config['name']}','{json.dumps(default_config['admin_roles'])}',{default_config['rcon_enabled']},{default_config['channel_lockdown']},{default_config['raid_status']},{default_config['pg_filter']},{default_config['patreon_enabled']},{default_config['referral_enabled']})")
+        self.bot.con.run("insert into guild_config(guild_id,guild_name,admin_roles,rcon_enabled,channel_lockdown,raid_status,pg_filter,patreon_enabled,referral_enabled)\
+                            values (%(guild_id)s,%(name)s,%(admin_roles)s,%(rcon_enabled)s,%(channel_lockdown)s,%(raid_status)s,%(pg_filter)s,%(patreon_enabled)s,%(referral_enabled)s)",
+                            {'guild_id': default_config['guild_id'],
+                            'name': default_config['name'],
+                            'admin_roles': json.dumps(default_config['admin_roles']),
+                            'rcon_enabled': default_config['rcon_enabled'],
+                            'channel_lockdown': default_config['channel_lockdown'],
+                            'raid_status': default_config['raid_status'],
+                            'pg_filter': default_config['pg_filter'],
+                            'patreon_enabled': default_config['patreon_enabled'],
+                            'referral_enabled': default_config['referral_enabled']
+                            })
         events_log.info(f'Entry Created for {guild.name}')
         config_str = self._get_config_string(default_config)
         self.bot.recent_msgs[guild.id] = deque(maxlen=50)
