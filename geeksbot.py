@@ -35,6 +35,7 @@ profane_words_file = 'profane_words'
 emojis = {
     'x': '❌',
     'y': '✅',
+    'poop': '💩',
 }
 
 
