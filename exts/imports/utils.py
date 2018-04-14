@@ -57,9 +57,9 @@ def to_list_of_str(items, out:list=[], level=1, recurse=0):
 
     return out
 
-def paginate(text):
+def paginate(text, maxlen=1990):
     data = []
-    paginator = Paginator(prefix='```py')
+    paginator = Paginator(prefix='```py', max_size=maxlen+10)
     if type(text) == list:
         data = to_list_of_str(text)
     elif type(text) == dict:
@@ -67,8 +67,8 @@ def paginate(text):
     else:
         data = str(text).split('\n')
     for line in data:
-        if len(line) > 1900:
-            n = 1900
+        if len(line) > maxlen:
+            n = maxlen
             for l in [line[i:i+n] for i in range(0, len(line), n)]:
                 paginator.add_line(l)
         else:
