@@ -64,7 +64,7 @@ class Geeksbot(commands.Bot):
         self.gcs_service = build('customsearch', 'v1', developerKey='AIzaSyAfGHj5alDWMsnVMeGUD53dI0RQij94PU4')
 
     async def command_prefix(self, bot, message):
-        return self.con.one(f'select prefix from guild_config where guild_id = {message.guild.id}') or self.default_prefix
+        return self.con.one(f'select prefix from guild_config where guild_id = %(id)s', {'id': message.guild.id}) or self.default_prefix
 
     async def load_ext(self, ctx, mod):
         bot.load_extension('{0}.{1}'.format(extension_dir,mod))
