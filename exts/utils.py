@@ -60,18 +60,14 @@ class Utils:
         ```''')
 
     @commands.command(hidden=True)
-    async def role(self, ctx, role):
+    async def role(self, ctx, role: str):
         if ctx.guild.id == 396156980974059531 and role != 'Admin' and role != 'Admin Geeks':
-            try:
-                role = discord.utils.get(ctx.guild.roles, name=role)
-            except Exception:
-                await ctx.send('Unknown Role')
+            role = discord.utils.get(ctx.guild.roles, name=role)
+            if role is not None:
+                await ctx.message.author.add_roles(role)
+                await ctx.send("Roles Updated")
             else:
-                if role is not None:
-                    await ctx.message.author.add_roles(role)
-                    await ctx.send("Roles Updated")
-                else:
-                    await ctx.send('Unknown Role')
+                await ctx.send('Unknown Role')
         else:
             await ctx.send("You are not authorized to send this command.")
 
@@ -187,7 +183,7 @@ class Utils:
         if mode == 'comp':
             try:
                 count = int(count)
-            except Exception:
+            except ValueError:
                 await ctx.send('Not a valid count. Must be a whole number.')
             else:
                 if count > 24:
@@ -364,7 +360,7 @@ class Utils:
                 for request_id in request_ids:
                     try:
                         request_id = int(request_id)
-                    except Exception:
+                    except ValueError:
                         await ctx.send(f'{request_id} is not a valid request id.')
                     else:
                         request = self.bot.con.one(f'select * from admin_requests where id = %(request_id)s',
