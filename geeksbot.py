@@ -70,13 +70,11 @@ class Geeksbot(commands.Bot):
         return self.con.one('select prefix from guild_config where guild_id = %(id)s', {'id': message.guild.id})\
                or self.default_prefix
 
-    @staticmethod
     async def load_ext(self, ctx, mod=None):
         self.load_extension('{0}.{1}'.format(extension_dir, mod))
         if ctx is not None:
             await ctx.send('{0} loaded.'.format(mod))
 
-    @staticmethod
     async def unload_ext(self, ctx, mod=None):
         self.unload_extension('{0}.{1}'.format(extension_dir, mod))
         if ctx is not None:
