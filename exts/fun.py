@@ -2,8 +2,8 @@ import discord
 from discord.ext import commands
 import logging
 from datetime import datetime
-import json, asyncio
-import os, re, aiohttp, async_timeout
+import asyncio
+import youtube_dl
 
 config_dir = 'config/'
 admin_id_file = 'admin_ids'
@@ -12,7 +12,7 @@ owner_id = 351794468870946827
 guild_config_dir = 'guild_config/'
 rcon_config_file = 'server_rcon_config'
 dododex_url = 'http://www.dododex.com'
-embed_color = discord.Colour.from_rgb(49,107,111)
+embed_color = discord.Colour.from_rgb(49, 107, 111)
 bot_config_file = 'bot_config'
 default_guild_config_file = 'default_guild_config.json'
 emoji_guild = 408524303164899338
@@ -25,26 +25,29 @@ emojis = {
     'poop': '💩'
 }
 
-class fun():
+
+class Fun:
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
     @commands.cooldown(1, 30, type=commands.BucketType.user)
-    async def infect(self, ctx, member:discord.Member, emoji):
+    async def infect(self, ctx, member: discord.Member, emoji):
         if member.id == self.bot.user.id and ctx.author.id != owner_id:
             await ctx.send(f'You rolled a Critical Fail...\nInfection bounces off and rebounds on the attacker.')
             member = ctx.author
         if member in self.bot.infected:
-            await ctx.send(f'{member.display_name} is already infected. Please wait until they are healed before infecting them again...')
+            await ctx.send(f'{member.display_name} is already infected. '
+                           f'Please wait until they are healed before infecting them again...')
         else:
-            emoji = self.bot.get_emoji(int(emoji.split(':')[2].strip('>'))) if '<:' in emoji or '<a:' in emoji else emoji
-            self.bot.infected[member] = [emoji,datetime.now().timestamp()]
+            emoji = self.bot.get_emoji(int(emoji.split(':')[2].strip('>'))) if '<:' in emoji \
+                                                                               or '<a:' in emoji else emoji
+            self.bot.infected[member] = [emoji, datetime.now().timestamp()]
             await ctx.send(f"{member.display_name} has been infected with {emoji}")
 
     @commands.command()
     @commands.cooldown(1, 5, type=commands.BucketType.user)
-    async def heal(self, ctx, member:discord.Member):
+    async def heal(self, ctx, member: discord.Member):
         if ctx.author == member and ctx.author.id != owner_id:
             await ctx.send('You can\'t heal yourself silly...')
         else:
@@ -61,17 +64,19 @@ class fun():
 
     @commands.command()
     @commands.cooldown(1, 5, type=commands.BucketType.user)
-    async def slap(self, ctx, member:discord.Member):
+    async def slap(self, ctx, member: discord.Member):
         if member.id == self.bot.user.id and ctx.author.id != owner_id:
             await ctx.send(f'You rolled a Critical Fail...\nThe trout bounces off and rebounds on the attacker.')
-            member = ctx.author
-            await ctx.send(f'{ctx.author.mention} You slap yourself in the face with a large trout <:trout:408543365085397013>')
+            await ctx.send(f'{ctx.author.mention} '
+                           f'You slap yourself in the face with a large trout <:trout:408543365085397013>')
         else:
-            await ctx.send(f'{ctx.author.display_name} slaps {member.mention} around a bit with a large trout <:trout:408543365085397013>')
+            await ctx.send(f'{ctx.author.display_name} slaps '
+                           f'{member.mention} around a bit with a large trout <:trout:408543365085397013>')
 
-    def get_factorial(self,number):
+    @staticmethod
+    def get_factorial(number):
         a = 1
-        for i in range(1,int(number)):
+        for i in range(1, int(number)):
             a = a * (i + 1)
         return a
 
@@ -103,8 +108,11 @@ class fun():
             self.bot.voice_chans[ctx.author.voice.channel.name] = await ctx.author.voice.channel.connect()
             asyncio.sleep(5)
         if url:
-            import youtube_dl
-            opts = {"format": 'webm[abr>0]/bestaudio/best',"ignoreerrors": True,"default_search": "auto","source_address": "0.0.0.0",'quiet': True}
+            opts = {"format": 'webm[abr>0]/bestaudio/best',
+                    "ignoreerrors": True,
+                    "default_search": "auto",
+                    "source_address": "0.0.0.0",
+                    'quiet': True}
             ydl = youtube_dl.YoutubeDL(opts)
             info = ydl.extract_info(url, download=False)
             self.bot.player = discord.FFmpegPCMAudio(info['url'])
@@ -135,9 +143,9 @@ class fun():
 
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def volume(self, ctx, volume:float):
+    async def volume(self, ctx, volume: float):
         self.bot.player.volume = volume
 
 
 def setup(bot):
-    bot.add_cog(fun(bot))
+    bot.add_cog(Fun(bot))

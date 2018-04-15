@@ -1,11 +1,10 @@
-import discord
+from typing import Dict
+
 from discord.ext import commands
 import logging
 from datetime import datetime
-import json, asyncio
-from srcds import rcon as rcon_con
-import re, aiohttp, async_timeout
-from bs4 import BeautifulSoup as bs
+import json
+import aiohttp
 from postgres import Postgres
 from collections import deque
 from googleapiclient.discovery import build
@@ -32,15 +31,14 @@ bot_config_file = 'bot_config.json'
 secrets_file = 'bot_secrets.json'
 profane_words_file = 'profane_words'
 
-emojis = {
+emojis: Dict[str, str] = {
     'x': '❌',
     'y': '✅',
     'poop': '💩',
 }
 
-
-
 description = 'I am Geeksbot! Fear me!'
+
 
 class Geeksbot(commands.Bot):
     def __init__(self, **kwargs):
@@ -57,24 +55,31 @@ class Geeksbot(commands.Bot):
         self.infected = {}
         self.TOKEN = self.bot_secrets['token']
         del self.bot_secrets['token']
-        self.con = Postgres(f"host={self.bot_secrets['db_con']['host']} port={self.bot_secrets['db_con']['port']} dbname={self.bot_secrets['db_con']['db_name']} connect_timeout=10 user={self.bot_secrets['db_con']['user']} password={self.bot_secrets['db_con']['password']}")
+        self.con = Postgres(f"  host={self.bot_secrets['db_con']['host']}\
+                                port={self.bot_secrets['db_con']['port']}\
+                                dbname={self.bot_secrets['db_con']['db_name']}\
+                                connect_timeout=10 user={self.bot_secrets['db_con']['user']}\
+                                password={self.bot_secrets['db_con']['password']}")
         del self.bot_secrets['db_con']
         self.default_prefix = 'g$'
         self.voice_chans = {}
         self.spam_list = {}
         self.gcs_service = build('customsearch', 'v1', developerKey=self.bot_secrets['google_search_key'])
 
-    async def get_custom_prefix(self, bot, message):
-        return self.con.one('select prefix from guild_config where guild_id = %(id)s', {'id': message.guild.id}) or self.default_prefix
+    async def get_custom_prefix(self, bot_inst, message):
+        return self.con.one('select prefix from guild_config where guild_id = %(id)s', {'id': message.guild.id})\
+               or self.default_prefix
 
-    async def load_ext(self, ctx, mod):
-        bot.load_extension('{0}.{1}'.format(extension_dir,mod))
-        if ctx != None:
+    @staticmethod
+    async def load_ext(self, ctx, mod=None):
+        self.load_extension('{0}.{1}'.format(extension_dir, mod))
+        if ctx is not None:
             await ctx.send('{0} loaded.'.format(mod))
 
-    async def unload_ext(self, ctx, mod):
-        bot.unload_extension('{0}.{1}'.format(extension_dir,mod))
-        if ctx != None:
+    @staticmethod
+    async def unload_ext(self, ctx, mod=None):
+        self.unload_extension('{0}.{1}'.format(extension_dir, mod))
+        if ctx is not None:
             await ctx.send('{0} unloaded.'.format(mod))
 
     async def close(self):
@@ -84,40 +89,47 @@ class Geeksbot(commands.Bot):
 
 bot = Geeksbot(description=description, case_insensitive=True)
 
+
 @bot.command(hidden=True)
 @commands.is_owner()
-async def load(ctx, mod):
-    'Allows the owner to load extensions dynamically'
+async def load(ctx, mod=None):
+    """Allows the owner to load extensions dynamically"""
     await bot.load_ext(ctx, mod)
+
 
 @bot.command(hidden=True)
 @commands.is_owner()
 async def reload(ctx, mod=None):
-    '''Allows the owner to reload extensions dynamically'''
+    """Allows the owner to reload extensions dynamically"""
     if mod == 'all':
         load_list = bot.bot_config['load_list']
         for load_item in load_list:
-            await bot.unload_ext(ctx,f'{load_item}')
-            await bot.load_ext(ctx,f'{load_item}')
+            await bot.unload_ext(ctx, f'{load_item}')
+            await bot.load_ext(ctx, f'{load_item}')
     else:
         await bot.unload_ext(ctx, mod)
         await bot.load_ext(ctx, mod)
 
+
 @bot.command(hidden=True)
 @commands.is_owner()
 async def unload(ctx, mod):
-    'Allows the owner to unload extensions dynamically'
+    """Allows the owner to unload extensions dynamically"""
     await bot.unload_ext(ctx, mod)
+
 
 @bot.event
 async def on_message(ctx):
     if not ctx.author.bot:
         if ctx.guild:
-            if int(bot.con.one(f"select channel_lockdown from guild_config where guild_id = %(id)s", {'id':ctx.guild.id})):
-                if ctx.channel.id in json.loads(bot.con.one(f"select allowed_channels from guild_config where guild_id = %(id)s", {'id':ctx.guild.id})):
+            if int(bot.con.one(f"select channel_lockdown from guild_config where guild_id = %(id)s",
+                               {'id': ctx.guild.id})):
+                if ctx.channel.id in json.loads(bot.con.one(f"select allowed_channels from guild_config "
+                                                            f"where guild_id = %(id)s",
+                                                            {'id': ctx.guild.id})):
                     await bot.process_commands(ctx)
             elif ctx.channel.id == 418452585683484680:
-                prefix = bot.con.one('select prefix from guild_config where guild_id = %(id)s', {'id':ctx.guild.id})
+                prefix = bot.con.one('select prefix from guild_config where guild_id = %(id)s', {'id': ctx.guild.id})
                 prefix = prefix[0] if prefix else bot.default_prefix
                 ctx.content = f'{prefix}{ctx.content}'
                 await bot.process_commands(ctx)
@@ -125,6 +137,7 @@ async def on_message(ctx):
                 await bot.process_commands(ctx)
         else:
             await bot.process_commands(ctx)
+
 
 @bot.event
 async def on_ready():
@@ -134,7 +147,7 @@ async def on_ready():
     logging.info('Logged in as {0.name}|{0.id}'.format(bot.user))
     load_list = bot.bot_config['load_list']
     for load_item in load_list:
-        await bot.load_ext(None,f'{load_item}')
+        await bot.load_ext(None, f'{load_item}')
         logging.info('Extension Loaded: {0}'.format(load_item))
     logging.info('Done loading, Geeksbot is active.')
     with open(f'{config_dir}reboot', 'r') as f:

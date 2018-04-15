@@ -1,5 +1,7 @@
 from io import StringIO
-import sys, asyncio
+import sys
+import asyncio
+import discord
 from discord.ext.commands.formatter import Paginator
 from . import checks
 
@@ -9,20 +11,23 @@ class Capturing(list):
         self._stdout = sys.stdout
         sys.stdout = self._stringio = StringIO()
         return self
+
     def __exit__(self, *args):
         self.extend(self._stringio.getvalue().splitlines())
         del self._stringio    # free up some memory
         sys.stdout = self._stdout
 
+
 async def mute(bot, ctx, admin=0, member_id=None):
-    mute_role = self.bot.con.one(f'select muted_role from guild_config where guild_id = {ctx.guild.id}')
-    if muted_role:
+    mute_role = bot.con.one(f'select muted_role from guild_config where guild_id = {ctx.guild.id}')
+    if mute_role:
         if admin or checks.is_admin(bot, ctx):
             if ctx.guild.me.guild_permissions.manage_roles:
-                if member:
+                if member_id:
                     ctx.guild.get_member(member_id).edit(roles=[discord.utils.get(ctx.guild.roles, id=mute_role)])
 
-def to_list_of_str(items, out:list=[], level=1, recurse=0):
+
+def to_list_of_str(items, out: list=list(), level=1, recurse=0):
     def rec_loop(item, key, out, level):
         quote = '"'
         if type(item) == list:
@@ -40,7 +45,7 @@ def to_list_of_str(items, out:list=[], level=1, recurse=0):
 
     if type(items) == list:
         if not recurse:
-            out = []
+            out = list()
             out.append('[')
         for item in items:
             rec_loop(item, None, out, level)
@@ -48,7 +53,7 @@ def to_list_of_str(items, out:list=[], level=1, recurse=0):
             out.append(']')
     elif type(items) == dict:
         if not recurse:
-            out = []
+            out = list()
             out.append('{')
         for key in items:
             rec_loop(items[key], key, out, level)
@@ -57,8 +62,8 @@ def to_list_of_str(items, out:list=[], level=1, recurse=0):
 
     return out
 
+
 def paginate(text, maxlen=1990):
-    data = []
     paginator = Paginator(prefix='```py', max_size=maxlen+10)
     if type(text) == list:
         data = to_list_of_str(text)
@@ -74,6 +79,7 @@ def paginate(text, maxlen=1990):
         else:
             paginator.add_line(line)
     return paginator.pages
+
 
 async def run_command(args):
     # Create subprocess

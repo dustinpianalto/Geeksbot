@@ -1,8 +1,5 @@
 
 from discord.ext import commands
-import time
-import datetime
-import math
 import asyncio
 import traceback
 import discord
@@ -10,28 +7,28 @@ import inspect
 import textwrap
 from contextlib import redirect_stdout
 import io
-import os, sys
-import subprocess
-import async_timeout
 from .imports.utils import paginate, run_command
 
-ownerids = [351794468870946827,275280442884751360]
+ownerids = [351794468870946827, 275280442884751360]
 ownerid = 351794468870946827
 
-class REPL():
+
+class Repl:
 
     def __init__(self, bot):
         self.bot = bot
         self._last_result = None
         self.sessions = set()
 
-    def cleanup_code(self, content):
-        'Automatically removes code blocks from the code.'
+    @staticmethod
+    def cleanup_code(content):
+        """Automatically removes code blocks from the code."""
         if content.startswith('```') and content.endswith('```'):
             return '\n'.join(content.split('\n')[1:(- 1)])
         return content.strip('` \n')
 
-    def get_syntax_error(self, e):
+    @staticmethod
+    def get_syntax_error(e):
         if e.text is None:
             return '```py\n{0.__class__.__name__}: {0}\n```'.format(e)
         return '```py\n{0.text}{1:>{0.offset}}\n{2}: {0}```'.format(e, '^', type(e).__name__)
@@ -61,14 +58,14 @@ class REPL():
         try:
             with redirect_stdout(stdout):
                 ret = await func()
-        except Exception as e:
+        except Exception:
             value = stdout.getvalue()
             await ctx.send('```py\n{}{}\n```'.format(value, traceback.format_exc()))
         else:
             value = stdout.getvalue()
             try:
                 await ctx.message.add_reaction('✅')
-            except:
+            except Exception:
                 pass
             if ret is None:
                 if value:
@@ -131,7 +128,7 @@ class REPL():
                         result = executor(code, variables)
                         if inspect.isawaitable(result):
                             result = await result
-                except Exception as e:
+                except Exception:
                     value = stdout.getvalue()
                     fmt = '{}{}'.format(value, traceback.format_exc())
                 else:
@@ -160,7 +157,7 @@ class REPL():
             return
         try:
             body = self.cleanup_code(body).split(' ')
-            result = await asyncio.wait_for(self.bot.loop.create_task(run_command(body)),10)
+            result = await asyncio.wait_for(self.bot.loop.create_task(run_command(body)), 10)
             value = result
             for page in paginate(value):
                 await ctx.send(page)
@@ -171,5 +168,6 @@ class REPL():
                 await ctx.send(page)
             await ctx.message.add_reaction('❌')
 
+
 def setup(bot):
-    bot.add_cog(REPL(bot))
+    bot.add_cog(Repl(bot))
