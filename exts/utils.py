@@ -499,7 +499,7 @@ class Utils:
 
     @commands.command(name='google', aliases=['g', 'search'])
     async def google_search(self, ctx, *, search):
-        res = self.bot.gcs_service.cse().list(q=search, cx=self.bot.bot_secret['cx']).execute()
+        res = self.bot.gcs_service.cse().list(q=search, cx=self.bot.bot_secrets['cx']).execute()
         results = res['items'][:4]
         em = discord.Embed()
         em.title = f'Google Search'
@@ -516,7 +516,7 @@ class Utils:
                      'https://www.googleapis.com/auth/drive']
             credentials = ServiceAccountCredentials.from_json_keyfile_name('config/google_client_secret.json', scope)
             gc = gspread.authorize(credentials)
-            sh = gc.open_by_key(self.bot.bot_secret['sheet'])
+            sh = gc.open_by_key(self.bot.bot_secrets['sheet'])
             ws = sh.worksheet('Current Whitelist')
             names = ws.col_values('3')
             steam = ws.col_values('6')
