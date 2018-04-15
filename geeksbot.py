@@ -37,7 +37,7 @@ emojis: Dict[str, str] = {
     'poop': '💩',
 }
 
-description = 'I am Geeksbot! Fear me!'
+description = 'I am Geeksbot v0.1! Fear me!'
 
 
 class Geeksbot(commands.Bot):
