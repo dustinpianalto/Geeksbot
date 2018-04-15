@@ -128,7 +128,7 @@ class Rcon:
     @commands.command()
     @commands.guild_only()
     async def monitor_chat(self, ctx, *, server=None):
-        '''Begins monitoring the specified ARK server for chat messages and other events.
+        """Begins monitoring the specified ARK server for chat messages and other events.
         The specified server must already be in the current guild\'s configuration.
         To add and remove ARK servers from the guild see add_rcon_server and remove_rcon_server.
         The server argument is not case sensitive and if the server name has two
@@ -136,7 +136,7 @@ class Rcon:
         first last
         first_last
         "first last"
-        To view all the valid ARK servers for this guild see list_ark_servers.'''
+        To view all the valid ARK servers for this guild see list_ark_servers."""
         if checks.is_rcon_admin(self.bot, ctx):
             if server is not None:
                 rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config\
