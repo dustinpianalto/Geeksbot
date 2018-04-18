@@ -55,6 +55,7 @@ class Repl:
         except SyntaxError as e:
             return await ctx.send(self.get_syntax_error(e))
         func = env['func']
+        # noinspection PyBroadException
         try:
             with redirect_stdout(stdout):
                 ret = await func()
@@ -63,6 +64,7 @@ class Repl:
             await ctx.send('```py\n{}{}\n```'.format(value, traceback.format_exc()))
         else:
             value = stdout.getvalue()
+            # noinspection PyBroadException
             try:
                 await ctx.message.add_reaction('✅')
             except Exception:
@@ -123,6 +125,7 @@ class Repl:
                 variables['message'] = response
                 fmt = None
                 stdout = io.StringIO()
+                # noinspection PyBroadException
                 try:
                     with redirect_stdout(stdout):
                         result = executor(code, variables)

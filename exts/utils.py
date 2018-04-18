@@ -257,10 +257,10 @@ class Utils:
                                     admin_roles.append(i[j])
                         for role in admin_roles:
                             msg = '{0} {1}'.format(msg, discord.utils.get(ctx.guild.roles, id=role).mention)
-                        msg += f"""New Request ID: {request_id}
-                        {ctx.author.mention} has requested assistance:
-                        ```{request_msg}```
-                        Requested on: {datetime.strftime(ctx.message.created_at, '%Y-%m-%d at %H:%M:%S')} GMT"""
+                        msg += f"New Request ID: {request_id} " \
+                               f"{ctx.author.mention} has requested assistance: \n" \
+                               f"```{request_msg}``` \n" \
+                               f"Requested on: {datetime.strftime(ctx.message.created_at, '%Y-%m-%d at %H:%M:%S')} GMT"
                         await chan.send(msg)
                     await ctx.send('The Admin have received your request.')
                 else:
@@ -295,15 +295,13 @@ class Utils:
                     for request in requests:
                         member = discord.utils.get(ctx.guild.members, id=request[1])
                         admin = discord.utils.get(ctx.guild.members, id=request[2])
-                        title = f"""{'Request ID':^12}{'Requested By':^20}{'Assigned to':^20}
-                        {request[0]:^12}{member.display_name if member else 'None':^20}
-                        {admin.display_name if admin else 'None':^20}"""
+                        title = f"{'Request ID':^12}{'Requested By':^20}{'Assigned to':^20}\n" + \
+                                f"{request[0]:^12}{member.display_name if member else 'None':^20}" + \
+                                f"{admin.display_name if admin else 'None':^20}"
                         em.add_field(name='￲',
-                                     value=f"""```{title}
-                                     
-                                     {request[4]}
-                                     
-                                     Requested on: {datetime.strftime(request[5], '%Y-%m-%d at %H:%M:%S')} GMT```""",
+                                     value=f"```{title} \n\n"
+                                     f"{request[4]}\n\n"
+                                     f"Requested on: {datetime.strftime(request[5], '%Y-%m-%d at %H:%M:%S')} GMT```",
                                      inline=False)
                 else:
                     em.add_field(name='There are no pending requests for this guild.', value='￰', inline=False)
@@ -319,12 +317,12 @@ class Utils:
                             member = discord.utils.get(ctx.guild.members, id=request[1])
                             em.add_field(name=f"Request ID: {request[0]} Requested By:"
                                               f"{member.display_name if member else 'None'}",
-                                         value=f"""{request[4]}
-                                         Requested on: {datetime.strftime(request[5], '%Y-%m-%d at %H:%M:%S')} GMT
-                                         ￰""",
+                                         value=f"{request[4]} \n"
+                                         f"Requested on: {datetime.strftime(request[5], '%Y-%m-%d at %H:%M:%S')} GMT\n"
+                                         "￰",
                                          inline=False)
                     else:
-                        em.add_field(name=f'There are no pending requests for {assigned_to.display_name} this guild.',
+                        em.add_field(name=f'There are no pending requests for {assigned_to.display_name} on this guild.',
                                      value='￰',
                                      inline=False)
                 else:
@@ -339,9 +337,9 @@ class Utils:
                     admin = discord.utils.get(ctx.guild.members, id=request[2])
                     em.add_field(name=f"Request ID: {request[0]}"
                                       f"{' Assigned to: ' + admin.display_name if admin else ''}",
-                                 value=f"""{request[4]}
-                                 Requested on: {datetime.strftime(request[5], '%Y-%m-%d at %H:%M:%S')} GMT
-                                 ￰""",
+                                 value=f"{request[4]}\n"
+                                 f"Requested on: {datetime.strftime(request[5], '%Y-%m-%d at %H:%M:%S')} GMT\n"
+                                 "￰",
                                  inline=False)
             else:
                 em.add_field(name='You have no pending Admin Help requests.',

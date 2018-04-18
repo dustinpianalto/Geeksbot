@@ -336,7 +336,7 @@ class Rcon:
                                                                            rcon_connections[server],
                                                                            steam_ids)
                         except Exception as e:
-                            success_msg = '{0}\n{1}'.format(success_msg, e.strip())
+                            success_msg = '{0}\n{1}'.format(success_msg, e)
                             await msg.edit(content=success_msg.strip())
                         else:
                             for message in messages:
