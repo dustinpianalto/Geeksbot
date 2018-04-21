@@ -2,3 +2,4 @@ bot_secrets.json
 google_client_secret.json
 __pycache__/
 logs/*
+*.sh.swp
