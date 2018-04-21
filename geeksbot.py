@@ -58,7 +58,6 @@ class Geeksbot(commands.Bot):
         self.TOKEN = self.bot_secrets['token']
         del self.bot_secrets['token']
         self.db_con = None
-        del self.bot_secrets['db_con']
         self.default_prefix = 'g~'
         self.voice_chans = {}
         self.spam_list = {}
