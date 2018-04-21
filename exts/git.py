@@ -30,7 +30,7 @@ class Git:
         result += await asyncio.wait_for(self.bot.loop.create_task(run_command('git reset --hard '
                                                                                'origin/$(git '
                                                                                'rev-parse --symbolic-full-name'
-                                                                               '--abbrev-ref HEAD)')), 120) + '\n\n'
+                                                                               ' --abbrev-ref HEAD)')), 120) + '\n\n'
         result += await asyncio.wait_for(self.bot.loop.create_task(run_command('git show --stat | '
                                                                                'sed "s/.*@.*[.].*/ /g"')), 10)
         results = paginate(result, maxlen=1014)
