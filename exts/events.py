@@ -51,14 +51,13 @@ class BotEvents:
         return config_str
 
     async def on_raw_message_delete(self, msg_id, chan_id):
-        self.bot.con.run('update messages set deleted_at = %(time)s where id = %(id)s',
-                         {'time': datetime.utcnow(), 'id': msg_id})
+        await self.bot.db_con.execute('update messages set deleted_at = $1 where id = $2',
+                                      datetime.utcnow(), msg_id)
 
     async def on_raw_bulk_message_delete(self, msg_ids, chan_id):
-        sql = ''
+        sql = await self.bot.db_con.prepare('update messages set deleted_at = $1 where id = $2')
         for msg_id in msg_ids:
-            sql += f';update messages set deleted_at = %(time)s where id = {msg_id}'
-        self.bot.con.run(sql, {'time': datetime.utcnow()})
+            await sql.execute(datetime.utcnow(), msg_id)
 
     async def on_message(self, ctx):
         try:
@@ -81,7 +80,7 @@ class BotEvents:
                                      'filename': a.filename, 'url': a.url}) for a in ctx.attachments],
                     ctx.pinned, [json.dumps({'emoji': r.emoji, 'count': r.count}) for r in ctx.reactions],
                     ctx.guild.id, ctx.created_at, ctx.system_content, ctx.author.id]
-        await self.bot.db_con.execute(sql, msg_data)
+        await self.bot.db_con.execute(sql, *msg_data)
         if ctx.guild:
             if ctx.author != ctx.guild.me:
                 if self.bot.con.one(f"select pg_filter from guild_config where guild_id = {ctx.guild.id}"):
@@ -115,50 +114,34 @@ class BotEvents:
             await react.message.channel.send(f"You can't Poop on me {user.mention} :P")
         reactions = react.message.reactions
         reacts = [json.dumps({'emoji': r.emoji, 'count': r.count}) for r in reactions]
-        self.bot.con.run('update messages set reactions = %(reacts)s where id = %(id)s',
-                         {'id': react.message.id, 'reacts': reacts})
+        await self.bot.db_con.execute('update messages set reactions = $2 where id = $1',
+                                      react.message.id, reacts)
 
     async def on_message_edit(self, before, ctx):
-        previous_content = self.bot.con.one('select previous_content from messages where id = %(id)s', {'id': ctx.id})
+        previous_content = await self.bot.db_con.execute('select previous_content from messages where id = $1', ctx.id)
         if previous_content:
             previous_content.append(before.content)
         else:
             previous_content = [before.content]
-        previous_embeds = self.bot.con.one('select previous_embeds from messages where id = %(id)s', {'id': ctx.id})
+        previous_embeds = await self.bot.db_con.execute('select previous_embeds from messages where id = $1', ctx.id)
         if previous_embeds:
             previous_embeds.append([json.dumps(e.to_dict()) for e in before.embeds])
         else:
             previous_embeds = [[json.dumps(e.to_dict()) for e in before.embeds]]
-        sql = 'update messages set (edited_at, previous_content, previous_embeds, tts, type, content,\
-               embeds, channel, mention_everyone, mentions, channel_mentions, role_mentions, webhook,\
-               attachments, pinned, reactions, guild, created_at, system_content, author) \
-               = (%(edited_at)s, %(previous_content)s, %(previous_embeds)s, %(tts)s, %(type)s, %(content)s,\
-               %(embeds)s, %(channel)s, %(mention_everyone)s, %(mentions)s, %(channel_mentions)s, %(role_mentions)s,\
-               %(webhook)s, %(attachments)s, %(pinned)s, %(reactions)s, %(guild)s, %(created_at)s, %(system_content)s,\
-               %(author)s) where id = %(id)s'
-        msg_data = dict()
-        msg_data['id'] = ctx.id
-        msg_data['tts'] = ctx.tts
-        msg_data['type'] = str(ctx.type)
-        msg_data['content'] = ctx.content
-        msg_data['embeds'] = [json.dumps(e.to_dict()) for e in ctx.embeds]
-        msg_data['channel'] = ctx.channel.id
-        msg_data['mention_everyone'] = ctx.mention_everyone
-        msg_data['mentions'] = [user.id for user in ctx.mentions]
-        msg_data['channel_mentions'] = [channel.id for channel in ctx.channel_mentions]
-        msg_data['role_mentions'] = [role.id for role in ctx.role_mentions]
-        msg_data['webhook'] = ctx.webhook_id
-        msg_data['attachments'] = ctx.attachments
-        msg_data['pinned'] = ctx.pinned
-        msg_data['guild'] = ctx.guild.id
-        msg_data['created_at'] = ctx.created_at
-        msg_data['system_content'] = ctx.system_content
-        msg_data['author'] = ctx.author.id
-        msg_data['reactions'] = [json.dumps({'emoji': r.emoji, 'count': r.count}) for r in ctx.reactions]
-        msg_data['previous_content'] = previous_content
-        msg_data['previous_embeds'] = previous_embeds
-        msg_data['edited_at'] = datetime.utcnow()
-        self.bot.con.run(sql, msg_data)
+        sql = 'update messages set (edited_at, previous_content, previous_embeds, tts, type, content, embeds, ' \
+              'channel, mention_everyone, mentions, channel_mentions, role_mentions, webhook, attachments, pinned, ' \
+              'reactions, guild, created_at, system_content, author) ' \
+              'values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)' \
+              'where id = $21'
+        msg_data = [datetime.utcnow(), previous_content, previous_embeds, ctx.tts, str(ctx.type), ctx.content,
+                    [json.dumps(e.to_dict()) for e in ctx.embeds], ctx.channel.id, ctx.mention_everyone,
+                    [user.id for user in ctx.mentions], [channel.id for channel in ctx.channel_mentions],
+                    [role.id for role in ctx.role_mentions], ctx.webhook_id,
+                    [json.dumps({'id': a.id, 'size': a.size, 'height': a.height, 'width': a.width,
+                                 'filename': a.filename, 'url': a.url}) for a in ctx.attachments], ctx.pinned,
+                    [json.dumps({'emoji': r.emoji, 'count': r.count}) for r in ctx.reactions], ctx.guild.id,
+                    ctx.created_at, ctx.system_content, ctx.author.id, ctx.id]
+        await self.bot.db_con.execute(sql, *msg_data)
 
     @staticmethod
     async def on_command_error(ctx, error):
@@ -175,31 +158,25 @@ class BotEvents:
         default_config['name'] = guild.name.replace("'", "\\'")
         default_config['guild_id'] = guild.id
         events_log.info(default_config)
-        self.bot.con.run("insert into guild_config(guild_id, guild_name, admin_roles, rcon_enabled, channel_lockdown,\
-                          raid_status, pg_filter, patreon_enabled, referral_enabled)\
-                          values (%(guild_id)s, %(name)s, %(admin_roles)s, %(rcon_enabled)s, %(channel_lockdown)s,\
-                          %(raid_status)s, %(pg_filter)s, %(patreon_enabled)s, %(referral_enabled)s)",
-                         {'guild_id': default_config['guild_id'],
-                          'name': default_config['name'],
-                          'admin_roles': json.dumps(default_config['admin_roles']),
-                          'rcon_enabled': default_config['rcon_enabled'],
-                          'channel_lockdown': default_config['channel_lockdown'],
-                          'raid_status': default_config['raid_status'],
-                          'pg_filter': default_config['pg_filter'],
-                          'patreon_enabled': default_config['patreon_enabled'],
-                          'referral_enabled': default_config['referral_enabled']
-                          })
+        await self.bot.db_con.execute("insert into guild_config(guild_id, guild_name, admin_roles, rcon_enabled, "
+                                      "channel_lockdown, raid_status, pg_filter, patreon_enabled, referral_enabled) "
+                                      "values ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+                                      default_config['guild_id'], default_config['name'],
+                                      json.dumps(default_config['admin_roles']), default_config['rcon_enabled'],
+                                      default_config['channel_lockdown'], default_config['raid_status'],
+                                      default_config['pg_filter'], default_config['patreon_enabled'],
+                                      default_config['referral_enabled'])
         events_log.info(f'Entry Created for {guild.name}')
         await guild.me.edit(nick='[g$] Geeksbot')
 
     async def on_guild_remove(self, guild):
-        self.bot.con.run(f'delete from guild_config where guild_id = %(id)s', {'id': guild.id})
+        await self.bot.db_con.execute(f'delete from guild_config where guild_id = $1', guild.id)
         events_log.info(f'Left the {guild.name} guild.')
 
     async def on_member_join(self, member):
         events_log.info(f'Member joined: {member.name} {member.id} Guild: {member.guild.name} {member.guild.id}')
-        join_chan = self.bot.con.one('select join_leave_chat from guild_config where guild_id = %(id)s',
-                                     {'id': member.guild.id})
+        join_chan = await self.bot.db_con.fetchval('select join_leave_chat from guild_config where guild_id = $1',
+                                                   member.guild.id)
         if join_chan:
             em = discord.Embed(style='rich',
                                color=embed_color
@@ -212,31 +189,30 @@ class BotEvents:
             em.set_footer(text=f"{member.guild.name} | {member.joined_at.strftime('%Y-%m-%d at %H:%M:%S GMT')}",
                           icon_url=member.guild.icon_url)
             await discord.utils.get(member.guild.channels, id=join_chan).send(embed=em)
-        mem_data = {'id': member.id,
-                    'name': member.name,
-                    'discriminator': member.discriminator,
-                    'bot': member.bot
-                    }
-        mem = self.bot.con.one('select guilds,nicks from user_data where id = %(id)s', {'id': member.id})
+        mem_data = [member.id,
+                    member.name,
+                    member.discriminator,
+                    member.bot
+                    ]
+        mem = await self.bot.db_con.fetchval('select guilds,nicks from user_data where id = $1', member.id)
         if mem:
             mem[1].append(json.dumps({member.guild.id: member.display_name}))
             mem[0].append(member.guild.id)
-            mem_data['nicks'] = mem[1]
-            mem_data['guilds'] = mem[0]
-            self.bot.con.run('update user_data set (name, discriminator, bot, nicks, guilds) =\
-                              (%(name)s, %(discriminator)s, %(bot)s, %(nicks)s, %(guilds)s) where\
-                               id = %(id)s', mem_data)
+            mem_data.append(mem[1])
+            mem_data.append(mem[0])
+            self.bot.con.run('update user_data set (name, discriminator, bot, nicks, guilds) = '
+                             '($2, $3, $4, $5, $6) where id = $1', *mem_data)
         else:
-            mem_data['nicks'] = [json.dumps({member.guild.id: member.display_name})]
-            mem_data['guilds'] = [member.guild.id]
-            self.bot.con.run('insert into user_data (id, name, discriminator, bot, nicks, guilds) values\
-                              (%(id)s, %(name)s, %(discriminator)s, %(bot)s, %(nicks)s, %(guilds)s)', mem_data)
+            mem_data.append([json.dumps({member.guild.id: member.display_name})])
+            mem_data.append([member.guild.id])
+            self.bot.con.run('insert into user_data (id, name, discriminator, bot, nicks, guilds) '
+                             'values ($1, $2, $3, $4, $5, $6)', *mem_data)
 
     async def on_member_remove(self, member):
         leave_time = datetime.utcnow()
         events_log.info(f'Member left: {member.name} {member.id} Guild: {member.guild.name} {member.guild.id}')
-        join_chan = self.bot.con.one('select join_leave_chat from guild_config where guild_id = %(id)s',
-                                     {'id': member.guild.id})
+        join_chan = await self.bot.db_con.fetchval('select join_leave_chat from guild_config where guild_id = $1',
+                                                   member.guild.id)
         if join_chan:
             em = discord.Embed(style='rich',
                                color=red_color
@@ -259,6 +235,19 @@ class BotEvents:
             em.set_footer(text=f"{member.guild.name} | {datetime.utcnow().strftime('%Y-%m-%d at %H:%M:%S GMT')}",
                           icon_url=member.guild.icon_url)
             await discord.utils.get(member.guild.channels, id=join_chan).send(embed=em)
+        mem_data = [member.id,
+                    member.name,
+                    member.discriminator,
+                    member.bot
+                    ]
+        mem = await self.bot.db_con.fetchrow('select guilds,nicks from user_data where id = $1', member.id)
+        if mem:
+            mem[0].remove(member.guild.id)
+            mem[1].remove(json.dumps({member.guild.id: member.display_name}))
+            mem_data.append(mem[1])
+            mem_data.append(mem[0])
+            self.bot.con.run('update user_data set (name, discriminator, bot, nicks, guilds) = '
+                             '($2, $3, $4, $5, $6) where id = $1', *mem_data)
 
 
 def setup(bot):
