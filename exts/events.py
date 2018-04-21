@@ -83,7 +83,7 @@ class BotEvents:
         await self.bot.db_con.execute(sql, *msg_data)
         if ctx.guild:
             if ctx.author != ctx.guild.me:
-                if self.bot.con.one(f"select pg_filter from guild_config where guild_id = {ctx.guild.id}"):
+                if await self.bot.db_con.fetchval("select pg_filter from guild_config where guild_id = $1", ctx.guild.id):
                     profane = 0
                     for word in await self.bot.db_con.fetchval('select profane_words from guild_config '
                                                                'where guild_id = %(id)s',
