@@ -86,8 +86,7 @@ class BotEvents:
                 if await self.bot.db_con.fetchval("select pg_filter from guild_config where guild_id = $1", ctx.guild.id):
                     profane = 0
                     for word in await self.bot.db_con.fetchval('select profane_words from guild_config '
-                                                               'where guild_id = %(id)s',
-                                                               {'id': ctx.guild.id}):
+                                                               'where guild_id = $1', ctx.guild.id):
                         word = word.strip()
                         if word in ctx.content.lower():
                             events_log.info(f'Found non PG word {word}')
