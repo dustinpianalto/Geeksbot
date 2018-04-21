@@ -65,10 +65,10 @@ class Geeksbot(commands.Bot):
         self.gcs_service = build('customsearch', 'v1', developerKey=self.bot_secrets['google_search_key'])
 
     async def connect_db(self):
-        return await asyncpg.connect(f"host={self.bot_secrets['db_con']['host']}\
-                                     database={self.bot_secrets['db_con']['db_name']}\
-                                     user={self.bot_secrets['db_con']['user']}\
-                                     password={self.bot_secrets['db_con']['password']}")
+        return await asyncpg.connect(host={self.bot_secrets['db_con']['host']},
+                                     database={self.bot_secrets['db_con']['db_name']},
+                                     user={self.bot_secrets['db_con']['user']},
+                                     password={self.bot_secrets['db_con']['password']})
 
     @staticmethod
     async def get_custom_prefix(bot_inst, message):
