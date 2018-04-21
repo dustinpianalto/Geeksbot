@@ -144,7 +144,7 @@ async def on_message(ctx):
 
 @bot.event
 async def on_ready():
-    bot.connect_db()
+    await bot.connect_db()
     bot.recent_msgs = {}
     for guild in bot.guilds:
         bot.recent_msgs[guild.id] = deque(maxlen=50)
