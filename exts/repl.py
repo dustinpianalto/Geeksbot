@@ -159,7 +159,7 @@ class Repl:
         if ctx.author.id != ownerid:
             return
         try:
-            body = self.cleanup_code(body).split(' ')
+            body = self.cleanup_code(body)
             result = await asyncio.wait_for(self.bot.loop.create_task(run_command(body)), 10)
             value = result
             for page in paginate(value):

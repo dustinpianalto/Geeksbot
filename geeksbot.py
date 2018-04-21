@@ -8,6 +8,8 @@ import aiohttp
 from postgres import Postgres
 from collections import deque
 from googleapiclient.discovery import build
+import asyncpg
+
 
 log_format = '{asctime}.{msecs:03.0f}|{levelname:<8}|{name}::{message}'
 date_format = '%Y.%m.%d %H.%M.%S'
@@ -55,20 +57,20 @@ class Geeksbot(commands.Bot):
         self.infected = {}
         self.TOKEN = self.bot_secrets['token']
         del self.bot_secrets['token']
-        self.con = Postgres(f"  host={self.bot_secrets['db_con']['host']}\
-                                port={self.bot_secrets['db_con']['port']}\
-                                dbname={self.bot_secrets['db_con']['db_name']}\
-                                connect_timeout=10 user={self.bot_secrets['db_con']['user']}\
-                                password={self.bot_secrets['db_con']['password']}")
+        self.db_con = asyncpg.connect(f"host={self.bot_secrets['db_con']['host']}\
+                                        database={self.bot_secrets['db_con']['db_name']}\
+                                        user={self.bot_secrets['db_con']['user']}\
+                                        password={self.bot_secrets['db_con']['password']}")
         del self.bot_secrets['db_con']
-        self.default_prefix = 'g$'
+        self.default_prefix = 'g~'
         self.voice_chans = {}
         self.spam_list = {}
         self.gcs_service = build('customsearch', 'v1', developerKey=self.bot_secrets['google_search_key'])
 
-    async def get_custom_prefix(self, bot_inst, message):
-        return self.con.one('select prefix from guild_config where guild_id = %(id)s', {'id': message.guild.id})\
-               or self.default_prefix
+    @staticmethod
+    async def get_custom_prefix(bot_inst, message):
+        return await bot_inst.db_con.fetchval('select prefix from guild_config where guild_id = $1',
+                                              message.guild.id) or bot_inst.default_prefix
 
     async def load_ext(self, ctx, mod=None):
         self.load_extension('{0}.{1}'.format(extension_dir, mod))
@@ -120,14 +122,14 @@ async def unload(ctx, mod):
 async def on_message(ctx):
     if not ctx.author.bot:
         if ctx.guild:
-            if int(bot.con.one(f"select channel_lockdown from guild_config where guild_id = %(id)s",
-                               {'id': ctx.guild.id})):
-                if ctx.channel.id in json.loads(bot.con.one(f"select allowed_channels from guild_config "
-                                                            f"where guild_id = %(id)s",
-                                                            {'id': ctx.guild.id})):
+            if int(await bot.db_con.fetchval("select channel_lockdown from guild_config where guild_id = $1",
+                                             ctx.guild.id)):
+                if ctx.channel.id in json.loads(await bot.db_con.fetchval("select allowed_channels from guild_config "
+                                                                          "where guild_id = $1",
+                                                                          ctx.guild.id)):
                     await bot.process_commands(ctx)
             elif ctx.channel.id == 418452585683484680:
-                prefix = bot.con.one('select prefix from guild_config where guild_id = %(id)s', {'id': ctx.guild.id})
+                prefix = await bot.db_con.fetchval('select prefix from guild_config where guild_id = $1', ctx.guild.id)
                 prefix = prefix[0] if prefix else bot.default_prefix
                 ctx.content = f'{prefix}{ctx.content}'
                 await bot.process_commands(ctx)
@@ -147,12 +149,12 @@ async def on_ready():
     for load_item in load_list:
         await bot.load_ext(None, f'{load_item}')
         logging.info('Extension Loaded: {0}'.format(load_item))
-    logging.info('Done loading, Geeksbot is active.')
     with open(f'{config_dir}reboot', 'r') as f:
         reboot = f.readlines()
     if int(reboot[0]) == 1:
         await bot.get_channel(int(reboot[1])).send('Restart Finished.')
     with open(f'{config_dir}reboot', 'w') as f:
         f.write(f'0')
+    logging.info('Done loading, Geeksbot is active.')
 
 bot.run(bot.TOKEN)

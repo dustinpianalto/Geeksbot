@@ -499,6 +499,7 @@ class Utils:
         em.title = f'Google Search'
         em.description = f'Top 4 results for "{search}"'
         em.colour = embed_color
+        # TODO Fix layout of Results
         for result in results:
             em.add_field(name=f'{result["title"]}', value=f'{result["snippet"]}\n{result["link"]}')
         await ctx.send(embed=em)
@@ -527,6 +528,8 @@ class Utils:
                     em.add_field(name=name,
                                  value=f'Steam ID: {steam[i]}\nPatreon Level: {tier[i]}\nPatron of: {patron[i]}')
             await ctx.send(embed=em)
+
+# TODO Create Help command
 
 
 def setup(bot):

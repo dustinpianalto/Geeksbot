@@ -91,3 +91,5 @@ async def run_command(args):
     stdout, stderr = await process.communicate()
     # Return stdout
     return stdout.decode().strip()
+
+# TODO Add Paginator
