@@ -57,15 +57,18 @@ class Geeksbot(commands.Bot):
         self.infected = {}
         self.TOKEN = self.bot_secrets['token']
         del self.bot_secrets['token']
-        self.db_con = asyncpg.connect(f"host={self.bot_secrets['db_con']['host']}\
-                                        database={self.bot_secrets['db_con']['db_name']}\
-                                        user={self.bot_secrets['db_con']['user']}\
-                                        password={self.bot_secrets['db_con']['password']}")
+        self.db_con = self.connect_db(self)
         del self.bot_secrets['db_con']
         self.default_prefix = 'g~'
         self.voice_chans = {}
         self.spam_list = {}
         self.gcs_service = build('customsearch', 'v1', developerKey=self.bot_secrets['google_search_key'])
+
+    async def connect_db(self):
+        return await asyncpg.connect(f"host={self.bot_secrets['db_con']['host']}\
+                                     database={self.bot_secrets['db_con']['db_name']}\
+                                     user={self.bot_secrets['db_con']['user']}\
+                                     password={self.bot_secrets['db_con']['password']}")
 
     @staticmethod
     async def get_custom_prefix(bot_inst, message):
