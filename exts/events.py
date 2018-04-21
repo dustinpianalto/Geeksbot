@@ -73,36 +73,22 @@ class BotEvents:
         sql = 'insert into messages (id, tts, type, content, embeds, channel, mention_everyone, mentions,\
         channel_mentions, role_mentions, webhook, attachments, pinned, reactions, guild, created_at,\
         system_content, author) \
-        values (%(id)s, %(tts)s, %(type)s, %(content)s, %(embeds)s, %(channel)s, %(mention_everyone)s, %(mentions)s,\
-        %(channel_mentions)s, %(role_mentions)s, %(webhook)s, %(attachments)s, %(pinned)s, %(reactions)s, %(guild)s,\
-        %(created_at)s, %(system_content)s, %(author)s)'
-        msg_data = dict()
-        msg_data['id'] = ctx.id
-        msg_data['tts'] = ctx.tts
-        msg_data['type'] = str(ctx.type)
-        msg_data['content'] = ctx.content
-        msg_data['embeds'] = [json.dumps(e.to_dict()) for e in ctx.embeds]
-        msg_data['channel'] = ctx.channel.id
-        msg_data['mention_everyone'] = ctx.mention_everyone
-        msg_data['mentions'] = [user.id for user in ctx.mentions]
-        msg_data['channel_mentions'] = [channel.id for channel in ctx.channel_mentions]
-        msg_data['role_mentions'] = [role.id for role in ctx.role_mentions]
-        msg_data['webhook'] = ctx.webhook_id
-        msg_data['attachments'] = [json.dumps({'id': a.id, 'size': a.size, 'height': a.height, 'width': a.width,
-                                               'filename': a.filename, 'url': a.url}) for a in ctx.attachments]
-        msg_data['pinned'] = ctx.pinned
-        msg_data['guild'] = ctx.guild.id
-        msg_data['created_at'] = ctx.created_at
-        msg_data['system_content'] = ctx.system_content
-        msg_data['author'] = ctx.author.id
-        msg_data['reactions'] = [json.dumps({'emoji': r.emoji, 'count': r.count}) for r in ctx.reactions]
-        self.bot.con.run(sql, msg_data)
+        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)'
+        msg_data = [ctx.id, ctx.tts, str(ctx.type), ctx.content, [json.dumps(e.to_dict()) for e in ctx.embeds],
+                    ctx.channel.id, ctx.mention_everyone, [user.id for user in ctx.mentions],
+                    [channel.id for channel in ctx.channel_mentions], [role.id for role in ctx.role_mentions],
+                    ctx.webhook_id, [json.dumps({'id': a.id, 'size': a.size, 'height': a.height, 'width': a.width,
+                                     'filename': a.filename, 'url': a.url}) for a in ctx.attachments],
+                    ctx.pinned, [json.dumps({'emoji': r.emoji, 'count': r.count}) for r in ctx.reactions],
+                    ctx.guild.id, ctx.created_at, ctx.system_content, ctx.author.id]
+        await self.bot.db_con.execute(sql, msg_data)
         if ctx.guild:
             if ctx.author != ctx.guild.me:
                 if self.bot.con.one(f"select pg_filter from guild_config where guild_id = {ctx.guild.id}"):
                     profane = 0
-                    for word in self.bot.con.one('select profane_words from guild_config where guild_id = %(id)s',
-                                                 {'id': ctx.guild.id}):
+                    for word in await self.bot.db_con.fetchval('select profane_words from guild_config '
+                                                               'where guild_id = %(id)s',
+                                                               {'id': ctx.guild.id}):
                         word = word.strip()
                         if word in ctx.content.lower():
                             events_log.info(f'Found non PG word {word}')
