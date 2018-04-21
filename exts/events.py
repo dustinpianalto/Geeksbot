@@ -118,20 +118,20 @@ class BotEvents:
                                       react.message.id, reacts)
 
     async def on_message_edit(self, before, ctx):
-        previous_content = await self.bot.db_con.execute('select previous_content from messages where id = $1', ctx.id)
+        previous_content = await self.bot.db_con.fetchval('select previous_content from messages where id = $1', ctx.id)
         if previous_content:
             previous_content.append(before.content)
         else:
             previous_content = [before.content]
-        previous_embeds = await self.bot.db_con.execute('select previous_embeds from messages where id = $1', ctx.id)
+        previous_embeds = await self.bot.db_con.fetchval('select previous_embeds from messages where id = $1', ctx.id)
         if previous_embeds:
             previous_embeds.append([json.dumps(e.to_dict()) for e in before.embeds])
         else:
             previous_embeds = [[json.dumps(e.to_dict()) for e in before.embeds]]
         sql = 'update messages set (edited_at, previous_content, previous_embeds, tts, type, content, embeds, ' \
               'channel, mention_everyone, mentions, channel_mentions, role_mentions, webhook, attachments, pinned, ' \
-              'reactions, guild, created_at, system_content, author) ' \
-              'values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)' \
+              'reactions, guild, created_at, system_content, author) = ' \
+              '($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)' \
               'where id = $21'
         msg_data = [datetime.utcnow(), previous_content, previous_embeds, ctx.tts, str(ctx.type), ctx.content,
                     [json.dumps(e.to_dict()) for e in ctx.embeds], ctx.channel.id, ctx.mention_everyone,
