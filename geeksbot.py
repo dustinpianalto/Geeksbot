@@ -9,6 +9,7 @@ from postgres import Postgres
 from collections import deque
 from googleapiclient.discovery import build
 import asyncpg
+from concurrent import futures
 
 
 log_format = '{asctime}.{msecs:03.0f}|{levelname:<8}|{name}::{message}'
@@ -62,6 +63,7 @@ class Geeksbot(commands.Bot):
         self.voice_chans = {}
         self.spam_list = {}
         self.gcs_service = build('customsearch', 'v1', developerKey=self.bot_secrets['google_search_key'])
+        self.tpe = futures.ThreadPoolExecutor()
 
     async def connect_db(self):
         self.db_con = await asyncpg.create_pool(host=self.bot_secrets['db_con']['host'],

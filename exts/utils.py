@@ -536,7 +536,7 @@ class Utils:
 
     @commands.command(name='iss')
     async def iss_loc(self, ctx):
-        async with ctx.typing():
+        def gen_image():
             async with self.bot.aio_session.get('https://api.wheretheiss.at/v1/satellites/25544') as response:
                 iss_loc = await response.json()
 
@@ -549,9 +549,13 @@ class Utils:
             plt.plot(x, y, 'ok', markersize=10, color='red')
             plt.text(x, y, '  ISS', fontsize=20, color='red')
 
-            with BytesIO() as output:
-                plt.savefig(output, format='png', transparent=True)
-                output.seek(0)
+            img = BytesIO()
+            plt.savefig(img, format='png', transparent=True)
+            img.seek(0)
+            return img
+
+        async with ctx.typing():
+            async with self.bot.loop.run_in_executor(self.bot.tpe, gen_image) as output:
                 await ctx.send(file=discord.File(output, 'output.png'))
 
 # TODO Create Help command
