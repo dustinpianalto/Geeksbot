@@ -11,6 +11,11 @@ from .imports import checks
 import pytz
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
+from io import BytesIO
 
 config_dir = 'config/'
 admin_id_file = 'admin_ids'
@@ -528,6 +533,25 @@ class Utils:
                     em.add_field(name=name,
                                  value=f'Steam ID: {steam[i]}\nPatreon Level: {tier[i]}\nPatron of: {patron[i]}')
             await ctx.send(embed=em)
+
+    @commands.command(name='iss')
+    async def iss_loc(self, ctx):
+        async with self.bot.aio_session.get('https://api.wheretheiss.at/v1/satellites/25544') as response:
+            iss_loc = await response.json()
+
+        lat = iss_loc['latitude']
+        lon = iss_loc['longitude']
+        plt.figure(figsize=(8, 8))
+        m = Basemap(projection='ortho', resolution=None, lat_0=lat, lon_0=lon)
+        m.bluemarble(scale=0.5)
+        x, y = m(lon, lat)
+        plt.plot(x, y, 'ok', markersize=10, color='red')
+        plt.text(x, y, '  ISS', fontsize=20, color='red')
+
+        with BytesIO() as output:
+            plt.savefig(output, format='png', transparent=True)
+            output.seek(0)
+            await ctx.send(file=discord.File(output, 'output.png'))
 
 # TODO Create Help command
 
