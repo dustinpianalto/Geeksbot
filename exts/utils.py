@@ -539,12 +539,13 @@ class Utils:
         def gen_image(iss_loc):
             lat = iss_loc['latitude']
             lon = iss_loc['longitude']
-            plt.figure(figsize=(8, 8))
+            plt.figure(figsize=(5, 5))
             m = Basemap(projection='ortho', resolution=None, lat_0=lat, lon_0=lon)
             m.bluemarble(scale=0.5)
             x, y = m(lon, lat)
             plt.plot(x, y, 'ok', markersize=10, color='red')
             plt.text(x, y, '  ISS', fontsize=20, color='red')
+            plt.tight_layout()
 
             img = BytesIO()
             plt.savefig(img, format='png', transparent=True)
