@@ -554,8 +554,8 @@ class Utils:
         async with ctx.typing():
             async with self.bot.aio_session.get('https://api.wheretheiss.at/v1/satellites/25544') as response:
                 loc = await response.json()
-            async with self.bot.loop.run_in_executor(self.bot.tpe, gen_image, loc) as output:
-                await ctx.send(file=discord.File(output, 'output.png'))
+            output = await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, loc)
+            await ctx.send(file=discord.File(output, 'output.png'))
 
 # TODO Create Help command
 
