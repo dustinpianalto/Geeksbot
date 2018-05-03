@@ -38,6 +38,7 @@ emojis: Dict[str, str] = {
     'x': '❌',
     'y': '✅',
     'poop': '💩',
+    'boom': '💥',
 }
 
 description = 'I am Geeksbot Dev! Fear me I might just break and take you with me :P'
@@ -64,6 +65,13 @@ class Geeksbot(commands.Bot):
         self.spam_list = {}
         self.gcs_service = build('customsearch', 'v1', developerKey=self.bot_secrets['google_search_key'])
         self.tpe = futures.ThreadPoolExecutor()
+        self.unicode_emojis: Dict[str, str] = {
+                                        'x': '❌',
+                                        'y': '✅',
+                                        'poop': '💩',
+                                        'boom': '💥',
+                                        'left_fist': '🤛',
+                                        }
 
     async def connect_db(self):
         self.db_con = await asyncpg.create_pool(host=self.bot_secrets['db_con']['host'],

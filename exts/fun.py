@@ -146,6 +146,17 @@ class Fun:
     async def volume(self, ctx, volume: float):
         self.bot.player.volume = volume
 
+    @commands.command(name='explode', aliases=['splode'])
+    async def explode_user(self, ctx, member: discord.Member=None):
+        if member is None:
+            member = ctx.author
+
+        trans = await self.bot.db_con.fetchval('select code from emojis where id = 405943174809255956')
+        msg = await ctx.send(f'{member.mention}{trans*20}{self.bot.unicode_emojis["left_fist"]}')
+        for i in range(19, 0):
+            await msg.edit(content=f'{member.mention}{trans*i}{self.bot.unicode_emojis["left_fist"]}')
+        await msg.edit(content=f'{self.bot.unicode_emojis["boom"]}')
+
 
 def setup(bot):
     bot.add_cog(Fun(bot))
