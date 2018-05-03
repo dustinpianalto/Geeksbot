@@ -148,7 +148,7 @@ class Fun:
 
     @commands.command(name='explode', aliases=['splode'])
     async def explode_user(self, ctx, member: discord.Member=None):
-        if member is None:
+        if member is None or member.id == 396588996706304010:
             member = ctx.author
 
         trans = await self.bot.db_con.fetchval('select code from geeksbot_emojis where id = 405943174809255956')
