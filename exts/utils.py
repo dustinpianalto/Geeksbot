@@ -536,23 +536,23 @@ class Utils:
 
     @commands.command(name='iss')
     async def iss_loc(self, ctx):
-        async with self.bot.aio_session.get('https://api.wheretheiss.at/v1/satellites/25544') as response:
-            iss_loc = await response.json()
+        async with ctx.typing():
+            async with self.bot.aio_session.get('https://api.wheretheiss.at/v1/satellites/25544') as response:
+                iss_loc = await response.json()
 
-        lat = iss_loc['latitude']
-        lon = iss_loc['longitude']
-        plt.figure(figsize=(8, 8))
-        m = Basemap(projection='ortho', resolution=None, lat_0=lat, lon_0=lon)
-        m.bluemarble(scale=0.5)
-        x, y = m(lon, lat)
-        plt.plot(x, y, 'ok', markersize=10, color='red')
-        plt.text(x, y, '  ISS', fontsize=20, color='red')
+            lat = iss_loc['latitude']
+            lon = iss_loc['longitude']
+            plt.figure(figsize=(8, 8))
+            m = Basemap(projection='ortho', resolution=None, lat_0=lat, lon_0=lon)
+            m.bluemarble(scale=0.5)
+            x, y = m(lon, lat)
+            plt.plot(x, y, 'ok', markersize=10, color='red')
+            plt.text(x, y, '  ISS', fontsize=20, color='red')
 
-        with BytesIO() as output:
-            async with ctx.typing():
+            with BytesIO() as output:
                 plt.savefig(output, format='png', transparent=True)
                 output.seek(0)
-            await ctx.send(file=discord.File(output, 'output.png'))
+                await ctx.send(file=discord.File(output, 'output.png'))
 
 # TODO Create Help command
 
