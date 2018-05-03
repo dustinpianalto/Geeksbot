@@ -536,10 +536,7 @@ class Utils:
 
     @commands.command(name='iss')
     async def iss_loc(self, ctx):
-        def gen_image():
-            async with self.bot.aio_session.get('https://api.wheretheiss.at/v1/satellites/25544') as response:
-                iss_loc = await response.json()
-
+        def gen_image(iss_loc):
             lat = iss_loc['latitude']
             lon = iss_loc['longitude']
             plt.figure(figsize=(8, 8))
@@ -555,7 +552,9 @@ class Utils:
             return img
 
         async with ctx.typing():
-            async with self.bot.loop.run_in_executor(self.bot.tpe, gen_image) as output:
+            async with self.bot.aio_session.get('https://api.wheretheiss.at/v1/satellites/25544') as response:
+                loc = await response.json()
+            async with self.bot.loop.run_in_executor(self.bot.tpe, gen_image, loc) as output:
                 await ctx.send(file=discord.File(output, 'output.png'))
 
 # TODO Create Help command
