@@ -558,7 +558,8 @@ class Utils:
             msg = await ctx.send('Got location. Generating Image...')
             output = await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, loc)
             await msg.edit(content='Image Created. Uploading to Discord...')
-            await msg.edit(content='Current ISS Location', file=discord.File(output, 'output.png'))
+            await msg.delete()
+            await ctx.send('Current ISS Location', file=discord.File(output, 'output.png'))
 
 # TODO Create Help command
 
