@@ -153,9 +153,9 @@ class Fun:
 
         trans = await self.bot.db_con.fetchval('select code from geeksbot_emojis where id = 405943174809255956')
         msg = await ctx.send(f'{member.mention}{trans*20}{self.bot.unicode_emojis["left_fist"]}')
-        for i in range(19, 0):
+        for i in range(20):
             await asyncio.sleep(0.1)
-            await msg.edit(content=f'{member.mention}{trans*i}{self.bot.unicode_emojis["left_fist"]}')
+            await msg.edit(content=f'{member.mention}{trans*(20-i)}{self.bot.unicode_emojis["left_fist"]}')
         await asyncio.sleep(0.1)
         await msg.edit(content=f'{self.bot.unicode_emojis["boom"]}')
 
