@@ -555,8 +555,10 @@ class Utils:
         async with ctx.typing():
             async with self.bot.aio_session.get('https://api.wheretheiss.at/v1/satellites/25544') as response:
                 loc = await response.json()
+            msg = await ctx.send('Got location. Generating Image...')
             output = await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, loc)
-            await ctx.send(file=discord.File(output, 'output.png'))
+            await msg.edit(content='Image Created. Uploading to Discord...')
+            await msg.edit(content='Current ISS Location', file=discord.File(output, 'output.png'))
 
 # TODO Create Help command
 
