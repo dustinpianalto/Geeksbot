@@ -549,8 +549,9 @@ class Utils:
         plt.text(x, y, '  ISS', fontsize=20, color='red')
 
         with BytesIO() as output:
-            plt.savefig(output, format='png', transparent=True)
-            output.seek(0)
+            async with ctx.typing():
+                plt.savefig(output, format='png', transparent=True)
+                output.seek(0)
             await ctx.send(file=discord.File(output, 'output.png'))
 
 # TODO Create Help command
