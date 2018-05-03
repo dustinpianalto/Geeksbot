@@ -151,7 +151,7 @@ class Fun:
         if member is None:
             member = ctx.author
 
-        trans = await self.bot.db_con.fetchval('select code from emojis where id = 405943174809255956')
+        trans = await self.bot.db_con.fetchval('select code from geeksbot_emojis where id = 405943174809255956')
         msg = await ctx.send(f'{member.mention}{trans*20}{self.bot.unicode_emojis["left_fist"]}')
         for i in range(19, 0):
             await msg.edit(content=f'{member.mention}{trans*i}{self.bot.unicode_emojis["left_fist"]}')
