@@ -550,12 +550,12 @@ class Utils:
             img = BytesIO()
             plt.savefig(img, format='png', transparent=True)
             img.seek(0)
-            self.bot.loop.create_task(ctx.send('Current ISS Location', file=discord.File(output, 'output.png')))
+            self.bot.loop.create_task(ctx.send('Current ISS Location', file=discord.File(img, 'output.png')))
 
         async with ctx.typing():
             async with self.bot.aio_session.get('https://api.wheretheiss.at/v1/satellites/25544') as response:
                 loc = await response.json()
-            output = await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, loc)
+            await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, loc)
 
 # TODO Create Help command
 
