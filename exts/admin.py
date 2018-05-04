@@ -4,7 +4,7 @@ import json
 import logging
 import inspect
 import os
-from .imports import checks
+from .imports import checks, utils
 
 config_dir = 'config/'
 admin_id_file = 'admin_ids'
@@ -188,7 +188,9 @@ class Admin:
     @commands.command()
     @commands.is_owner()
     async def view_code(self, ctx, code_name):
-        await ctx.send(f"```py\n{inspect.getsource(self.bot.get_command(code_name).callback)}\n```")
+        pages = utils.paginate(inspect.getsource(self.bot.get_command(code_name).callback))
+        for page in pages:
+            await ctx.send(page)
 
     @add.command(aliases=['prefix', 'p'])
     @commands.cooldown(1, 5, type=commands.BucketType.guild)
