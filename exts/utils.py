@@ -592,7 +592,7 @@ class Utils:
             draw_map(m)
             x, y = m(lon, lat)
             plt.plot(x, y, 'ok', markersize=5, color='red')
-            plt.text(x, y, '  Palmer', fontsize=12, color='red')
+            plt.text(x, y, f'  {location.title()}', fontsize=12, color='red')
             plt.tight_layout()
 
             img = BytesIO()
