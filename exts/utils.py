@@ -599,6 +599,7 @@ class Utils:
             plt.savefig(img, format='png', transparent=True)
             img.seek(0)
             self.bot.loop.create_task(ctx.send(file=discord.File(img, f'{location} map.png')))
+            self.bot.loop.create_task(ctx.trigger_typing())
 
         msg = await ctx.send(f'Checking on location data for {location.title()}')
         async with ctx.typing():
@@ -607,7 +608,8 @@ class Utils:
                 data = await result.json()
         location_data = data['results'][0]['geometry']
         await msg.edit(content=f'Got Location. Please wait, Generating the image can take up to a minute.')
-        await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, location_data)
+        async with ctx.typing():
+            await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, location_data)
         await msg.delete()
 
 # TODO Create Help command
