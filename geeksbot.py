@@ -65,6 +65,7 @@ class Geeksbot(commands.Bot):
         self.spam_list = {}
         self.gcs_service = build('customsearch', 'v1', developerKey=self.bot_secrets['google_search_key'])
         self.tpe = futures.ThreadPoolExecutor()
+        self.geo_api = '2d4e419c2be04c8abe91cb5dd1548c72'
         self.unicode_emojis: Dict[str, str] = {
                                         'x': '❌',
                                         'y': '✅',

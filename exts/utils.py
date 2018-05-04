@@ -16,6 +16,7 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 from io import BytesIO
+from itertools import chain
 
 config_dir = 'config/'
 admin_id_file = 'admin_ids'
@@ -556,6 +557,53 @@ class Utils:
             async with self.bot.aio_session.get('https://api.wheretheiss.at/v1/satellites/25544') as response:
                 loc = await response.json()
             await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, loc)
+
+    @commands.command(name='location', aliases=['loc', 'map'])
+    async def map_location(self, ctx, *, location):
+
+        def draw_map(m, scale=1):
+            # draw a shaded-relief image
+            m.shadedrelief(scale=scale)
+            m.fillcontinents(color="#FFDDCC", lake_color='#DDEEFF')
+            m.drawmapboundary(fill_color="#DDEEFF")
+            m.drawcoastlines(color='gray')
+            m.drawcountries(color='gray')
+            m.drawstates(color='gray')
+
+            # lats and longs are returned as a dictionary
+            lats = m.drawparallels(np.linspace(-90, 90, 30))
+            lons = m.drawmeridians(np.linspace(-180, 180, 90))
+
+            # keys contain the plt.Line2D instances
+            lat_lines = chain(*(tup[1][0] for tup in lats.items()))
+            lon_lines = chain(*(tup[1][0] for tup in lons.items()))
+            all_lines = chain(lat_lines, lon_lines)
+
+            # cycle through these lines and set the desired style
+            for line in all_lines:
+                line.set(linestyle='-', alpha=0.3, color='gray')
+
+        def gen_image(loc):
+            lat = loc['lat']
+            lon = loc['lng']
+            plt.figure(figsize=(4, 4))
+            m = Basemap(projection='lcc', width=2E6, height=2E6, resolution='i', lat_0=lat, lon_0=lon)
+            draw_map(m)
+            x, y = m(lon, lat)
+            plt.plot(x, y, 'ok', markersize=5, color='red')
+            plt.text(x, y, '  Palmer', fontsize=12, color='red')
+            plt.tight_layout()
+
+            img = BytesIO()
+            plt.savefig(img, format='png', transparent=True)
+            img.seek(0)
+            self.bot.loop.create_task(ctx.send(file=discord.File(img, f'{location} map.png')))
+
+        async with self.bot.aio_session.get(
+                f'https://api.opencagedata.com/geocode/v1/json?q={location}&key={bot.geo_api}') as result:
+            data = await result.json()
+
+        await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, data['results'][0]['geometry'])
 
 # TODO Create Help command
 

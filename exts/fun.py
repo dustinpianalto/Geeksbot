@@ -158,7 +158,7 @@ class Fun:
             await msg.edit(content=f'{member.mention}{trans*(20-i)}{self.bot.unicode_emojis["left_fist"]}')
         await asyncio.sleep(0.1)
         await msg.edit(content=f'{self.bot.unicode_emojis["boom"]}')
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.5)
         await msg.edit(content=f'{self.bot.unicode_emojis["boom"]} <---- {member.mention} that was you...')
 
 
