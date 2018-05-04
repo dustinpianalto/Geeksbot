@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 from io import BytesIO
 from itertools import chain
+import numpy as np
 
 config_dir = 'config/'
 admin_id_file = 'admin_ids'
@@ -599,11 +600,15 @@ class Utils:
             img.seek(0)
             self.bot.loop.create_task(ctx.send(file=discord.File(img, f'{location} map.png')))
 
-        async with self.bot.aio_session.get(
-                f'https://api.opencagedata.com/geocode/v1/json?q={location}&key={self.bot.geo_api}') as result:
-            data = await result.json()
-
-        await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, data['results'][0]['geometry'])
+        msg = await ctx.send(f'Checking on location data for {location.title()}')
+        async with ctx.typing():
+            async with self.bot.aio_session.get(
+                    f'https://api.opencagedata.com/geocode/v1/json?q={location}&key={self.bot.geo_api}') as result:
+                data = await result.json()
+        location_data = data['results'][0]['geometry']
+        await msg.edit(content=f'Got Location. Please wait, Generating the image can take up to a minute.')
+        await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, location_data)
+        await msg.delete()
 
 # TODO Create Help command
 
