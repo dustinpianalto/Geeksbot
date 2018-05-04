@@ -606,11 +606,14 @@ class Utils:
             async with self.bot.aio_session.get(
                     f'https://api.opencagedata.com/geocode/v1/json?q={location}&key={self.bot.geo_api}') as result:
                 data = await result.json()
-        location_data = data['results'][0]['geometry']
-        await msg.edit(content=f'Got Location. Please wait, Generating the image can take up to a minute.')
-        async with ctx.typing():
-            await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, location_data)
-        await msg.delete()
+        if data['total_results'] != 0:
+            location_data = data['results'][0]['geometry']
+            await msg.edit(content=f'Got Location. Please wait, Generating the image can take up to a minute.')
+            async with ctx.typing():
+                await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, location_data)
+            await msg.delete()
+        else:
+            await msg.edit(content=f'I can\'t find any data for that location.\nPlease try again.')
 
 # TODO Create Help command
 
