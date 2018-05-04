@@ -600,7 +600,7 @@ class Utils:
             self.bot.loop.create_task(ctx.send(file=discord.File(img, f'{location} map.png')))
 
         async with self.bot.aio_session.get(
-                f'https://api.opencagedata.com/geocode/v1/json?q={location}&key={bot.geo_api}') as result:
+                f'https://api.opencagedata.com/geocode/v1/json?q={location}&key={self.bot.geo_api}') as result:
             data = await result.json()
 
         await self.bot.loop.run_in_executor(self.bot.tpe, gen_image, data['results'][0]['geometry'])
