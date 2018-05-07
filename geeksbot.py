@@ -5,8 +5,6 @@ import logging
 from datetime import datetime
 import json
 import aiohttp
-from postgres import Postgres
-from collections import deque
 from googleapiclient.discovery import build
 import asyncpg
 from concurrent import futures
@@ -157,8 +155,6 @@ async def on_message(ctx):
 async def on_ready():
     if bot.db_con is None: await bot.connect_db()
     bot.recent_msgs = {}
-    for guild in bot.guilds:
-        bot.recent_msgs[guild.id] = deque(maxlen=50)
     logging.info('Logged in as {0.name}|{0.id}'.format(bot.user))
     load_list = bot.bot_config['load_list']
     for load_item in load_list:
