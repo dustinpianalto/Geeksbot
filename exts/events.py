@@ -143,9 +143,10 @@ class BotEvents:
         await self.bot.db_con.execute(sql, *msg_data)
 
     async def on_command_error(self, ctx, error):
+        import traceback
         if ctx.channel.id == 418452585683484680 and type(error) == discord.ext.commands.errors.CommandNotFound:
             return
-        for page in utils.paginate(error.with_traceback().format_exc()):
+        for page in utils.paginate(traceback.format_tb(error)):
             await ctx.send(page)
 
     async def on_guild_join(self, guild):
