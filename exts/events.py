@@ -142,8 +142,7 @@ class BotEvents:
                     ctx.created_at, ctx.system_content, ctx.author.id, ctx.id]
         await self.bot.db_con.execute(sql, *msg_data)
 
-    @staticmethod
-    async def on_command_error(ctx, error):
+    async def on_command_error(self, ctx, error):
         if ctx.channel.id == 418452585683484680 and type(error) == discord.ext.commands.errors.CommandNotFound:
             return
         for page in utils.paginate(dir(error)):

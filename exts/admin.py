@@ -8,7 +8,6 @@ from .imports import checks, utils
 
 config_dir = 'config/'
 admin_id_file = 'admin_ids'
-extension_dir = 'extensions'
 owner_id = 351794468870946827
 embed_color = discord.Colour.from_rgb(49, 107, 111)
 bot_config_file = 'bot_config.json'

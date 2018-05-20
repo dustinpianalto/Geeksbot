@@ -59,12 +59,11 @@ class Utils:
     @commands.command()
     @commands.is_owner()
     async def sysinfo(self, ctx):
-        await ctx.send(f'''
-        ```ml
-        CPU Percentages: {psutil.cpu_percent(percpu=True)}
-        Memory Usage: {psutil.virtual_memory().percent}%
-        Disc Usage: {psutil.disk_usage("/").percent}%
-        ```''')
+        await ctx.send(f'```ml\n'
+                       f'CPU Percentages: {psutil.cpu_percent(percpu=True)}\n'
+                       f'Memory Usage: {psutil.virtual_memory().percent}%\n'
+                       f'Disc Usage: {psutil.disk_usage("/").percent}%\n'
+                       f'```')
 
     @commands.command(hidden=True)
     async def role(self, ctx, role: str):
@@ -227,7 +226,7 @@ class Utils:
                 em.add_field(value=f'Total Time for Comprehensive test: {math.ceil(total_time)}ms',
                              name=f'Average: **{round(total_time/count,1)}ms**',
                              inline=False)
-        await msg.edit(embed=em)
+            await msg.edit(embed=em)
 
     @commands.group(case_insensitive=True)
     async def admin(self, ctx):
