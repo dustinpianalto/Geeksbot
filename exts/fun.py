@@ -80,22 +80,22 @@ class Fun:
             a = a * (i + 1)
         return a
 
-    # @commands.command()
-    # @commands.cooldown(1, 5, type=commands.BucketType.user)
-    # async def fact(self, ctx, number:int):
-    #     if number < 20001 and number > 0:
-    #         n = 1990
-    #         with ctx.channel.typing():
-    #             a = await self.bot.loop.run_in_executor(None, self.get_factorial, number)
-    #         if len(str(a)) > 6000:
-    #             for b in [str(a)[i:i+n] for i in range(0, len(str(a)), n)]:
-    #                 await ctx.author.send(f'```py\n{b}```')
-    #             await ctx.send(f"{ctx.author.mention} Check your DMs.")
-    #         else:
-    #             for b in [str(a)[i:i+n] for i in range(0, len(str(a)), n)]:
-    #                 await ctx.send(f'```py\n{b}```')
-    #     else:
-    #         await ctx.send("Invalid number. Please enter a number between 0 and 20,000")
+    @commands.command()
+    @commands.cooldown(1, 5, type=commands.BucketType.user)
+    async def fact(self, ctx, number:int):
+        if number < 20001 and number > 0:
+            n = 1990
+            with ctx.channel.typing():
+                a = await self.bot.loop.run_in_executor(None, self.get_factorial, number)
+            if len(str(a)) > 6000:
+                for b in [str(a)[i:i+n] for i in range(0, len(str(a)), n)]:
+                    await ctx.author.send(f'```py\n{b}```')
+                await ctx.send(f"{ctx.author.mention} Check your DMs.")
+            else:
+                for b in [str(a)[i:i+n] for i in range(0, len(str(a)), n)]:
+                    await ctx.send(f'```py\n{b}```')
+        else:
+            await ctx.send("Invalid number. Please enter a number between 0 and 20,000")
 
     @commands.command(hidden=True)
     @commands.is_owner()
@@ -153,9 +153,9 @@ class Fun:
 
         trans = await self.bot.db_con.fetchval('select code from geeksbot_emojis where id = 405943174809255956')
         msg = await ctx.send(f'{member.mention}{trans*20}{self.bot.unicode_emojis["left_fist"]}')
-        for i in range(21):
+        for i in range(4):
             await asyncio.sleep(0.1)
-            await msg.edit(content=f'{member.mention}{trans*(20-i)}{self.bot.unicode_emojis["left_fist"]}')
+            await msg.edit(content=f'{member.mention}{trans*(20-(i*5))}{self.bot.unicode_emojis["left_fist"]}')
         await asyncio.sleep(0.1)
         await msg.edit(content=f'{self.bot.unicode_emojis["boom"]}')
         await asyncio.sleep(0.5)
