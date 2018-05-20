@@ -146,7 +146,7 @@ class BotEvents:
     async def on_command_error(ctx, error):
         if ctx.channel.id == 418452585683484680 and type(error) == discord.ext.commands.errors.CommandNotFound:
             return
-        for page in utils.paginate(error):
+        for page in utils.paginate(dir(error)):
             await ctx.send(page)
 
     async def on_guild_join(self, guild):
