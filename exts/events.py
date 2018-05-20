@@ -146,7 +146,7 @@ class BotEvents:
         import traceback
         if ctx.channel.id == 418452585683484680 and type(error) == discord.ext.commands.errors.CommandNotFound:
             return
-        for page in utils.paginate(''.join(traceback.format_exception(error, error.__traceback__))):
+        for page in utils.paginate(''.join(traceback.format_exception(type(error), error, error.__traceback__))):
             await ctx.send(page)
 
     async def on_guild_join(self, guild):
