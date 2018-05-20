@@ -456,8 +456,8 @@ class Utils:
         def is_me(message):
             if message.author == self.bot.user:
                 return True
-            prefixes = self.bot.db_con.fetchval('select prefix from guild_config where guild_id = %(id)s',
-                                                {'id': ctx.guild.id})
+            prefixes = self.bot.db_con.fetchval('select prefix from guild_config where guild_id = $1',
+                                                ctx.guild.id)
             if prefixes:
                 for prefix in prefixes:
                     if message.content.startswith(prefix):
