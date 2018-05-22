@@ -28,6 +28,7 @@ async def mute(bot, ctx, admin=0, member_id=None):
 
 
 def to_list_of_str(items, out: list=list(), level=1, recurse=0):
+    # noinspection PyShadowingNames
     def rec_loop(item, key, out, level):
         quote = '"'
         if type(item) == list:

@@ -1,4 +1,5 @@
 import discord
+from discord.ext import commands
 import logging
 from datetime import datetime
 import json
@@ -50,10 +51,12 @@ class BotEvents:
                 config_str = f'{config_str}\n{" "*4}{config}: {guild_config[config]}'
         return config_str
 
+    # noinspection PyUnusedLocal
     async def on_raw_message_delete(self, msg_id, chan_id):
         await self.bot.db_con.execute('update messages set deleted_at = $1 where id = $2',
                                       datetime.utcnow(), msg_id)
 
+    # noinspection PyUnusedLocal
     async def on_raw_bulk_message_delete(self, msg_ids, chan_id):
         del_time = datetime.utcnow()
         for msg_id in msg_ids:
@@ -85,7 +88,8 @@ class BotEvents:
         await self.bot.db_con.execute(sql, *msg_data)
         if ctx.guild:
             if ctx.author != ctx.guild.me:
-                if await self.bot.db_con.fetchval("select pg_filter from guild_config where guild_id = $1", ctx.guild.id):
+                if await self.bot.db_con.fetchval("select pg_filter from guild_config where guild_id = $1",
+                                                  ctx.guild.id):
                     profane = 0
                     for word in await self.bot.db_con.fetchval('select profane_words from guild_config '
                                                                'where guild_id = $1', ctx.guild.id):
@@ -144,9 +148,10 @@ class BotEvents:
                     ctx.created_at, ctx.system_content, ctx.author.id, ctx.id]
         await self.bot.db_con.execute(sql, *msg_data)
 
+    # noinspection PyMethodMayBeStatic
     async def on_command_error(self, ctx, error):
         import traceback
-        if ctx.channel.id == 418452585683484680 and type(error) == discord.ext.commands.errors.CommandNotFound:
+        if ctx.channel.id == 418452585683484680 and type(error) == commands.errors.CommandNotFound:
             return
         for page in utils.paginate(''.join(traceback.format_exception(type(error), error, error.__traceback__))):
             await ctx.send(page)

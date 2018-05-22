@@ -242,20 +242,20 @@ class Utils:
         if ctx.guild:
             if request_msg is not None:
                 if len(request_msg) < 1000:
-                    self.bot.db_con.execute('insert into admin_requests (issuing_member_id, guild_orig, request_text,'
-                                            'request_time) values ($1, $2, $3, $4)',
-                                            ctx.author.id, ctx.guild.id, request_msg, ctx.message.created_at)
-                    channel = self.bot.db_con.fetchval(f'select admin_chat from guild_config where guild_id = $1',
-                                                       ctx.guild.id)
+                    await self.bot.db_con.execute('insert into admin_requests (issuing_member_id, guild_orig, '
+                                                  'request_text, request_time) values ($1, $2, $3, $4)',
+                                                  ctx.author.id, ctx.guild.id, request_msg, ctx.message.created_at)
+                    channel = await self.bot.db_con.fetchval(f'select admin_chat from guild_config where guild_id = $1',
+                                                             ctx.guild.id)
                     if channel:
                         chan = discord.utils.get(ctx.guild.channels, id=channel)
                         msg = ''
                         admin_roles = []
-                        roles = self.bot.db_con.fetchval(f'select admin_roles,rcon_admin_roles from guild_config where '
-                                                         f'$1', ctx.guild.id)
-                        request_id = self.bot.db_con.fetchval(f'select id from admin_requests where '
-                                                              f'issuing_member_id = $1 and request_time = $2',
-                                                              ctx.author.id, ctx.message.created_at)
+                        roles = await self.bot.db_con.fetchval(f'select admin_roles,rcon_admin_roles from guild_config '
+                                                               f'where $1', ctx.guild.id)
+                        request_id = await self.bot.db_con.fetchval(f'select id from admin_requests where '
+                                                                    f'issuing_member_id = $1 and request_time = $2',
+                                                                    ctx.author.id, ctx.message.created_at)
                         for item in roles:
                             i = json.loads(item)
                             for j in i:
@@ -294,8 +294,8 @@ class Utils:
                            )
         if checks.is_admin(self.bot, ctx) or checks.is_rcon_admin(self.bot, ctx):
             if assigned_to is None:
-                requests = self.bot.db_con.fetch(f'select * from admin_requests where guild_orig = $1 '
-                                                    f'and completed_time is null', ctx.guild.id)
+                requests = await self.bot.db_con.fetch(f'select * from admin_requests where guild_orig = $1 '
+                                                       f'and completed_time is null', ctx.guild.id)
                 em.title = f'Admin help requests for {ctx.guild.name}'
                 if requests:
                     for request in requests:
@@ -314,9 +314,9 @@ class Utils:
             else:
                 if checks.check_admin_role(self.bot, ctx, assigned_to)\
                         or checks.check_rcon_role(self.bot, ctx, assigned_to):
-                    requests = self.bot.db_con.fetch('select * from admin_requests where assigned_to = $1 '
-                                                        'and guild_orig = $2 and completed_time is null',
-                                                        assigned_to.id, ctx.guild.id)
+                    requests = await self.bot.db_con.fetch('select * from admin_requests where assigned_to = $1 '
+                                                           'and guild_orig = $2 and completed_time is null',
+                                                           assigned_to.id, ctx.guild.id)
                     em.title = f'Admin help requests assigned to {assigned_to.display_name} in {ctx.guild.name}'
                     if requests:
                         for request in requests:
@@ -328,15 +328,16 @@ class Utils:
                                          "￰",
                                          inline=False)
                     else:
-                        em.add_field(name=f'There are no pending requests for {assigned_to.display_name} on this guild.',
+                        em.add_field(name=f'There are no pending requests for '
+                                          f'{assigned_to.display_name} on this guild.',
                                      value='￰',
                                      inline=False)
                 else:
                     em.title = f'{assigned_to.display_name} is not an admin in this guild.'
         else:
-            requests = self.bot.db_con.fetch('select * from admin_requests where issuing_member_id = $1 '
-                                                'and guild_orig = $2 and completed_time is null',
-                                                ctx.author.id, ctx.guild.id)
+            requests = await self.bot.db_con.fetch('select * from admin_requests where issuing_member_id = $1 '
+                                                   'and guild_orig = $2 and completed_time is null',
+                                                   ctx.author.id, ctx.guild.id)
             em.title = f'Admin help requests for {ctx.author.display_name}'
             if requests:
                 for request in requests:
@@ -367,12 +368,13 @@ class Utils:
                     except ValueError:
                         await ctx.send(f'{request_id} is not a valid request id.')
                     else:
-                        request = self.bot.db_con.fetchval(f'select * from admin_requests where id = $1', request_id)
+                        request = await self.bot.db_con.fetchval(f'select * from admin_requests where id = $1',
+                                                                 request_id)
                         if request:
                             if request[3] == ctx.guild.id:
                                 if request[6] is None:
-                                    self.bot.db_con.execute('update admin_requests set completed_time = $1 where '
-                                                            'id = $2', ctx.message.created_at, request_id)
+                                    await self.bot.db_con.execute('update admin_requests set completed_time = $1 where '
+                                                                  'id = $2', ctx.message.created_at, request_id)
                                     await ctx.send(f'Request {request_id} by '
                                                    f'{ctx.guild.get_member(request[1]).display_name}'
                                                    f' has been marked complete.')
@@ -454,7 +456,8 @@ class Utils:
         def is_me(message):
             if message.author == self.bot.user:
                 return True
-            prefixes = self.bot.db_con.fetchval('select prefix from guild_config where guild_id = $1', ctx.guild.id)
+            prefixes = self.bot.loop.create_task(self.bot.db_con.fetchval('select prefix from guild_config '
+                                                                          'where guild_id = $1', ctx.guild.id))
             if prefixes:
                 for prefix in prefixes:
                     if message.content.startswith(prefix):
