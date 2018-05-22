@@ -7,7 +7,8 @@ class DatabaseConnection:
         if username == '' or password == '' or database == '':
             raise RuntimeError('Username or Password are blank')
         self.kwargs = {'host': host, 'port': port, 'database': database, 'username': username, 'password': password}
-        self._conn = asyncio.get_event_loop().run_until_complete(self.acquire())
+        self._conn = None
+        asyncio.get_event_loop().run_until_complete(self.acquire())
         self.fetchval = self._conn.fetchval
         self.execute = self._conn.execute
         self.fetchall = self._conn.fetchall
