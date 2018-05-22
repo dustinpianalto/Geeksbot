@@ -21,7 +21,7 @@ class Capturing(list):
 async def mute(bot, ctx, admin=0, member_id=None):
     mute_role = bot.db_con.fetchval(f'select muted_role from guild_config where guild_id = $1', ctx.guild.id)
     if mute_role:
-        if admin or checks.is_admin(bot, ctx):
+        if admin or await checks.is_admin(bot, ctx):
             if ctx.guild.me.guild_permissions.manage_roles:
                 if member_id:
                     ctx.guild.get_member(member_id).edit(roles=[discord.utils.get(ctx.guild.roles, id=mute_role)])

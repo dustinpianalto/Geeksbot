@@ -292,7 +292,7 @@ class Utils:
                            title=f'Admin Help Requests',
                            color=discord.Colour.green()
                            )
-        if checks.is_admin(self.bot, ctx) or checks.is_rcon_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx) or await checks.is_rcon_admin(self.bot, ctx):
             if assigned_to is None:
                 requests = await self.bot.db_con.fetch(f'select * from admin_requests where guild_orig = $1 '
                                                        f'and completed_time is null', ctx.guild.id)
@@ -312,8 +312,8 @@ class Utils:
                 else:
                     em.add_field(name='There are no pending requests for this guild.', value='￰', inline=False)
             else:
-                if checks.check_admin_role(self.bot, ctx, assigned_to)\
-                        or checks.check_rcon_role(self.bot, ctx, assigned_to):
+                if await checks.check_admin_role(self.bot, ctx, assigned_to)\
+                        or await checks.check_rcon_role(self.bot, ctx, assigned_to):
                     requests = await self.bot.db_con.fetch('select * from admin_requests where assigned_to = $1 '
                                                            'and guild_orig = $2 and completed_time is null',
                                                            assigned_to.id, ctx.guild.id)
@@ -359,7 +359,7 @@ class Utils:
         """Allows Admin to close admin help tickets.
         [request_id] must be a valid integer pointing to an open Request ID
         """
-        if checks.is_admin(self.bot, ctx) or checks.is_rcon_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx) or await checks.is_rcon_admin(self.bot, ctx):
             if request_ids:
                 request_ids = request_ids.replace(' ', '').split(',')
                 for request_id in request_ids:
@@ -471,7 +471,7 @@ class Utils:
         def is_author(message):
             return message.author == ctx.author
 
-        if checks.is_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx):
             if member:
                 deleted = await ctx.channel.purge(limit=number, check=is_member)
                 if member != ctx.author:
@@ -487,7 +487,7 @@ class Utils:
     @commands.command(name='purge_all', aliases=['cls', 'clear'])
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def purge_all(self, ctx, number: int=20, contents: str='all'):
-        if checks.is_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx):
             if contents != 'all':
                 deleted = await ctx.channel.purge(limit=number, check=lambda message: message.content == contents)
             else:
@@ -513,7 +513,7 @@ class Utils:
 
     @commands.command(hidden=True, name='sheets')
     async def google_sheets(self, ctx, member: discord.Member):
-        if checks.is_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx):
             scope = ['https://spreadsheets.google.com/feeds',
                      'https://www.googleapis.com/auth/drive']
             credentials = ServiceAccountCredentials.from_json_keyfile_name('config/google_client_secret.json', scope)
