@@ -3,10 +3,10 @@ import asyncio
 
 
 class DatabaseConnection:
-    def __init__(self, host: str='localhost', port: int=5432, database: str='', username: str='', password: str=''):
+    def __init__(self, host: str='localhost', port: int=5432, database: str='', user: str='', password: str=''):
         if username == '' or password == '' or database == '':
             raise RuntimeError('Username or Password are blank')
-        self.kwargs = {'host': host, 'port': port, 'database': database, 'username': username, 'password': password}
+        self.kwargs = {'host': host, 'port': port, 'database': database, 'user': user, 'password': password}
         self._conn = None
         asyncio.get_event_loop().run_until_complete(self.acquire())
         self.fetchval = self._conn.fetchval
