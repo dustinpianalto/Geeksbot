@@ -6,8 +6,8 @@ owner_id = 351794468870946827
 
 
 def check_admin_role(bot, ctx, member):
-    admin_roles = json.loads(bot.con.one(f"select admin_roles from guild_config where guild_id = %(id)s",
-                                         {'id': ctx.guild.id}))
+    admin_roles = json.loads(bot.db_con.fetchval(f"select admin_roles from guild_config where guild_id = $1",
+                                                 ctx.guild.id))
     for role in admin_roles:
         if discord.utils.get(ctx.guild.roles, id=admin_roles[role]) in member.roles:
             return True
@@ -15,8 +15,8 @@ def check_admin_role(bot, ctx, member):
 
 
 def check_rcon_role(bot, ctx, member):
-    rcon_admin_roles = json.loads(bot.con.one("select rcon_admin_roles from guild_config where guild_id = %(id)s",
-                                              {'id': ctx.guild.id}))
+    rcon_admin_roles = json.loads(bot.db_con.fetchval("select rcon_admin_roles from guild_config where guild_id = $1",
+                                                      ctx.guild.id))
     for role in rcon_admin_roles:
         if discord.utils.get(ctx.guild.roles, id=rcon_admin_roles[role]) in member.roles:
             return True
@@ -24,8 +24,8 @@ def check_rcon_role(bot, ctx, member):
 
 
 def is_admin(bot, ctx):
-    admin_roles = json.loads(bot.con.one("select admin_roles from guild_config where guild_id = %(id)s",
-                                         {'id': ctx.guild.id}))
+    admin_roles = json.loads(bot.db_con.fetchval("select admin_roles from guild_config where guild_id = $1",
+                                                 ctx.guild.id))
     for role in admin_roles:
         if discord.utils.get(ctx.guild.roles, id=admin_roles[role]) in ctx.message.author.roles:
             return True
@@ -39,8 +39,8 @@ def is_guild_owner(ctx):
 
 
 def is_rcon_admin(bot, ctx):
-    rcon_admin_roles = json.loads(bot.con.one("select rcon_admin_roles from guild_config where guild_id = %(id)s",
-                                              {'id': ctx.guild.id}))
+    rcon_admin_roles = json.loads(bot.db_con.fetchval("select rcon_admin_roles from guild_config where guild_id = $1",
+                                                      ctx.guild.id))
     for role in rcon_admin_roles:
         if discord.utils.get(ctx.guild.roles, id=rcon_admin_roles[role]) in ctx.message.author.roles:
             return True

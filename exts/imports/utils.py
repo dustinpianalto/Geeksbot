@@ -19,7 +19,7 @@ class Capturing(list):
 
 
 async def mute(bot, ctx, admin=0, member_id=None):
-    mute_role = bot.con.one(f'select muted_role from guild_config where guild_id = {ctx.guild.id}')
+    mute_role = bot.db_con.fetchval(f'select muted_role from guild_config where guild_id = $1', ctx.guild.id)
     if mute_role:
         if admin or checks.is_admin(bot, ctx):
             if ctx.guild.me.guild_permissions.manage_roles:

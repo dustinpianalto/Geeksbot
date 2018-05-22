@@ -120,6 +120,7 @@ class Rcon:
                                       True)
         con.exec_command('ServerChatToPlayer "{0}" GeeksBot: Admin Geeks have been notified you need assistance. '
                          'Please be patient.'.format(player))
+        # noinspection PyProtectedMember
         con._sock.close()
         for role in admin_roles:
             msg = '{0} {1}'.format(msg, discord.utils.get(ctx.guild.roles, id=admin_roles[role]).mention)
@@ -139,13 +140,13 @@ class Rcon:
         To view all the valid ARK servers for this guild see list_ark_servers."""
         if checks.is_rcon_admin(self.bot, ctx):
             if server is not None:
-                rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config\
-                                                                where guild_id = %(id)s', {'id': ctx.guild.id}))
+                rcon_connections = json.loads(self.bot.db_con.fetchval('select rcon_connections from guild_config '
+                                                                       'where guild_id = $1', ctx.guild.id))
                 server = server.replace('_', ' ').title()
                 if server in rcon_connections:
                     rcon_connections[server]["monitoring_chat"] = 1
-                    self.bot.con.run('update guild_config set rcon_connections = %(json)s where guild_id = %(id)s',
-                                     {'id': ctx.guild.id, 'json': json.dumps(rcon_connections)})
+                    self.bot.db_con.execute('update guild_config set rcon_connections = $2 where guild_id = $1',
+                                            ctx.guild.id, json.dumps(rcon_connections))
                     channel = self.bot.get_channel(rcon_connections[server]['game_chat_chan_id'])
                     await channel.send('Started monitoring on the {0} server.'.format(server))
                     await ctx.message.add_reaction('✅')
@@ -158,6 +159,7 @@ class Rcon:
                                                           True)
                             messages = await self.bot.loop.run_in_executor(None, self.server_chat_background_process,
                                                                            ctx.guild.id, con)
+                            # noinspection PyProtectedMember
                             con._sock.close()
                         except TimeoutError:
                             rcon_log.error(traceback.format_exc())
@@ -180,8 +182,10 @@ class Rcon:
                                             message = func(ctx, message, rcon_connections['server'])
                                 await channel.send('{0}'.format(message))
                         await asyncio.sleep(1)
-                        rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config\
-                                                                        where guild_id = %(id)s', {'id': ctx.guild.id}))
+                        rcon_connections = json.loads(self.bot.db_con.fetchval('select rcon_connections '
+                                                                               'from guild_config '
+                                                                               'where guild_id = $1',
+                                                                               ctx.guild.id))
                     await channel.send('Monitoring Stopped')
                 else:
                     await ctx.send(f'Server not found: {server}')
@@ -197,13 +201,13 @@ class Rcon:
         Context is the same as monitor_chat"""
         if checks.is_rcon_admin(self.bot, ctx):
             if server is not None:
-                rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config\
-                                                                where guild_id = %(id)s', {'id': ctx.guild.id}))
+                rcon_connections = json.loads(self.bot.db_con.fetchval('select rcon_connections from guild_config '
+                                                                       'where guild_id = $1', ctx.guild.id))
                 server = server.replace('_', ' ').title()
                 if server in rcon_connections:
                     rcon_connections[server]["monitoring_chat"] = 0
-                    self.bot.con.run('update guild_config set rcon_connections = %(json)s where guild_id = %(id)s',
-                                     {'id': ctx.guild.id, 'json': json.dumps(rcon_connections)})
+                    self.bot.db_con.execute('update guild_config set rcon_connections = $2 where guild_id = $1',
+                                            ctx.guild.id, json.dumps(rcon_connections))
                 else:
                     await ctx.send(f'Server not found: {server}')
             else:
@@ -224,8 +228,8 @@ class Rcon:
         "first last"
         To view all the valid ARK servers for this guild see list_ark_servers."""
         if checks.is_rcon_admin(self.bot, ctx):
-            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config\
-                                                            where guild_id = %(id)s', {'id': ctx.guild.id}))
+            rcon_connections = json.loads(self.bot.db_con.fetchval('select rcon_connections from guild_config '
+                                                                   'where guild_id = $1', ctx.guild.id))
             if server is not None:
                 server = server.replace('_', ' ').title()
                 if server in rcon_connections:
@@ -241,9 +245,10 @@ class Rcon:
                                    '"ip" port "password" if you would like to get info from it.'.format(server))
             else:
                 for server in rcon_connections:
+                    msg = await ctx.send('Getting Data for the {0} server'.format(server.title()))
+                    # noinspection PyBroadException
                     try:
                         connection_info = rcon_connections[server]
-                        msg = await ctx.send('Getting Data for the {0} server'.format(server.title()))
                         async with ctx.channel.typing():
                             message = self._listplayers(connection_info)
                     except Exception as e:
@@ -262,8 +267,8 @@ class Rcon:
         All strings (<server>, <ip>, <password>) must be contained inside double quotes."""
         if checks.is_rcon_admin(self.bot, ctx):
             server = server.title()
-            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config\
-                                                            where guild_id = %(id)s', {'id': ctx.guild.id}))
+            rcon_connections = json.loads(self.bot.db_con.fetchval('select rcon_connections from guild_config '
+                                                                   'where guild_id = $1', ctx.guild.id))
             if server not in rcon_connections:
                 rcon_connections[server] = {
                     'ip': ip,
@@ -274,8 +279,8 @@ class Rcon:
                     'msg_chan_id': 0,
                     'monitoring_chat': 0
                 }
-                self.bot.con.run('update guild_config set rcon_connections = %(connections)s where guild_id = %(id)s',
-                                 {'id': ctx.guild.id, 'connections': json.dumps(rcon_connections)})
+                self.bot.db_con.execute('update guild_config set rcon_connections = $2 where guild_id = $1',
+                                        ctx.guild.id, json.dumps(rcon_connections))
                 await ctx.send('{0} server has been added to my configuration.'.format(server))
             else:
                 await ctx.send('This server name is already in my configuration. Please choose another.')
@@ -291,12 +296,12 @@ class Rcon:
         All strings <server> must be contained inside double quotes."""
         if checks.is_rcon_admin(self.bot, ctx):
             server = server.title()
-            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config\
-                                                            where guild_id = %(id)s', {'id': ctx.guild.id}))
+            rcon_connections = json.loads(self.bot.db_con.fetchval('select rcon_connections from guild_config '
+                                                                   'where guild_id = $1', ctx.guild.id))
             if server in rcon_connections:
                 del rcon_connections[server]
-                self.bot.con.run('update guild_config set rcon_connections = %(connections)s where guild_id = %(id)s',
-                                 {'id': ctx.guild.id, 'connections': json.dumps(rcon_connections)})
+                self.bot.db_con.execute('update guild_config set rcon_connections = $2 where guild_id = $1',
+                                        ctx.guild.id, json.dumps(rcon_connections))
                 await ctx.send('{0} has been removed from my configuration.'.format(server))
             else:
                 await ctx.send('{0} is not in my configuration.'.format(server))
@@ -311,8 +316,8 @@ class Rcon:
         Example: 76561198024193239,76561198024193239,76561198024193239"""
         if checks.is_rcon_admin(self.bot, ctx):
             if steam_ids is not None:
-                rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config\
-                                                                where guild_id = %(id)s', {'id': ctx.guild.id}))
+                rcon_connections = json.loads(self.bot.db_con.fetchval('select rcon_connections from guild_config '
+                                                                       'where guild_id = $1', ctx.guild.id))
                 error = 0
                 error_msg = ''
                 success_msg = 'Adding to the running whitelist on all servers.'
@@ -357,8 +362,8 @@ class Rcon:
         If a server is not specified it will default to running saveworld on all servers in the guild\'s config.
         Will print out "World Saved" for each server when the command completes successfully."""
         if checks.is_rcon_admin(self.bot, ctx):
-            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config\
-                                                            where guild_id = %(id)s', {'id': ctx.guild.id}))
+            rcon_connections = json.loads(self.bot.db_con.fetchval('select rcon_connections from guild_config '
+                                                                   'where guild_id = $1', ctx.guild.id))
             success_msg = 'Running saveworld'
             if server is None:
                 success_msg += ' on all the servers:'
@@ -369,7 +374,7 @@ class Rcon:
                         await msg.edit(content=success_msg.strip())
                         message = await self.bot.loop.run_in_executor(None, self._saveworld, rcon_connections[server])
                     except Exception as e:
-                        success_msg = '{0}\n{1}'.format(success_msg, e.strip())
+                        success_msg = '{0}\n{1}'.format(success_msg, e)
                         await msg.edit(content=success_msg.strip())
                     else:
                         success_msg = '{0}\n{1}'.format(success_msg, message.strip())
@@ -399,8 +404,8 @@ class Rcon:
         The message will be prefixed with the Discord name of the person running the command.
         Will print "Success" for each server once the broadcast is sent."""
         if checks.is_rcon_admin(self.bot, ctx):
-            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config\
-                                                            where guild_id = %(id)s', {'id': ctx.guild.id}))
+            rcon_connections = json.loads(self.bot.db_con.fetchval('select rcon_connections from guild_config '
+                                                                   'where guild_id = $1', ctx.guild.id))
             if message is not None:
                 message = f'{ctx.author.display_name}: {message}'
                 success_msg = f'Broadcasting "{message}" to all servers.'
@@ -414,7 +419,7 @@ class Rcon:
                                                                        rcon_connections[server],
                                                                        message)
                     except Exception as e:
-                        success_msg = '{0}\n{1}'.format(success_msg, e.strip())
+                        success_msg = '{0}\n{1}'.format(success_msg, e)
                         await msg.edit(content=success_msg.strip())
                     else:
                         for mesg in messages:
@@ -436,8 +441,8 @@ class Rcon:
         If <server> has more than one word in it's name it will either need to be surrounded
         by double quotes or the words separated by _"""
         if checks.is_rcon_admin(self.bot, ctx):
-            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config\
-                                                            where guild_id = %(id)s', {'id': ctx.guild.id}))
+            rcon_connections = json.loads(self.bot.db_con.fetchval('select rcon_connections from guild_config '
+                                                                   'where guild_id = $1', ctx.guild.id))
             if server is not None:
                 server = server.replace('_', ' ').title()
                 if message is not None:
@@ -474,8 +479,8 @@ class Rcon:
         These channels will be added to the guild's rcon config and are where the
         server chat messages will be sent when monitor_chat is run."""
         if checks.is_rcon_admin(self.bot, ctx):
-            rcon_connections = json.loads(self.bot.con.one('select rcon_connections from guild_config\
-                                                            where guild_id = %(id)s', {'id': ctx.guild.id}))
+            rcon_connections = json.loads(self.bot.db_con.fetchval('select rcon_connections from guild_config '
+                                                                   'where guild_id = $1', ctx.guild.id))
             edited = 0
             category = discord.utils.get(ctx.guild.categories, name='Server Chats')
             if category is None:
@@ -498,8 +503,8 @@ class Rcon:
                     rcon_connections[server]['game_chat_chan_id'] = chan.id
                     edited = 1
             if edited == 1:
-                self.bot.con.run('update guild_config set rcon_connections = %(json)s where guild_id = %(id)s',
-                                 {'id': ctx.guild.id, 'json': json.dumps(rcon_connections)})
+                self.bot.db_con.execute('update guild_config set rcon_connections = $2 where guild_id = $1',
+                                        ctx.guild.id, json.dumps(rcon_connections))
             await ctx.message.add_reaction('✅')
         else:
             await ctx.send(f'You are not authorized to run this command.')
@@ -509,8 +514,8 @@ class Rcon:
     @commands.check(checks.is_restricted_chan)
     async def list_ark_servers(self, ctx):
         """Returns a list of all the ARK servers in the current guild\'s config."""
-        servers = json.loads(self.bot.con.one('select rcon_connections from guild_config\
-                                               where guild_id = %(id)s', {'id': ctx.guild.id}))
+        servers = json.loads(self.bot.db_con.fetchval('select rcon_connections from guild_config '
+                                                      'where guild_id = $1', ctx.guild.id))
         em = discord.Embed(style='rich',
                            title=f'__**There are currently {len(servers)} ARK servers in my config:**__',
                            color=discord.Colour.green()

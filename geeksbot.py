@@ -8,6 +8,7 @@ import aiohttp
 from googleapiclient.discovery import build
 import asyncpg
 from concurrent import futures
+import asyncio
 
 
 log_format = '{asctime}.{msecs:03.0f}|{levelname:<8}|{name}::{message}'
@@ -56,8 +57,15 @@ class Geeksbot(commands.Bot):
         self.guild_config = {}
         self.infected = {}
         self.TOKEN = self.bot_secrets['token']
+
+        async def connect_db():
+            return await asyncpg.create_pool(host=self.bot_secrets['db_con']['host'],
+                                             database=self.bot_secrets['db_con']['db_name'],
+                                             user=self.bot_secrets['db_con']['user'],
+                                             password=self.bot_secrets['db_con']['password'],
+                                             loop=asyncio.get_event_loop())
         del self.bot_secrets['token']
-        self.db_con = None
+        self.db_con = asyncio.get_event_loop().create_task(connect_db())
         self.default_prefix = 'g~'
         self.voice_chans = {}
         self.spam_list = {}
@@ -71,13 +79,6 @@ class Geeksbot(commands.Bot):
                                         'boom': '💥',
                                         'left_fist': '🤛',
                                         }
-
-    async def connect_db(self):
-        self.db_con = await asyncpg.create_pool(host=self.bot_secrets['db_con']['host'],
-                                                database=self.bot_secrets['db_con']['db_name'],
-                                                user=self.bot_secrets['db_con']['user'],
-                                                password=self.bot_secrets['db_con']['password'],
-                                                loop=self.loop)
 
     @staticmethod
     async def get_custom_prefix(bot_inst, message):
@@ -153,7 +154,6 @@ async def on_message(ctx):
 
 @bot.event
 async def on_ready():
-    if bot.db_con is None: await bot.connect_db()
     bot.recent_msgs = {}
     logging.info('Logged in as {0.name}|{0.id}'.format(bot.user))
     load_list = bot.bot_config['load_list']

@@ -51,6 +51,7 @@ class Admin:
         await ctx.send('Geeksbot is restarting.')
         with open(f'{config_dir}reboot', 'w') as f:
             f.write(f'1\n{ctx.channel.id}')
+        # noinspection PyProtectedMember
         os._exit(1)
 
     @commands.command(hidden=True)
@@ -71,20 +72,19 @@ class Admin:
                 emoji_code = f'<a:{emoji.name}:{emoji.id}>'
             else:
                 emoji_code = f'<:{emoji.name}:{emoji.id}>'
-            if self.bot.con.all('select id from geeksbot_emojis where id = %(id)s', {'id': emoji.id}):
-                self.bot.con.run("update geeksbot_emojis set id = %(id)s, name = %(name)s, code = %(emoji_code)s "
-                                 "where name = %(name)s",
-                                 {'name': emoji.name, 'id': emoji.id, 'emoji_code': emoji_code})
+            if self.bot.db_con.fetchall('select id from geeksbot_emojis where id = $1', emoji.id):
+                self.bot.db_con.execute("update geeksbot_emojis set id = $2, name = $1, code = $3 where name = $1",
+                                        emoji.name, emoji.id, emoji_code)
             else:
-                self.bot.con.run("insert into geeksbot_emojis(id,name,code) values (%(id)s,%(name)s,%(emoji_code)s)",
-                                 {'name': emoji.name, 'id': emoji.id, 'emoji_code': emoji_code})
+                self.bot.db_con.execute("insert into geeksbot_emojis(id,name,code) values ($2,$1,$3)",
+                                        emoji.name, emoji.id, emoji_code)
         await ctx.message.add_reaction('✅')
         await ctx.send(f'Emojis have been updated in the database.')
 
     @commands.command(hidden=True)
     @commands.check(checks.is_guild_owner)
     async def get_guild_config(self, ctx):
-        config = self.bot.con.one('select * from guild_config where guild_id = %(id)s', {'id': ctx.guild.id})
+        config = self.bot.db_con.fetchval('select * from guild_config where guild_id = $1', ctx.guild.id)
         configs = [str(config)[i:i+1990] for i in range(0, len(config), 1990)]
         await ctx.message.author.send(f'The current config for the {ctx.guild.name} guild is:\n')
         admin_log.info(configs)
@@ -112,8 +112,8 @@ class Admin:
         if ctx.guild:
             if checks.is_admin(self.bot, ctx):
                 if channel is not None:
-                    self.bot.con.run('update guild_config set admin_chat = %(chan)s where guild_id = %(id)s',
-                                     {'id': ctx.guild.id, 'chan': channel.id})
+                    self.bot.db_con.execute('update guild_config set admin_chat = $2 where guild_id = $1',
+                                            ctx.guild.id, channel.id)
                     await ctx.send(f'{channel.name} is now set as the Admin Chat channel for this guild.')
 
     @set.command(name='channel_lockdown', aliases=['lockdown', 'restrict_access', 'cl'])
@@ -121,18 +121,18 @@ class Admin:
         if ctx.guild:
             if checks.is_admin(self.bot, ctx):
                 if str(config).lower() == 'true':
-                    if self.bot.con.one('select allowed_channels from guild_config where guild_id = %(id)s',
-                                        {'id': ctx.guild.id}) is []:
+                    if self.bot.db_con.fetchval('select allowed_channels from guild_config where guild_id = $1',
+                                                ctx.guild.id) is []:
                         await ctx.send('Please set at least one allowed channel before running this command.')
                     else:
-                        self.bot.con.run('update guild_config set channel_lockdown = True where guild_id = %(id)s',
-                                         {'id': ctx.guild.id})
+                        self.bot.db_con.execute('update guild_config set channel_lockdown = True where guild_id = $1',
+                                                ctx.guild.id)
                         await ctx.send('Channel Lockdown is now active.')
                 elif str(config).lower() == 'false':
-                    if self.bot.con.one('select channel_lockdown from guild_config where guild_id = %(id)s',
-                                        {'id': ctx.guild.id}):
-                        self.bot.con.run('update guild_config set channel_lockdown = False where guild_id = %(id)s',
-                                         {'id': ctx.guild.id})
+                    if self.bot.db_con.fetchval('select channel_lockdown from guild_config where guild_id = $1',
+                                                ctx.guild.id):
+                        self.bot.db_con.execute('update guild_config set channel_lockdown = False where guild_id = $1',
+                                                ctx.guild.id)
                         await ctx.send('Channel Lockdown has been deactivated.')
                     else:
                         await ctx.send('Channel Lockdown is already deactivated.')
@@ -153,28 +153,27 @@ class Admin:
                         await ctx.send(f'{channel} is not a valid text channel in this guild.')
                     else:
                         admin_log.info('Chan found')
-                        if self.bot.con.one('select allowed_channels from guild_config where guild_id = %(id)s',
-                                            {'id': ctx.guild.id}):
-                            if chnl.id in json.loads(self.bot.con.one('select allowed_channels from guild_config '
-                                                                      'where guild_id = %(id)s',
-                                                                      {'id': ctx.guild.id})):
+                        if self.bot.db_con.fetchval('select allowed_channels from guild_config where guild_id = $1',
+                                                    ctx.guild.id):
+                            if chnl.id in json.loads(self.bot.db_con.fetchval('select allowed_channels '
+                                                                              'from guild_config where guild_id = $1',
+                                                                              ctx.guild.id)):
                                 admin_log.info('Chan found in config')
                                 await ctx.send(f'{channel} is already in the list of allowed channels. Skipping...')
                             else:
                                 admin_log.info('Chan not found in config')
-                                allowed_channels = json.loads(self.bot.con.one('select allowed_channels from '
-                                                                               'guild_config where guild_id = %(id)s',
-                                                                               {'id': ctx.guild.id})).append(chnl.id)
-                                self.bot.con.run('update guild_config set allowed_channels = %(channels)s '
-                                                 'where guild_id = %(id)s',
-                                                 {'id': ctx.guild.id, 'channels': allowed_channels})
+                                allowed_channels = json.loads(self.bot.db_con.fetchval('select allowed_channels '
+                                                                                       'from guild_config '
+                                                                                       'where guild_id = $1',
+                                                                                       ctx.guild.id)).append(chnl.id)
+                                self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
+                                                        'where guild_id = $1', ctx.guild.id, allowed_channels)
                                 added = f'{added}\n{channel}'
                         else:
                             admin_log.info('Chan not found in config')
                             allowed_channels = [chnl.id]
-                            self.bot.con.run('update guild_config set allowed_channels = %(channels)s '
-                                             'where guild_id = %(id)s',
-                                             {'id': ctx.guild.id, 'channels': allowed_channels})
+                            self.bot.db_con.execute('update guild_config set allowed_channels = $2 where guild_id = $1',
+                                                    ctx.guild.id, allowed_channels)
                             added = f'{added}\n{channel}'
                 if added != '':
                     await ctx.send(f'The following channels have been added to the allowed channel list: {added}')
@@ -196,8 +195,7 @@ class Admin:
     async def add_prefix(self, ctx, *, prefix=None):
         if ctx.guild:
             if checks.is_admin(self.bot, ctx):
-                prefixes = self.bot.con.one('select prefix from guild_config where guild_id = %(id)s',
-                                            {'id': ctx.guild.id})
+                prefixes = self.bot.db_con.fetchval('select prefix from guild_config where guild_id = $1', ctx.guild.id)
                 if prefix is None:
                     await ctx.send(prefixes)
                     return
@@ -209,8 +207,8 @@ class Admin:
                 if len(prefixes) > 10:
                     await ctx.send(f'Only 10 prefixes are allowed per guild.\nPlease remove some before adding more.')
                     prefixes = prefixes[:10]
-                self.bot.con.run('update guild_config set prefix = %(prefixes)s where guild_id = %(id)s',
-                                 {'id': ctx.guild.id, 'prefixes': prefixes})
+                self.bot.db_con.execute('update guild_config set prefix = $2 where guild_id = $1',
+                                        ctx.guild.id, prefixes)
                 await ctx.guild.me.edit(nick=f'[{prefixes[0]}] Geeksbot')
                 await ctx.send(f"Updated. You currently have {len(prefixes)} "
                                f"{'prefix' if len(prefixes) == 1 else 'prefixes'} "
@@ -225,8 +223,8 @@ class Admin:
     async def remove_prefix(self, ctx, *, prefix=None):
         if ctx.guild:
             if checks.is_admin(self.bot, ctx):
-                prefixes = self.bot.con.one('select prefix from guild_config where guild_id = %(id)s',
-                                            {'id': ctx.guild.id})
+                prefixes = self.bot.db_con.fetchval('select prefix from guild_config where guild_id = $1',
+                                                    ctx.guild.id)
                 found = 0
                 if prefix is None:
                     await ctx.send(prefixes)
@@ -243,8 +241,8 @@ class Admin:
                         else:
                             await ctx.send(f'The prefix {p} is not in the config for this guild.')
                 if found:
-                    self.bot.con.run('update guild_config set prefix = %(prefixes)s where guild_id = %(id)s',
-                                     {'id': ctx.guild.id, 'prefixes': prefixes})
+                    self.bot.db_con.execute('update guild_config set prefix = $2 where guild_id = $1',
+                                            ctx.guild.id, prefixes)
                     await ctx.guild.me.edit(nick=f'[{prefixes[0] if len(prefixes) != 0 else self.bot.default_prefix}] '
                                                  f'Geeksbot')
                     await ctx.send(f"Updated. You currently have {len(prefixes)} "
@@ -261,14 +259,14 @@ class Admin:
     async def _add_admin_role(self, ctx, role=None):
         role = discord.utils.get(ctx.guild.roles, name=role)
         if role is not None:
-            roles = json.loads(self.bot.con.one('select admin_roles from guild_config where guild_id = %(id)s',
-                                                {'id': ctx.guild.id}))
+            roles = json.loads(self.bot.db_con.fetchval('select admin_roles from guild_config where guild_id = $1',
+                                                        ctx.guild.id))
             if role.name in roles:
                 await ctx.send(f'{role.name} is already registered as an admin role in this guild.')
             else:
                 roles[role.name] = role.id
-                self.bot.con.run('update guild_config set admin_roles = %(roles)s where guild_id = %(id)s',
-                                 {'id': ctx.guild.id, 'roles': json.dumps(roles)})
+                self.bot.db_con.execute('update guild_config set admin_roles = $2 where guild_id = $1',
+                                        ctx.guild.id, json.dumps(roles))
                 await ctx.send(f'{role.name} has been added to the list of admin roles for this guild.')
         else:
             await ctx.send('You must include a role with this command.')
@@ -279,12 +277,12 @@ class Admin:
     async def _remove_admin_role(self, ctx, role=None):
         role = discord.utils.get(ctx.guild.roles, name=role)
         if role is not None:
-            roles = json.loads(self.bot.con.one('select admin_roles from guild_config where guild_id = %(id)s',
-                                                {'id': ctx.guild.id}))
+            roles = json.loads(self.bot.db_con.fetchval('select admin_roles from guild_config where guild_id = $1',
+                                                        ctx.guild.id))
             if role.name in roles:
                 del roles[role.name]
-                self.bot.con.run('update guild_config set admin_roles = %(roles)s where guild_id = %(id)s',
-                                 {'id': ctx.guild.id, 'roles': roles})
+                self.bot.db_con.execute('update guild_config set admin_roles = $2 where guild_id = $1',
+                                        ctx.guild.id, json.dumps(roles))
                 await ctx.send(f'{role.name} has been removed from the list of admin roles for this guild.')
             else:
                 await ctx.send(f'{role.name} is not registered as an admin role in this guild.')

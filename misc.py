@@ -33,3 +33,12 @@ bot.voice_chan.play(discord.FFmpegPCMAudio(info['url']))
 #async while bot.voice_chan.is_playing():
 #    pass
 #await bot.voice_chan.disconnect()
+
+# Run event in loop after number of seconds
+from functools import partial
+return bot.loop.call_later(120, partial(bot.loop.create_task, ctx.send(f"{ctx.author.mention} Timer's Up")))
+
+# Get the number of tasks currently in the loop
+import asyncio
+return len(asyncio.Task.all_tasks())
+

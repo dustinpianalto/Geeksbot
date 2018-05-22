@@ -82,8 +82,8 @@ class Fun:
 
     @commands.command()
     @commands.cooldown(1, 5, type=commands.BucketType.user)
-    async def fact(self, ctx, number:int):
-        if number < 20001 and number > 0:
+    async def fact(self, ctx, number: int):
+        if 0 < number < 20001:
             n = 1990
             with ctx.channel.typing():
                 a = await self.bot.loop.run_in_executor(None, self.get_factorial, number)
@@ -141,6 +141,7 @@ class Fun:
         else:
             await ctx.send('Not connected to that voice channel.')
 
+    # noinspection PyUnusedLocal
     @commands.command(hidden=True)
     @commands.is_owner()
     async def volume(self, ctx, volume: float):

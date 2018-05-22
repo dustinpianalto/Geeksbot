@@ -55,11 +55,13 @@ class BotEvents:
                                       datetime.utcnow(), msg_id)
 
     async def on_raw_bulk_message_delete(self, msg_ids, chan_id):
-        sql = await self.bot.db_con.prepare('update messages set deleted_at = $1 where id = $2')
+        del_time = datetime.utcnow()
         for msg_id in msg_ids:
-            await sql.execute(datetime.utcnow(), msg_id)
+            await self.bot.db_con.execute('update messages set deleted_at = $1 where id = $2',
+                                          del_time, msg_id)
 
     async def on_message(self, ctx):
+        # noinspection PyBroadException
         try:
             if ctx.author in self.bot.infected:
                 if datetime.now().timestamp() > self.bot.infected[ctx.author][1] + 300:
