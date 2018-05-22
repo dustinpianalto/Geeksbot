@@ -6,9 +6,8 @@ from datetime import datetime
 import json
 import aiohttp
 from googleapiclient.discovery import build
-import asyncpg
 from concurrent import futures
-import asyncio
+from shared_libs import database
 
 
 log_format = '{asctime}.{msecs:03.0f}|{levelname:<8}|{name}::{message}'
@@ -58,14 +57,14 @@ class Geeksbot(commands.Bot):
         self.infected = {}
         self.TOKEN = self.bot_secrets['token']
 
-        async def connect_db():
-            return await asyncpg.create_pool(host=self.bot_secrets['db_con']['host'],
-                                             database=self.bot_secrets['db_con']['db_name'],
-                                             user=self.bot_secrets['db_con']['user'],
-                                             password=self.bot_secrets['db_con']['password'],
-                                             loop=asyncio.get_event_loop())
+        # async def connect_db():
+        #     return await asyncpg.create_pool(host=self.bot_secrets['db_con']['host'],
+        #                                      database=self.bot_secrets['db_con']['db_name'],
+        #                                      user=self.bot_secrets['db_con']['user'],
+        #                                      password=self.bot_secrets['db_con']['password'],
+        #                                      loop=asyncio.get_event_loop())
         del self.bot_secrets['token']
-        self.db_con = asyncio.get_event_loop().create_task(connect_db())
+        self.db_con = database.DatabaseConnection(**self.bot_secrets['db_con'])
         self.default_prefix = 'g~'
         self.voice_chans = {}
         self.spam_list = {}
@@ -79,6 +78,10 @@ class Geeksbot(commands.Bot):
                                         'boom': '💥',
                                         'left_fist': '🤛',
                                         }
+
+    async def logout(self):
+        await self.db_con.close()
+        super().logout()
 
     @staticmethod
     async def get_custom_prefix(bot_inst, message):
