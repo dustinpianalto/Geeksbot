@@ -72,7 +72,7 @@ class Admin:
                 emoji_code = f'<a:{emoji.name}:{emoji.id}>'
             else:
                 emoji_code = f'<:{emoji.name}:{emoji.id}>'
-            if self.bot.db_con.fetchall('select id from geeksbot_emojis where id = $1', emoji.id):
+            if self.bot.db_con.fetch('select id from geeksbot_emojis where id = $1', emoji.id):
                 self.bot.db_con.execute("update geeksbot_emojis set id = $2, name = $1, code = $3 where name = $1",
                                         emoji.name, emoji.id, emoji_code)
             else:

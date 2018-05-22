@@ -294,7 +294,7 @@ class Utils:
                            )
         if checks.is_admin(self.bot, ctx) or checks.is_rcon_admin(self.bot, ctx):
             if assigned_to is None:
-                requests = self.bot.db_con.fetchall(f'select * from admin_requests where guild_orig = $1 '
+                requests = self.bot.db_con.fetch(f'select * from admin_requests where guild_orig = $1 '
                                                     f'and completed_time is null', ctx.guild.id)
                 em.title = f'Admin help requests for {ctx.guild.name}'
                 if requests:
@@ -314,7 +314,7 @@ class Utils:
             else:
                 if checks.check_admin_role(self.bot, ctx, assigned_to)\
                         or checks.check_rcon_role(self.bot, ctx, assigned_to):
-                    requests = self.bot.db_con.fetchall('select * from admin_requests where assigned_to = $1 '
+                    requests = self.bot.db_con.fetch('select * from admin_requests where assigned_to = $1 '
                                                         'and guild_orig = $2 and completed_time is null',
                                                         assigned_to.id, ctx.guild.id)
                     em.title = f'Admin help requests assigned to {assigned_to.display_name} in {ctx.guild.name}'
@@ -334,7 +334,7 @@ class Utils:
                 else:
                     em.title = f'{assigned_to.display_name} is not an admin in this guild.'
         else:
-            requests = self.bot.db_con.fetchall('select * from admin_requests where issuing_member_id = $1 '
+            requests = self.bot.db_con.fetch('select * from admin_requests where issuing_member_id = $1 '
                                                 'and guild_orig = $2 and completed_time is null',
                                                 ctx.author.id, ctx.guild.id)
             em.title = f'Admin help requests for {ctx.author.display_name}'

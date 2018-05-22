@@ -11,8 +11,8 @@ class DatabaseConnection:
         asyncio.get_event_loop().run_until_complete(self.acquire())
         self.fetchval = self._conn.fetchval
         self.execute = self._conn.execute
-        self.fetchall = self._conn.fetchall
-        self.fetchone = self._conn.fetchone
+        self.fetch = self._conn.fetch
+        self.fetchrow = self._conn.fetchrow
 
     async def acquire(self):
         if not self._conn:
