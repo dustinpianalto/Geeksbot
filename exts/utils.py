@@ -59,6 +59,7 @@ class Utils:
     @commands.command()
     @commands.is_owner()
     async def sysinfo(self, ctx):
+        """WIP Gets current system status for the server that Geeksbot is running on."""
         await ctx.send(f'```ml\n'
                        f'CPU Percentages: {psutil.cpu_percent(percpu=True)}\n'
                        f'Memory Usage: {psutil.virtual_memory().percent}%\n'
@@ -429,6 +430,8 @@ class Utils:
     @commands.command(name='localtime', aliases=['time', 'lt'])
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def get_localtime(self, ctx, timezone: str='Anchorage'):
+        """Shows the current time localized to the timezone given
+        This defaults to the Bot's local timezone of Anchorage Alaska USA if none are given."""
         em = discord.Embed()
         try:
             tz = pytz.timezone(timezone)
@@ -453,6 +456,13 @@ class Utils:
     @commands.command(name='purge', aliases=['clean', 'erase'])
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def purge_messages(self, ctx, number: int=20, member: discord.Member=None):
+        """Gives Admin the ability to quickly clear messages from a channel
+        By default this will only purge messages sent by Geeksbot and any messages that appear to
+        have called Geeksbot (aka start with one of the Geeksbot's prefixes for this Guild)
+        If you want to purge messages from a different user you must provide a number and member
+
+        Note: Geeksbot will not find <number> of messages by the given member, it will instead
+        search the last <number> messages in the channel and delete any by the given member"""
         def is_me(message):
             if message.author == self.bot.user:
                 return True
@@ -487,6 +497,9 @@ class Utils:
     @commands.command(name='purge_all', aliases=['cls', 'clear'])
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def purge_all(self, ctx, number: int=20, contents: str='all'):
+        """Will delete all of the last <number> of messages from the channel
+        If <contents> is not 'all' then only messages containing <contents>
+        will be deleted."""
         if await checks.is_admin(self.bot, ctx):
             if contents != 'all':
                 deleted = await ctx.channel.purge(limit=number, check=lambda message: message.content == contents)
@@ -500,6 +513,7 @@ class Utils:
 
     @commands.command(name='google', aliases=['g', 'search'])
     async def google_search(self, ctx, *, search):
+        """WIP Search Google for the given string"""
         res = self.bot.gcs_service.cse().list(q=search, cx=self.bot.bot_secrets['cx']).execute()
         results = res['items'][:4]
         em = discord.Embed()
@@ -538,6 +552,7 @@ class Utils:
 
     @commands.command(name='iss')
     async def iss_loc(self, ctx):
+        """WIP Locates the International Space Station and display on a map"""
         def gen_image(iss_loc):
             lat = iss_loc['latitude']
             lon = iss_loc['longitude']
@@ -561,6 +576,8 @@ class Utils:
 
     @commands.command(name='location', aliases=['loc', 'map'])
     async def map_location(self, ctx, *, location):
+        """WIP Displays the given location on a map
+        Note: This is SLOW!!! Be prepared to wait up to a minute for the result"""
 
         def draw_map(m, scale=1):
             # draw a shaded-relief image

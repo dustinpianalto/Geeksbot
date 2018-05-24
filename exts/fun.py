@@ -65,13 +65,14 @@ class Fun:
     @commands.command()
     @commands.cooldown(1, 5, type=commands.BucketType.user)
     async def slap(self, ctx, member: discord.Member):
+        trout = await self.bot.db_con.fetchval("select code from geeksbot_emojis where name = 'trout'")
         if member.id == self.bot.user.id and ctx.author.id != owner_id:
             await ctx.send(f'You rolled a Critical Fail...\nThe trout bounces off and rebounds on the attacker.')
             await ctx.send(f'{ctx.author.mention} '
-                           f'You slap yourself in the face with a large trout <:trout:408543365085397013>')
+                           f'You slap yourself in the face with a large trout {trout}')
         else:
             await ctx.send(f'{ctx.author.display_name} slaps '
-                           f'{member.mention} around a bit with a large trout <:trout:408543365085397013>')
+                           f'{member.mention} around a bit with a large trout {trout}')
 
     @staticmethod
     def get_factorial(number):
