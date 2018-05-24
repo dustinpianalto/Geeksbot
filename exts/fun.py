@@ -65,7 +65,7 @@ class Fun:
     @commands.command()
     @commands.cooldown(1, 5, type=commands.BucketType.user)
     async def slap(self, ctx, member: discord.Member):
-        trout = await self.bot.db_con.fetchval("select code from geeksbot_emojis where name = 'trout'")
+        trout = await self.bot.db_con.fetchval("select code from geeksbot_emojis where id = 449083238766477312")
         if member.id == self.bot.user.id and ctx.author.id != owner_id:
             await ctx.send(f'You rolled a Critical Fail...\nThe trout bounces off and rebounds on the attacker.')
             await ctx.send(f'{ctx.author.mention} '
