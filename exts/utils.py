@@ -471,16 +471,20 @@ class Utils:
             try:
                 orig_time = copy(time)
                 split_time = time.split()
-                for tz in pytz.all_timezones:
-                    if split_time[-1].lower() in tz.lower():
-                        time = utils.replace_text_ignorecase(time, old=split_time[-1], new='')
-                        if tz in replace_tzs:
-                            tz = replace_tzs['tz']
-                        parsed_tz = pytz.timezone(tz)
-                        break
-                else:
-                    em.set_footer(text='Valid timezone not found in time string. Using UTC...')
-                    parsed_tz = pytz.timezone('UTC')
+                try:
+                    parsed_tz = pytz.timezone(split_time[-1])
+                    time = utils.replace_text_ignorecase(time, old=split_time[-1], new='')
+                except pytz.exceptions.UnknownTimeZoneError:
+                    for tz in pytz.all_timezones:
+                        if split_time[-1].lower() in tz.lower():
+                            time = utils.replace_text_ignorecase(time, old=split_time[-1], new='')
+                            if tz in replace_tzs:
+                                tz = replace_tzs['tz']
+                            parsed_tz = pytz.timezone(tz)
+                            break
+                    else:
+                        em.set_footer(text='Valid timezone not found in time string. Using UTC...')
+                        parsed_tz = pytz.timezone('UTC')
                 in_time = parse(time.upper())
                 in_time = parsed_tz.localize(in_time)
             except ValueError:
