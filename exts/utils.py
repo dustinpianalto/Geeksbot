@@ -466,7 +466,7 @@ class Utils:
         description = ''
 
         if time is None:
-            description += 'Time not given... using current UTC time.'
+            em.set_footer(text='Time not given... using current UTC time.')
             in_time = datetime.utcnow()
         else:
             try:
@@ -481,7 +481,7 @@ class Utils:
                         parsed_tz = pytz.timezone(tz)
                         break
                 else:
-                    description += 'Valid timezone not found in time string. Using UTC...'
+                    em.set_footer(text='Valid timezone not found in time string. Using UTC...')
                     parsed_tz = pytz.timezone('UTC')
                 in_time = parse(time.upper())
                 in_time = parsed_tz.localize(in_time)
