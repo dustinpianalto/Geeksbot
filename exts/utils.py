@@ -482,7 +482,8 @@ class Utils:
                 in_time = parsed_tz.localize(in_time)
             except ValueError:
                 em.title = 'Can\' parse time.'
-                em.description = f'For some reason I can\'t parse this time string: {orig_time}\n' \
+                em.description = f'For some reason I can\'t parse this time string: \n' \
+                                 f'{orig_time} {time} {in_time}' \
                                  f'Examples of valid time strings are in my help documentation.\n' \
                                  f'Please try again.'
                 em.colour = discord.Colour.red()
