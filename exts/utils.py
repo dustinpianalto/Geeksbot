@@ -7,7 +7,7 @@ import psutil
 from datetime import datetime, timedelta
 import asyncio
 import async_timeout
-from .imports import checks
+from .imports import checks, utils
 import pytz
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -31,6 +31,7 @@ invite_match = '(https?://)?(www.)?discord(app.com/(invite|oauth2)|.gg|.io)/[\w\
 
 utils_log = logging.getLogger('utils')
 clock_emojis = ['🕛', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚']
+replace_tzs = {'MST': 'US/Mountain', 'HST': 'US/Hawaii', 'EST': 'US/Eastern'}
 
 
 class Utils:
@@ -471,8 +472,12 @@ class Utils:
             try:
                 orig_time = copy(time)
                 for tz in pytz.all_timezones:
-                    if tz.lower() in time.lower():
-                        time = time.replace(tz, '')
+                    if any([t.replace(' ', '_') in tz.lower()
+                            or t.replace(' ', '-') in tz.lower()
+                            for t in time.lower().split()]):
+                        time = utils.replace_text_ignorecase(time, old=tz, new='')
+                        if tz in replace_tzs:
+                            tz = replace_tzs['tz']
                         parsed_tz = pytz.timezone(tz)
                         break
                 else:
@@ -487,26 +492,25 @@ class Utils:
                                  f'Examples of valid time strings are in my help documentation.\n' \
                                  f'Please try again.'
                 em.colour = discord.Colour.red()
+        try:
+            out_tz = pytz.timezone(timezone)
+        except pytz.exceptions.UnknownTimeZoneError:
+            for tz in pytz.all_timezones:
+                if timezone.lower() in tz.lower():
+                    out_tz = pytz.timezone(tz)
+                    break
             else:
-                try:
-                    out_tz = pytz.timezone(timezone)
-                except pytz.exceptions.UnknownTimeZoneError:
-                    for tz in pytz.all_timezones:
-                        if timezone.lower() in tz.lower():
-                            out_tz = pytz.timezone(tz)
-                            break
-                    else:
-                        out_tz = None
-                        em.title = 'Unknown Timezone.'
-                        em.colour = discord.Colour.red()
-                finally:
-                    if out_tz:
-                        out_time = in_time.astimezone(out_tz)
-                        em.add_field(name=f'{clock_emojis[(in_time.hour % 12)]} {in_time.strftime("%c")}',
-                                     value='input', inline=False)
-                        em.add_field(name=f'{clock_emojis[(out_time.hour % 12)]} {out_time.strftime("%c")}',
-                                     value='output', inline=False)
-                        em.colour = self.bot.embed_color
+                out_tz = None
+                em.title = 'Unknown Timezone.'
+                em.colour = discord.Colour.red()
+        finally:
+            if out_tz:
+                out_time = in_time.astimezone(out_tz)
+                em.add_field(name=f'{clock_emojis[(in_time.hour % 12)]} {in_time.strftime("%c")}',
+                             value='input', inline=False)
+                em.add_field(name=f'{clock_emojis[(out_time.hour % 12)]} {out_time.strftime("%c")}',
+                             value='output', inline=False)
+                em.colour = self.bot.embed_color
         await ctx.send(embed=em)
 
     @commands.command(name='purge', aliases=['clean', 'erase'])

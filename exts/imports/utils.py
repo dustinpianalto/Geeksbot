@@ -4,6 +4,7 @@ import asyncio
 import discord
 from discord.ext.commands.formatter import Paginator
 from . import checks
+import re
 
 
 class Capturing(list):
@@ -62,6 +63,11 @@ def to_list_of_str(items, out: list=list(), level=1, recurse=0):
             out.append('}')
 
     return out
+
+
+def replace_text_ignorecase(in_str: str, old: str, new: str='') -> str:
+    re_replace = re.compile(re.escape(old), re.IGNORECASE)
+    return re_replace.sub(f'{new}', in_str)
 
 
 def paginate(text, maxlen=1990):
