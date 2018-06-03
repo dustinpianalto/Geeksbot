@@ -18,6 +18,8 @@ from mpl_toolkits.basemap import Basemap
 from io import BytesIO
 from itertools import chain
 import numpy as np
+from dateutil.parser import parse
+from copy import copy
 
 config_dir = 'config/'
 admin_id_file = 'admin_ids'
@@ -432,7 +434,9 @@ class Utils:
     async def get_localtime(self, ctx, timezone: str='Anchorage'):
         """Shows the current time localized to the timezone given
         This defaults to the Bot's local timezone of Anchorage Alaska USA if none are given."""
+
         em = discord.Embed()
+
         try:
             tz = pytz.timezone(timezone)
             localtime = datetime.now(tz=tz)
@@ -451,6 +455,57 @@ class Utils:
                     return
             em.title = 'Unknown Timezone.'
             em.colour = discord.Colour.red()
+            await ctx.send(embed=em)
+
+    # noinspection PyUnboundLocalVariable
+    @commands.command(name='gettimein', aliases=['timein', 'gti'])
+    @commands.cooldown(1, 3, type=commands.BucketType.user)
+    async def get_time_in_timezone(self, ctx,  timezone: str='US/Eastern', *, time: str=None):
+        em = discord.Embed()
+        description = ''
+
+        if time is None:
+            description += 'Time not given... using current UTC time.'
+            in_time = datetime.utcnow()
+        else:
+            try:
+                orig_time = copy(time)
+                for tz in pytz.all_timezones:
+                    if tz.lower() in time.lower():
+                        time = time.replace(tz, '')
+                        parsed_tz = pytz.timezone(tz)
+                        break
+                else:
+                    description += 'Valid timezone not found in time string. Using UTC...'
+                    parsed_tz = pytz.timezone('UTC')
+                in_time = parse(time.upper())
+                in_time = parsed_tz.localize(in_time)
+            except ValueError:
+                em.title = 'Can\' parse time.'
+                em.description = f'For some reason I can\'t parse this time string: {orig_time}\n' \
+                                 f'Examples of valid time strings are in my help documentation.\n' \
+                                 f'Please try again.'
+                em.colour = discord.Colour.red()
+
+        try:
+            out_tz = pytz.timezone(timezone)
+        except pytz.exceptions.UnknownTimeZoneError:
+            for tz in pytz.all_timezones:
+                if timezone.lower() in tz.lower():
+                    out_tz = pytz.timezone(tz)
+                    break
+            else:
+                out_tz = None
+                em.title = 'Unknown Timezone.'
+                em.colour = discord.Colour.red()
+        finally:
+            if out_tz:
+                out_time = in_time.astimezone(out_tz)
+                em.add_field(name=f'{clock_emojis[(in_time.hour % 12)]} {in_time.strftime("%c")}',
+                             value='input', inline=False)
+                em.add_field(name=f'{clock_emojis[(out_time.hour % 12)]} {out_time.strftime("%c")}',
+                             value='output', inline=False)
+                em.colour = self.bot.embed_color
             await ctx.send(embed=em)
 
     @commands.command(name='purge', aliases=['clean', 'erase'])

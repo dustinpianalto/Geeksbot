@@ -1,5 +1,6 @@
 from typing import Dict
 
+import discord
 from discord.ext import commands
 import logging
 from datetime import datetime
@@ -56,6 +57,7 @@ class Geeksbot(commands.Bot):
         self.guild_config = {}
         self.infected = {}
         self.TOKEN = self.bot_secrets['token']
+        self.embed_color = discord.Colour.from_rgb(49, 107, 111)
 
         # async def connect_db():
         #     return await asyncpg.create_pool(host=self.bot_secrets['db_con']['host'],
