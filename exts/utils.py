@@ -470,9 +470,10 @@ class Utils:
         else:
             try:
                 orig_time = copy(time)
+                split_time = time.split()
                 for tz in pytz.all_timezones:
-                    if time.lower().split()[-1] in tz.lower():
-                        time = utils.replace_text_ignorecase(time, old=tz, new='')
+                    if split_time[-1].lower() in tz.lower():
+                        time = utils.replace_text_ignorecase(time, old=split_time[-1], new='')
                         if tz in replace_tzs:
                             tz = replace_tzs['tz']
                         parsed_tz = pytz.timezone(tz)
