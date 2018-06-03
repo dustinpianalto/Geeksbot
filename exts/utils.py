@@ -463,7 +463,6 @@ class Utils:
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def get_time_in_timezone(self, ctx,  timezone: str='US/Eastern', *, time: str=None):
         em = discord.Embed()
-        description = ''
 
         if time is None:
             em.set_footer(text='Time not given... using current UTC time.')
@@ -472,9 +471,7 @@ class Utils:
             try:
                 orig_time = copy(time)
                 for tz in pytz.all_timezones:
-                    if any([t.replace(' ', '_') in tz.lower()
-                            or t.replace(' ', '-') in tz.lower()
-                            for t in time.lower().split()]):
+                    if time.lower().split()[-1] in tz.lower():
                         time = utils.replace_text_ignorecase(time, old=tz, new='')
                         if tz in replace_tzs:
                             tz = replace_tzs['tz']
@@ -488,7 +485,7 @@ class Utils:
             except ValueError:
                 em.title = 'Can\' parse time.'
                 em.description = f'For some reason I can\'t parse this time string: \n' \
-                                 f'{orig_time} {time} {parsed_tz}' \
+                                 f'{orig_time} {time} {parsed_tz}\n' \
                                  f'Examples of valid time strings are in my help documentation.\n' \
                                  f'Please try again.'
                 em.colour = discord.Colour.red()
