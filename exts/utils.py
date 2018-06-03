@@ -505,9 +505,9 @@ class Utils:
             if out_tz:
                 out_time = in_time.astimezone(out_tz)
                 em.add_field(name=f'{clock_emojis[(in_time.hour % 12)]} {in_time.strftime("%c")}',
-                             value='input', inline=False)
+                             value=f'{parsed_tz}', inline=False)
                 em.add_field(name=f'{clock_emojis[(out_time.hour % 12)]} {out_time.strftime("%c")}',
-                             value='output', inline=False)
+                             value=f'{out_tz}', inline=False)
                 em.colour = self.bot.embed_color
         await ctx.send(embed=em)
 
