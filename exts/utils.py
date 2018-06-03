@@ -472,7 +472,7 @@ class Utils:
                 orig_time = copy(time)
                 split_time = time.split()
                 try:
-                    parsed_tz = pytz.timezone(split_time[-1])
+                    parsed_tz = pytz.timezone(replace_tzs[split_time[-1].upper()] or split_time[-1])
                     time = utils.replace_text_ignorecase(time, old=split_time[-1], new='')
                 except pytz.exceptions.UnknownTimeZoneError:
                     for tz in pytz.all_timezones:
