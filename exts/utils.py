@@ -467,6 +467,7 @@ class Utils:
         if time is None:
             em.set_footer(text='Time not given... using current UTC time.')
             in_time = datetime.utcnow()
+            parsed_tz = pytz.timezone('UTC')
         else:
             try:
                 orig_time = copy(time)
