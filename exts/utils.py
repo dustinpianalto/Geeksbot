@@ -486,27 +486,27 @@ class Utils:
                                  f'Examples of valid time strings are in my help documentation.\n' \
                                  f'Please try again.'
                 em.colour = discord.Colour.red()
-
-        try:
-            out_tz = pytz.timezone(timezone)
-        except pytz.exceptions.UnknownTimeZoneError:
-            for tz in pytz.all_timezones:
-                if timezone.lower() in tz.lower():
-                    out_tz = pytz.timezone(tz)
-                    break
             else:
-                out_tz = None
-                em.title = 'Unknown Timezone.'
-                em.colour = discord.Colour.red()
-        finally:
-            if out_tz:
-                out_time = in_time.astimezone(out_tz)
-                em.add_field(name=f'{clock_emojis[(in_time.hour % 12)]} {in_time.strftime("%c")}',
-                             value='input', inline=False)
-                em.add_field(name=f'{clock_emojis[(out_time.hour % 12)]} {out_time.strftime("%c")}',
-                             value='output', inline=False)
-                em.colour = self.bot.embed_color
-            await ctx.send(embed=em)
+                try:
+                    out_tz = pytz.timezone(timezone)
+                except pytz.exceptions.UnknownTimeZoneError:
+                    for tz in pytz.all_timezones:
+                        if timezone.lower() in tz.lower():
+                            out_tz = pytz.timezone(tz)
+                            break
+                    else:
+                        out_tz = None
+                        em.title = 'Unknown Timezone.'
+                        em.colour = discord.Colour.red()
+                finally:
+                    if out_tz:
+                        out_time = in_time.astimezone(out_tz)
+                        em.add_field(name=f'{clock_emojis[(in_time.hour % 12)]} {in_time.strftime("%c")}',
+                                     value='input', inline=False)
+                        em.add_field(name=f'{clock_emojis[(out_time.hour % 12)]} {out_time.strftime("%c")}',
+                                     value='output', inline=False)
+                        em.colour = self.bot.embed_color
+        await ctx.send(embed=em)
 
     @commands.command(name='purge', aliases=['clean', 'erase'])
     @commands.cooldown(1, 3, type=commands.BucketType.user)
