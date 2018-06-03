@@ -483,7 +483,7 @@ class Utils:
             except ValueError:
                 em.title = 'Can\' parse time.'
                 em.description = f'For some reason I can\'t parse this time string: \n' \
-                                 f'{orig_time} {time} {in_time}' \
+                                 f'{orig_time} {time} {parsed_tz}' \
                                  f'Examples of valid time strings are in my help documentation.\n' \
                                  f'Please try again.'
                 em.colour = discord.Colour.red()
