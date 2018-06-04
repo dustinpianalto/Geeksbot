@@ -5,6 +5,7 @@ import discord
 from discord.ext.commands.formatter import Paginator
 from . import checks
 import re
+import typing
 
 
 class Capturing(list):
@@ -99,4 +100,22 @@ async def run_command(args):
     # Return stdout
     return stdout.decode().strip()
 
+
 # TODO Add Paginator
+class Paginator:
+    def __init__(self,
+                 max_chars: int=1990,
+                 max_lines: int=20,
+                 prefix: str='```md',
+                 suffix: str='```',
+                 page_break: str=''):
+        assert 0 < max_lines <= max_chars
+
+        self._parts = list()
+        self._prefix = prefix
+        self._suffix = suffix
+        self._max_chars = max_chars if max_chars + len(prefix) + len(suffix) + 2 <= 2000 \
+            else 2000 - len(prefix) - len(suffix) - 2
+        self._max_lines = max_lines - (prefix + suffix).count('\n') + 1
+        self._page_break = page_break
+
