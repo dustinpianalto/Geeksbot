@@ -69,17 +69,9 @@ class Repl:
                 await ctx.message.add_reaction('✅')
             except Exception:
                 pass
-            if ret is None:
-                if value:
-                    for page in paginate(value):
-                        await ctx.send(page)
-            else:
-                self._last_result = ret
-                if value:
-                    for page in paginate(value):
-                        await ctx.send(page)
-                for page in paginate(ret):
-                    await ctx.send(page)
+            output = f'{value}\nReturned: {ret}'
+            for page in paginate(output):
+                await ctx.send(page)
 
     @commands.command(hidden=True)
     async def repl(self, ctx):
