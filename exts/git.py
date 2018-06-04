@@ -14,10 +14,17 @@ class Git:
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(case_insensitive=True)
+    @commands.group(case_insensitive=True, invoke_without_command=True)
     async def git(self, ctx):
         """Run help git for more info"""
-        pass
+        em = discord.Embed(style='rich',
+                           title=f'Here is where you can find my code',
+                           url='https://github.com/dustinpianalto/Geeksbot/tree/development',
+                           description='I am the development branch of Geeksbot. You can find the master branch here:'
+                                       'https://github.com/dustinpianalto/Geeksbot/',
+                           color=embed_color)
+        em.set_thumbnail(url=f'{ctx.guild.me.avatar_url}')
+        await ctx.send(embed=em)
 
     @git.command()
     @commands.is_owner()
