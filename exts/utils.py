@@ -486,8 +486,12 @@ class Utils:
                     else:
                         em.set_footer(text='Valid timezone not found in time string. Using UTC...')
                         parsed_tz = pytz.timezone('UTC')
-                in_time = parse(time.upper())
-                in_time = parsed_tz.localize(in_time)
+                if not time.isspace() and not time == '':
+                    in_time = parse(time.upper())
+                    in_time = parsed_tz.localize(in_time)
+                else:
+                    em.set_footer(text='Time not given. Using current time.')
+                    in_time = parsed_tz.localize(datetime.utcnow())
             except ValueError:
                 raise commands.CommandError(f'For some reason I can\'t parse this time string: \n'
                                             f'{orig_time} {time} {parsed_tz}\n'
