@@ -20,7 +20,7 @@ class Git:
         em = discord.Embed(style='rich',
                            title=f'Here is where you can find my code',
                            url='https://github.com/dustinpianalto/Geeksbot/tree/development',
-                           description='I am the development branch of Geeksbot. You can find the master branch here:'
+                           description='I am the development branch of Geeksbot. You can find the master branch here:\n'
                                        'https://github.com/dustinpianalto/Geeksbot/',
                            color=embed_color)
         em.set_thumbnail(url=f'{ctx.guild.me.avatar_url}')
