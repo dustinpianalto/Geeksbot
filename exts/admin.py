@@ -84,7 +84,7 @@ class Admin:
     @commands.command(hidden=True)
     @commands.check(checks.is_guild_owner)
     async def get_guild_config(self, ctx):
-        config = await self.bot.db_con.fetchval('select * from guild_config where guild_id = $1', ctx.guild.id)
+        config = await self.bot.db_con.fetchrow('select * from guild_config where guild_id = $1', ctx.guild.id)
         configs = [str(config)[i:i+1990] for i in range(0, len(config), 1990)]
         await ctx.message.author.send(f'The current config for the {ctx.guild.name} guild is:\n')
         admin_log.info(configs)
@@ -109,8 +109,9 @@ class Admin:
 
     @set.command(name='admin_chan', aliases=['ac', 'admin_chat', 'admin chat'])
     async def _admin_channel(self, ctx, channel: discord.TextChannel=None):
+        """Sets the channel for admin specific notifications"""
         if ctx.guild:
-            if checks.is_admin(self.bot, ctx):
+            if await checks.is_admin(self.bot, ctx):
                 if channel is not None:
                     await self.bot.db_con.execute('update guild_config set admin_chat = $2 where guild_id = $1',
                                                   ctx.guild.id, channel.id)
@@ -118,11 +119,13 @@ class Admin:
 
     @set.command(name='channel_lockdown', aliases=['lockdown', 'restrict_access', 'cl'])
     async def _channel_lockdown(self, ctx, config='true'):
+        """Toggles the channel lockdown restricting Geeksbot to only access channels defined in allowed_channels
+        If you run this before configuring allowed_channels it will tell you to run that command first."""
         if ctx.guild:
-            if checks.is_admin(self.bot, ctx):
+            if await checks.is_admin(self.bot, ctx):
                 if str(config).lower() == 'true':
                     if await self.bot.db_con.fetchval('select allowed_channels from guild_config '
-                                                    'where guild_id = $1', ctx.guild.id) is []:
+                                                      'where guild_id = $1', ctx.guild.id) is []:
                         await ctx.send('Please set at least one allowed channel before running this command.')
                     else:
                         await self.bot.db_con.execute('update guild_config set channel_lockdown = True '
@@ -143,8 +146,10 @@ class Admin:
 
     @add.command(name='allowed_channels', aliases=['channel', 'ac'])
     async def _allowed_channels(self, ctx, *, channels):
+        """Allows Admin to restrict what channels Geeksbot is allowed to access
+        This only takes effect if channel_lockdown is enabled."""
         if ctx.guild:
-            if checks.is_admin(self.bot, ctx):
+            if await checks.is_admin(self.bot, ctx):
                 channels = channels.lower().replace(' ', '').split(',')
                 added = ''
                 for channel in channels:
@@ -195,8 +200,12 @@ class Admin:
     @add.command(aliases=['prefix', 'p'])
     @commands.cooldown(1, 5, type=commands.BucketType.guild)
     async def add_prefix(self, ctx, *, prefix=None):
+        """Adds a guild specific prefix to the guild config
+        Note: This overwrites the default of g$. If you would
+        like to keep using g$ you will need to add it to the
+        Guild config as well."""
         if ctx.guild:
-            if checks.is_admin(self.bot, ctx):
+            if await checks.is_admin(self.bot, ctx):
                 prefixes = await self.bot.db_con.fetchval('select prefix from guild_config where guild_id = $1',
                                                           ctx.guild.id)
                 if prefix is None:
@@ -224,8 +233,11 @@ class Admin:
     @remove.command(aliases=['prefix', 'p'])
     @commands.cooldown(1, 5, type=commands.BucketType.guild)
     async def remove_prefix(self, ctx, *, prefix=None):
+        """Removes a guild specific prefix from the guild config
+        If the last prefix is removed then Geeksbot will default
+        Back to g$"""
         if ctx.guild:
-            if checks.is_admin(self.bot, ctx):
+            if await checks.is_admin(self.bot, ctx):
                 prefixes = await self.bot.db_con.fetchval('select prefix from guild_config where guild_id = $1',
                                                           ctx.guild.id)
                 found = 0
@@ -260,6 +272,9 @@ class Admin:
     @commands.cooldown(1, 5, type=commands.BucketType.guild)
     @commands.check(checks.is_guild_owner)
     async def _add_admin_role(self, ctx, role=None):
+        """The Guild owner can add a role to the admin list
+        Allowing members of that role to run admin commands
+        on the current guild."""
         role = discord.utils.get(ctx.guild.roles, name=role)
         if role is not None:
             roles = json.loads(await self.bot.db_con.fetchval('select admin_roles from guild_config '
@@ -278,6 +293,7 @@ class Admin:
     @commands.cooldown(1, 5, type=commands.BucketType.guild)
     @commands.check(checks.is_guild_owner)
     async def _remove_admin_role(self, ctx, role=None):
+        """The Guild owner can remove a role from the admin list"""
         role = discord.utils.get(ctx.guild.roles, name=role)
         if role is not None:
             roles = json.loads(await self.bot.db_con.fetchval('select admin_roles from guild_config '

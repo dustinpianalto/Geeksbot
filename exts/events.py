@@ -84,7 +84,7 @@ class BotEvents:
                     ctx.webhook_id, [json.dumps({'id': a.id, 'size': a.size, 'height': a.height, 'width': a.width,
                                      'filename': a.filename, 'url': a.url}) for a in ctx.attachments],
                     ctx.pinned, [json.dumps({'emoji': r.emoji, 'count': r.count}) for r in ctx.reactions],
-                    ctx.guild.id, ctx.created_at, ctx.system_content, ctx.author.id]
+                    ctx.guild.id if ctx.guild else ctx.author.id, ctx.created_at, ctx.system_content, ctx.author.id]
         await self.bot.db_con.execute(sql, *msg_data)
         if ctx.guild:
             if ctx.author != ctx.guild.me:

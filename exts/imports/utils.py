@@ -4,6 +4,8 @@ import asyncio
 import discord
 from discord.ext.commands.formatter import Paginator
 from . import checks
+import re
+import typing
 
 
 class Capturing(list):
@@ -21,7 +23,7 @@ class Capturing(list):
 async def mute(bot, ctx, admin=0, member_id=None):
     mute_role = bot.db_con.fetchval(f'select muted_role from guild_config where guild_id = $1', ctx.guild.id)
     if mute_role:
-        if admin or checks.is_admin(bot, ctx):
+        if admin or await checks.is_admin(bot, ctx):
             if ctx.guild.me.guild_permissions.manage_roles:
                 if member_id:
                     ctx.guild.get_member(member_id).edit(roles=[discord.utils.get(ctx.guild.roles, id=mute_role)])
@@ -64,6 +66,11 @@ def to_list_of_str(items, out: list=list(), level=1, recurse=0):
     return out
 
 
+def replace_text_ignorecase(in_str: str, old: str, new: str='') -> str:
+    re_replace = re.compile(re.escape(old), re.IGNORECASE)
+    return re_replace.sub(f'{new}', in_str)
+
+
 def paginate(text, maxlen=1990):
     paginator = Paginator(prefix='```py', max_size=maxlen+10)
     if type(text) == list:
@@ -93,4 +100,22 @@ async def run_command(args):
     # Return stdout
     return stdout.decode().strip()
 
+
 # TODO Add Paginator
+class Paginator:
+    def __init__(self,
+                 max_chars: int=1990,
+                 max_lines: int=20,
+                 prefix: str='```md',
+                 suffix: str='```',
+                 page_break: str=''):
+        assert 0 < max_lines <= max_chars
+
+        self._parts = list()
+        self._prefix = prefix
+        self._suffix = suffix
+        self._max_chars = max_chars if max_chars + len(prefix) + len(suffix) + 2 <= 2000 \
+            else 2000 - len(prefix) - len(suffix) - 2
+        self._max_lines = max_lines - (prefix + suffix).count('\n') + 1
+        self._page_break = page_break
+

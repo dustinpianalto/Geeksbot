@@ -65,13 +65,14 @@ class Fun:
     @commands.command()
     @commands.cooldown(1, 5, type=commands.BucketType.user)
     async def slap(self, ctx, member: discord.Member):
+        trout = await self.bot.db_con.fetchval("select code from geeksbot_emojis where id = 449083238766477312")
         if member.id == self.bot.user.id and ctx.author.id != owner_id:
             await ctx.send(f'You rolled a Critical Fail...\nThe trout bounces off and rebounds on the attacker.')
             await ctx.send(f'{ctx.author.mention} '
-                           f'You slap yourself in the face with a large trout <:trout:408543365085397013>')
+                           f'You slap yourself in the face with a large trout {trout}')
         else:
             await ctx.send(f'{ctx.author.display_name} slaps '
-                           f'{member.mention} around a bit with a large trout <:trout:408543365085397013>')
+                           f'{member.mention} around a bit with a large trout {trout}')
 
     @staticmethod
     def get_factorial(number):
@@ -155,7 +156,7 @@ class Fun:
         trans = await self.bot.db_con.fetchval('select code from geeksbot_emojis where id = 405943174809255956')
         msg = await ctx.send(f'{member.mention}{trans*20}{self.bot.unicode_emojis["left_fist"]}')
         for i in range(4):
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.5)
             await msg.edit(content=f'{member.mention}{trans*(20-(i*5))}{self.bot.unicode_emojis["left_fist"]}')
         await asyncio.sleep(0.1)
         await msg.edit(content=f'{self.bot.unicode_emojis["boom"]}')

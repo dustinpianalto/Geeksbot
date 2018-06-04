@@ -33,7 +33,7 @@ class Patreon:
 
     @commands.command(aliases=['patreon_message'])
     async def set_patreon_message(self, ctx, message):
-        if checks.is_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx):
             patreon_message = await self.bot.db_con.fetchval('select patreon_message from guild_config '
                                                              'where guild_id = $1', ctx.guild.id)
             if message == patreon_message:
@@ -47,7 +47,7 @@ class Patreon:
 
     @commands.command(aliases=['add_patreon', 'set_patreon'])
     async def add_patreon_info(self, ctx, name, url):
-        if checks.is_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx):
             patreon_info = await self.bot.db_con.fetchval('select patreon_links from guild_config where guild_id = $1',
                                                           ctx.guild.id)
             patreon_links = {}
@@ -66,7 +66,7 @@ class Patreon:
 
     @commands.command(aliases=['remove_patreon'])
     async def remove_patreon_info(self, ctx, name):
-        if checks.is_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx):
             patreon_info = await self.bot.db_con.fetchval('select patreon_links from guild_config where guild_id = $1',
                                                           ctx.guild.id)
             if patreon_info:
@@ -86,7 +86,7 @@ class Patreon:
 
     @commands.command()
     async def enable_patreon(self, ctx, state: bool=True):
-        if checks.is_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx):
             patreon_status = await self.bot.db_con.fetchval('select patreon_enabled from guild_config '
                                                             'where guild_id = $1', ctx.guild.id)
             if patreon_status and state:

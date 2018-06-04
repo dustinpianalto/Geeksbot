@@ -7,7 +7,7 @@ import psutil
 from datetime import datetime, timedelta
 import asyncio
 import async_timeout
-from .imports import checks
+from .imports import checks, utils
 import pytz
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -18,6 +18,8 @@ from mpl_toolkits.basemap import Basemap
 from io import BytesIO
 from itertools import chain
 import numpy as np
+from dateutil.parser import parse
+from copy import copy
 
 config_dir = 'config/'
 admin_id_file = 'admin_ids'
@@ -29,6 +31,7 @@ invite_match = '(https?://)?(www.)?discord(app.com/(invite|oauth2)|.gg|.io)/[\w\
 
 utils_log = logging.getLogger('utils')
 clock_emojis = ['🕛', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', '🕗', '🕘', '🕙', '🕚']
+replace_tzs = {'MST': 'US/Mountain', 'HST': 'US/Hawaii', 'EST': 'US/Eastern'}
 
 
 class Utils:
@@ -59,6 +62,7 @@ class Utils:
     @commands.command()
     @commands.is_owner()
     async def sysinfo(self, ctx):
+        """WIP Gets current system status for the server that Geeksbot is running on."""
         await ctx.send(f'```ml\n'
                        f'CPU Percentages: {psutil.cpu_percent(percpu=True)}\n'
                        f'Memory Usage: {psutil.virtual_memory().percent}%\n'
@@ -292,7 +296,7 @@ class Utils:
                            title=f'Admin Help Requests',
                            color=discord.Colour.green()
                            )
-        if checks.is_admin(self.bot, ctx) or checks.is_rcon_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx) or await checks.is_rcon_admin(self.bot, ctx):
             if assigned_to is None:
                 requests = await self.bot.db_con.fetch(f'select * from admin_requests where guild_orig = $1 '
                                                        f'and completed_time is null', ctx.guild.id)
@@ -312,8 +316,8 @@ class Utils:
                 else:
                     em.add_field(name='There are no pending requests for this guild.', value='￰', inline=False)
             else:
-                if checks.check_admin_role(self.bot, ctx, assigned_to)\
-                        or checks.check_rcon_role(self.bot, ctx, assigned_to):
+                if await checks.check_admin_role(self.bot, ctx, assigned_to)\
+                        or await checks.check_rcon_role(self.bot, ctx, assigned_to):
                     requests = await self.bot.db_con.fetch('select * from admin_requests where assigned_to = $1 '
                                                            'and guild_orig = $2 and completed_time is null',
                                                            assigned_to.id, ctx.guild.id)
@@ -359,7 +363,7 @@ class Utils:
         """Allows Admin to close admin help tickets.
         [request_id] must be a valid integer pointing to an open Request ID
         """
-        if checks.is_admin(self.bot, ctx) or checks.is_rcon_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx) or await checks.is_rcon_admin(self.bot, ctx):
             if request_ids:
                 request_ids = request_ids.replace(' ', '').split(',')
                 for request_id in request_ids:
@@ -429,7 +433,11 @@ class Utils:
     @commands.command(name='localtime', aliases=['time', 'lt'])
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def get_localtime(self, ctx, timezone: str='Anchorage'):
+        """Shows the current time localized to the timezone given
+        This defaults to the Bot's local timezone of Anchorage Alaska USA if none are given."""
+
         em = discord.Embed()
+
         try:
             tz = pytz.timezone(timezone)
             localtime = datetime.now(tz=tz)
@@ -450,9 +458,76 @@ class Utils:
             em.colour = discord.Colour.red()
             await ctx.send(embed=em)
 
+    # noinspection PyUnboundLocalVariable
+    @commands.command(name='gettimein', aliases=['timein', 'gti'])
+    @commands.cooldown(1, 3, type=commands.BucketType.user)
+    async def get_time_in_timezone(self, ctx,  timezone: str='US/Eastern', *, time: str=None):
+        em = discord.Embed()
+
+        if time is None:
+            em.set_footer(text='Time not given... using current UTC time.')
+            in_time = datetime.utcnow()
+            parsed_tz = pytz.timezone('UTC')
+        else:
+            try:
+                orig_time = copy(time)
+                split_time = time.split()
+                try:
+                    parsed_tz = pytz.timezone(replace_tzs.get(split_time[-1].upper()) or split_time[-1])
+                    time = utils.replace_text_ignorecase(time, old=split_time[-1], new='')
+                except pytz.exceptions.UnknownTimeZoneError:
+                    for tz in pytz.all_timezones:
+                        if split_time[-1].lower() in tz.lower():
+                            time = utils.replace_text_ignorecase(time, old=split_time[-1], new='')
+                            if tz in replace_tzs:
+                                tz = replace_tzs['tz']
+                            parsed_tz = pytz.timezone(tz)
+                            break
+                    else:
+                        em.set_footer(text='Valid timezone not found in time string. Using UTC...')
+                        parsed_tz = pytz.timezone('UTC')
+                if not time.isspace() and not time == '':
+                    in_time = parse(time.upper())
+                    in_time = parsed_tz.localize(in_time)
+                else:
+                    em.set_footer(text='Time not given. Using current time.')
+                    in_time = parsed_tz.localize(datetime.utcnow())
+            except ValueError:
+                raise commands.CommandError(f'For some reason I can\'t parse this time string: \n'
+                                            f'{orig_time} {time} {parsed_tz}\n'
+                                            f'Examples of valid time strings are in my help documentation.\n'
+                                            f'Please try again.')
+        try:
+            out_tz = pytz.timezone(timezone)
+        except pytz.exceptions.UnknownTimeZoneError:
+            for tz in pytz.all_timezones:
+                if timezone.lower() in tz.lower():
+                    out_tz = pytz.timezone(tz)
+                    break
+            else:
+                out_tz = None
+                em.title = 'Unknown Timezone.'
+                em.colour = discord.Colour.red()
+        finally:
+            if out_tz:
+                out_time = in_time.astimezone(out_tz)
+                em.add_field(name=f'{parsed_tz}',
+                             value=f'{clock_emojis[(in_time.hour % 12)]} {in_time.strftime("%c")}', inline=False)
+                em.add_field(name=f'{out_tz}',
+                             value=f'{clock_emojis[(out_time.hour % 12)]} {out_time.strftime("%c")}', inline=False)
+                em.colour = self.bot.embed_color
+        await ctx.send(embed=em)
+
     @commands.command(name='purge', aliases=['clean', 'erase'])
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def purge_messages(self, ctx, number: int=20, member: discord.Member=None):
+        """Gives Admin the ability to quickly clear messages from a channel
+        By default this will only purge messages sent by Geeksbot and any messages that appear to
+        have called Geeksbot (aka start with one of the Geeksbot's prefixes for this Guild)
+        If you want to purge messages from a different user you must provide a number and member
+
+        Note: Geeksbot will not find <number> of messages by the given member, it will instead
+        search the last <number> messages in the channel and delete any by the given member"""
         def is_me(message):
             if message.author == self.bot.user:
                 return True
@@ -471,7 +546,7 @@ class Utils:
         def is_author(message):
             return message.author == ctx.author
 
-        if checks.is_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx):
             if member:
                 deleted = await ctx.channel.purge(limit=number, check=is_member)
                 if member != ctx.author:
@@ -487,7 +562,10 @@ class Utils:
     @commands.command(name='purge_all', aliases=['cls', 'clear'])
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def purge_all(self, ctx, number: int=20, contents: str='all'):
-        if checks.is_admin(self.bot, ctx):
+        """Will delete all of the last <number> of messages from the channel
+        If <contents> is not 'all' then only messages containing <contents>
+        will be deleted."""
+        if await checks.is_admin(self.bot, ctx):
             if contents != 'all':
                 deleted = await ctx.channel.purge(limit=number, check=lambda message: message.content == contents)
             else:
@@ -500,6 +578,7 @@ class Utils:
 
     @commands.command(name='google', aliases=['g', 'search'])
     async def google_search(self, ctx, *, search):
+        """WIP Search Google for the given string"""
         res = self.bot.gcs_service.cse().list(q=search, cx=self.bot.bot_secrets['cx']).execute()
         results = res['items'][:4]
         em = discord.Embed()
@@ -513,7 +592,7 @@ class Utils:
 
     @commands.command(hidden=True, name='sheets')
     async def google_sheets(self, ctx, member: discord.Member):
-        if checks.is_admin(self.bot, ctx):
+        if await checks.is_admin(self.bot, ctx):
             scope = ['https://spreadsheets.google.com/feeds',
                      'https://www.googleapis.com/auth/drive']
             credentials = ServiceAccountCredentials.from_json_keyfile_name('config/google_client_secret.json', scope)
@@ -538,6 +617,7 @@ class Utils:
 
     @commands.command(name='iss')
     async def iss_loc(self, ctx):
+        """WIP Locates the International Space Station and display on a map"""
         def gen_image(iss_loc):
             lat = iss_loc['latitude']
             lon = iss_loc['longitude']
@@ -561,6 +641,8 @@ class Utils:
 
     @commands.command(name='location', aliases=['loc', 'map'])
     async def map_location(self, ctx, *, location):
+        """WIP Displays the given location on a map
+        Note: This is SLOW!!! Be prepared to wait up to a minute for the result"""
 
         def draw_map(m, scale=1):
             # draw a shaded-relief image
