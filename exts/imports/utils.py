@@ -201,7 +201,7 @@ class Paginator:
                     self._parts.insert(i, part) if to_beginning else self._parts.append(part)
                     i += 1
         elif keep_intact and not item == self._page_break:
-            if len(item) >= self._max_chars:
+            if len(item) >= self._max_chars or item.count('\n') > self._max_lines:
                 raise RuntimeError('{item} is too long to keep on a single page and is marked to keep intact.')
             if to_beginning:
                 self._parts.insert(0, item)
