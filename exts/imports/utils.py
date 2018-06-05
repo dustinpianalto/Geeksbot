@@ -103,13 +103,15 @@ async def run_command(args):
 
 # TODO Add Paginator
 class Paginator:
-    def __init__(self,
+    def __init__(self, *,
                  max_chars: int=1990,
                  max_lines: int=20,
                  prefix: str='```md',
                  suffix: str='```',
-                 page_break: str=''):
+                 page_break: str='',
+                 max_line_length: int=100):
         assert 0 < max_lines <= max_chars
+        assert 0 < max_line_length < 120
 
         self._parts = list()
         self._prefix = prefix
@@ -118,4 +120,62 @@ class Paginator:
             else 2000 - len(prefix) - len(suffix) - 2
         self._max_lines = max_lines - (prefix + suffix).count('\n') + 1
         self._page_break = page_break
+        self._max_line_length = max_line_length
+
+    def pages(self) -> typing.List[str]:
+        pages = list()
+
+        page = ''
+        lines = 0
+
+        parts = list()
+
+        def open_page():
+            nonlocal page, lines
+            page = self._prefix
+            lines = 0
+
+        def close_page():
+            nonlocal page, lines
+            page += self._suffix
+            pages.append(page)
+            open_page()
+
+        open_page()
+
+        for part in [str(p) for p in self._parts]:
+            if len(part) > self._max_line_length:
+                # TODO Wrap text at max line length
+                pass
+
+            new_lines = lines + 1
+            new_chars = len(page) + len(part)
+
+            if new_chars > self._max_chars:
+                close_page()
+            elif new_lines > self._max_lines:
+                close_page()
+
+            lines = new_lines
+            page += '\n' + part
+
+        close_page()
+
+        return pages
+
+    def __len__(self):
+        return sum(len(p) for p in self._parts)
+
+    def add_page_break(self, *, to_begining: bool=False) -> None:
+        self.add(self._page_break, to_begining=to_begining)
+
+    def add(self, item: typing.Any, *, to_beginning: bool=False, keep_intact: bool=False) -> None:
+        try:
+            item = str(item)
+        except:
+            raise RuntimeError(f'Cannot cast {item} to string.')
+        if not keep_intact:
+            item_parts = item.split('\n')
+            for part in item_parts:
+                if len(part) > self._max_line_length:
 
