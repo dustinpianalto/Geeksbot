@@ -156,10 +156,11 @@ class Paginator:
                 close_page()
 
             lines = new_lines
+            print(lines)
             page += '\n' + part
 
         close_page()
-        return pages
+        return pages.strip()
 
     def __len__(self):
         return sum(len(p) for p in self._parts)
