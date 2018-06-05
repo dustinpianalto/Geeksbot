@@ -151,10 +151,10 @@ class Paginator:
 
             if new_chars > self._max_chars:
                 close_page()
-            elif lines + 1 > self._max_lines:
+            elif lines + page.count('\n') > self._max_lines:
                 close_page()
 
-            lines += 1
+            lines += page.count('\n')
             page += '\n' + part
 
         close_page()
