@@ -147,20 +147,18 @@ class Paginator:
             if part == self._page_break:
                 close_page()
 
-            new_lines = lines + 1
             new_chars = len(page) + len(part)
 
             if new_chars > self._max_chars:
                 close_page()
-            elif new_lines > self._max_lines:
+            elif lines + 1 > self._max_lines:
                 close_page()
 
-            lines = new_lines
-            print(lines)
+            lines += 1
             page += '\n' + part
 
         close_page()
-        return pages.strip()
+        return pages
 
     def __len__(self):
         return sum(len(p) for p in self._parts)
