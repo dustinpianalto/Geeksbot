@@ -2,7 +2,7 @@ from io import StringIO
 import sys
 import asyncio
 import discord
-from discord.ext.commands.formatter import Paginator
+from discord.ext.commands.formatter import Paginator as DannyPag
 from . import checks
 import re
 import typing
