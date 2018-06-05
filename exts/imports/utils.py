@@ -108,7 +108,7 @@ class Paginator:
                  max_lines: int=20,
                  prefix: str='```md',
                  suffix: str='```',
-                 page_break: str='',
+                 page_break: str='\uFFF8',
                  max_line_length: int=100):
         assert 0 < max_lines <= max_chars
         assert 0 < max_line_length < 120
@@ -144,9 +144,8 @@ class Paginator:
         open_page()
 
         for part in [str(p) for p in self._parts]:
-            if len(part) > self._max_line_length:
-                # TODO Wrap text at max line length
-                pass
+            if part == self._page_break:
+                close_page()
 
             new_lines = lines + 1
             new_chars = len(page) + len(part)
@@ -160,22 +159,57 @@ class Paginator:
             page += '\n' + part
 
         close_page()
-
         return pages
 
     def __len__(self):
         return sum(len(p) for p in self._parts)
 
-    def add_page_break(self, *, to_begining: bool=False) -> None:
-        self.add(self._page_break, to_begining=to_begining)
+    def add_page_break(self, *, to_beginning: bool=False) -> None:
+        self.add(self._page_break, to_beginning=to_beginning)
 
     def add(self, item: typing.Any, *, to_beginning: bool=False, keep_intact: bool=False) -> None:
-        try:
-            item = str(item)
-        except:
-            raise RuntimeError(f'Cannot cast {item} to string.')
-        if not keep_intact:
+        item = str(item)
+        i = 0
+        if not keep_intact and not item == self._page_break:
             item_parts = item.split('\n')
             for part in item_parts:
                 if len(part) > self._max_line_length:
+                    length = 0
+                    out_str = ''
 
+                    def close_line(line):
+                        nonlocal i, out_str, length
+                        self._parts.insert(i, out_str) if to_beginning else self._parts.append(out_str)
+                        i += 1
+                        out_str = line + ' '
+                        length = len(out_str)
+
+                    bits = part.split(' ')
+                    for bit in bits:
+                        next_len = length + len(bit) + 1
+                        if next_len <= self._max_line_length:
+                            out_str += bit + ' '
+                            length = next_len
+                        elif len(bit) > self._max_line_length:
+                            if out_str:
+                                close_line(line='')
+                            for out_str in [bit[i:i + self._max_line_length]
+                                            for i in range(0, len(bit), self._max_line_length)]:
+                                close_line('')
+                        else:
+                            close_line(bit)
+                else:
+                    self._parts.insert(i, part) if to_beginning else self._parts.append(part)
+                    i += 1
+        elif keep_intact and not item == self._page_break:
+            if len(item) >= self._max_chars:
+                raise RuntimeError('{item} is too long to keep on a single page and is marked to keep intact.')
+            if to_beginning:
+                self._parts.insert(0, item)
+            else:
+                self._parts.append(item)
+        else:
+            if to_beginning:
+                self._parts.insert(0, item)
+            else:
+                self._parts.append(item)
