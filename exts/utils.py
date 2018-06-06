@@ -491,7 +491,7 @@ class Utils:
                     in_time = parsed_tz.localize(in_time)
                 else:
                     em.set_footer(text='Time not given. Using current time.')
-                    in_time = parsed_tz.localize(datetime.utcnow())  # TODO Fix this
+                    in_time = datetime.now(tz=parsed_tz)
             except ValueError:
                 raise commands.CommandError(f'For some reason I can\'t parse this time string: \n'
                                             f'{orig_time} {time} {parsed_tz}\n'
