@@ -37,6 +37,7 @@ class Repl:
     async def _eval(self, ctx, *, body: str):
         if ctx.author.id != ownerid:
             return
+        pag = Paginator()
         env = {
             'bot': self.bot,
             'ctx': ctx,
@@ -60,8 +61,10 @@ class Repl:
             with redirect_stdout(stdout):
                 ret = await func()
         except Exception:
-            value = stdout.getvalue()
-            await ctx.send('```py\n{}{}\n```'.format(value, traceback.format_exc()))
+            pag.add(stdout.getvalue())
+            pag.add(traceback.format_exc())
+            for page in pag.pages():
+                await ctx.send(page)
         else:
             value = stdout.getvalue()
             # noinspection PyBroadException
@@ -70,9 +73,9 @@ class Repl:
             except Exception:
                 pass
             value = format_output(value)
-            pag = Paginator()
             pag.add(value)
             pag.add(f'\nReturned: {ret}')
+            self._last_result = ret
             for page in pag.pages():
                 await ctx.send(page)
 
