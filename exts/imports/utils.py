@@ -91,7 +91,6 @@ async def run_command(args):
     return stdout.decode().strip()
 
 
-# TODO Add Paginator
 class Paginator:
     def __init__(self, *,
                  max_chars: int=1990,
@@ -114,10 +113,8 @@ class Paginator:
 
     def pages(self) -> typing.List[str]:
         pages = list()
-
         page = ''
         lines = 0
-
         parts = list()
 
         def open_page():
@@ -152,6 +149,10 @@ class Paginator:
 
     def __len__(self):
         return sum(len(p) for p in self._parts)
+
+    def __eq__(self, other):
+        # noinspection PyProtectedMember
+        return self.__class__ == other.__class__ and self._parts == other._parts
 
     def add_page_break(self, *, to_beginning: bool=False) -> None:
         self.add(self._page_break, to_beginning=to_beginning)
@@ -203,3 +204,27 @@ class Paginator:
                 self._parts.insert(0, item)
             else:
                 self._parts.append(item)
+
+
+class Book:
+    def __init__(self, pag: Paginator, message: discord.Message):
+        if pag == Paginator():
+            raise RuntimeError('Cannot create a book out of an empty Paginator.')
+
+        self._pages = pag.pages()
+        self._len_pages = len(self._pages)
+        self._current_page = 0
+        self._message = message
+
+    def advance_page(self, count: int=1):
+        self._current_page += count
+        if self._current_page >= self._len_pages:
+            self._current_page = self._len_pages
+
+    def reverse_page(self, count: int=1):
+        self._current_page -= count
+        if self._current_page <= 0:
+            self._current_page = 0
+
+    async def display_page(self):
+        await self._message.edit(content=self._pages[self._current_page])
