@@ -73,6 +73,7 @@ class Repl:
             pag = Paginator()
             print(value)
             pag.add(value)
+            print(ret)
             pag.add(f'\nReturned: {ret}')
             for page in pag.pages():
                 print(page)
