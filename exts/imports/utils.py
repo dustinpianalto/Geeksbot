@@ -113,7 +113,6 @@ class Paginator:
         self._max_line_length = max_line_length
 
     def pages(self) -> typing.List[str]:
-        print(self._parts)
         pages = list()
 
         page = ''
