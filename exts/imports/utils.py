@@ -71,24 +71,6 @@ def replace_text_ignorecase(in_str: str, old: str, new: str='') -> str:
     return re_replace.sub(f'{new}', in_str)
 
 
-def paginate(text, maxlen=1990):
-    paginator = Paginator()
-    if type(text) == list:
-        data = to_list_of_str(text)
-    elif type(text) == dict:
-        data = to_list_of_str(text)
-    else:
-        data = str(text).split('\n')
-    for line in data:
-        if len(line) > maxlen:
-            n = maxlen
-            for l in [line[i:i+n] for i in range(0, len(line), n)]:
-                DannyPag.add_line(l)
-        else:
-            DannyPag.add_line(line)
-    return DannyPag.pages
-
-
 async def run_command(args):
     # Create subprocess
     process = await asyncio.create_subprocess_shell(
@@ -212,3 +194,13 @@ class Paginator:
                 self._parts.insert(0, item)
             else:
                 self._parts.append(item)
+
+
+def paginate(text):
+    paginator = Paginator()
+    if type(text) == list:
+        text = to_list_of_str(text)
+    elif type(text) == dict:
+        text = to_list_of_str(text)
+    paginator.add(text)
+    return paginator.pages()
