@@ -79,6 +79,16 @@ class Geeksbot(commands.Bot):
                                         'poop': '💩',
                                         'boom': '💥',
                                         'left_fist': '🤛',
+                                        'lock': '🔒',
+                                        'open_lock': '🔓',
+                                        'back': '◀',
+                                        'forward': '▶',
+                                        'fast_forward': '⏩',
+                                        'rewind': '⏪',
+                                        'end': '⏭',
+                                        'start': '⏮',
+                                        'hash': '#\N{COMBINING ENCLOSING KEYCAP}',
+                                        'close': '🇽',
                                         }
 
     async def logout(self):
