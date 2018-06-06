@@ -66,6 +66,14 @@ def to_list_of_str(items, out: list=list(), level=1, recurse=0):
     return out
 
 
+def format_output(text):
+    if type(text) == list:
+        text = to_list_of_str(text)
+    elif type(text) == dict:
+        text = to_list_of_str(text)
+    return text
+
+
 def replace_text_ignorecase(in_str: str, old: str, new: str='') -> str:
     re_replace = re.compile(re.escape(old), re.IGNORECASE)
     return re_replace.sub(f'{new}', in_str)
@@ -194,13 +202,3 @@ class Paginator:
                 self._parts.insert(0, item)
             else:
                 self._parts.append(item)
-
-
-def paginate(text):
-    paginator = Paginator()
-    if type(text) == list:
-        text = to_list_of_str(text)
-    elif type(text) == dict:
-        text = to_list_of_str(text)
-    paginator.add(text)
-    return paginator.pages()

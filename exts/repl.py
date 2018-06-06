@@ -7,7 +7,7 @@ import inspect
 import textwrap
 from contextlib import redirect_stdout
 import io
-from .imports.utils import paginate, run_command
+from .imports.utils import run_command, format_output, Paginator
 
 ownerids = [351794468870946827, 275280442884751360]
 ownerid = 351794468870946827
@@ -69,8 +69,11 @@ class Repl:
                 await ctx.message.add_reaction('✅')
             except Exception:
                 pass
-            output = f'{value}\nReturned: {ret}'
-            for page in paginate(output):
+            value = format_output(value)
+            pag = Paginator()
+            pag.add(value)
+            pag.add(f'\nReturned: {ret}')
+            for page in pag.pages():
                 await ctx.send(page)
 
     @commands.command(hidden=True)
