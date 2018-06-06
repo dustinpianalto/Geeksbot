@@ -162,7 +162,6 @@ class Paginator:
         i = 0
         if not keep_intact and not item == self._page_break:
             item_parts = item.strip().split('\n')
-            print(item_parts)
             for part in item_parts:
                 if len(part) > self._max_line_length:
                     length = 0
@@ -189,6 +188,7 @@ class Paginator:
                                 close_line('')
                         else:
                             close_line(bit)
+                    close_line('')
                 else:
                     self._parts.insert(i, part) if to_beginning else self._parts.append(part)
                     i += 1
