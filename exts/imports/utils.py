@@ -176,7 +176,6 @@ class Paginator:
 
                     bits = part.split(' ')
                     for bit in bits:
-                        print(bit)
                         next_len = length + len(bit) + 1
                         if next_len <= self._max_line_length:
                             out_str += bit + ' '

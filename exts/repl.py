@@ -71,12 +71,9 @@ class Repl:
                 pass
             value = format_output(value)
             pag = Paginator()
-            print(value)
             pag.add(value)
-            print(ret)
             pag.add(f'\nReturned: {ret}')
             for page in pag.pages():
-                print(page)
                 await ctx.send(page)
 
     @commands.command(hidden=True)
