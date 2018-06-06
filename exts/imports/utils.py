@@ -162,6 +162,7 @@ class Paginator:
         i = 0
         if not keep_intact and not item == self._page_break:
             item_parts = item.strip().split('\n')
+            print(item_parts)
             for part in item_parts:
                 if len(part) > self._max_line_length:
                     length = 0
