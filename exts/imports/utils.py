@@ -83,10 +83,10 @@ def paginate(text, maxlen=1990):
         if len(line) > maxlen:
             n = maxlen
             for l in [line[i:i+n] for i in range(0, len(line), n)]:
-                paginator.add_line(l)
+                DannyPag.add_line(l)
         else:
-            paginator.add_line(line)
-    return paginator.pages
+            DannyPag.add_line(line)
+    return DannyPag.pages
 
 
 async def run_command(args):
