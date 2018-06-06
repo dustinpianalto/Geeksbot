@@ -140,12 +140,11 @@ class Repl:
                         fmt = '{}'.format(value)
                 try:
                     if fmt is not None:
-                        if len(fmt) > 1990:
-                            for page in paginate(fmt):
-                                await response.channel.send(page)
-                                await ctx.send(response.channel)
-                        else:
-                            await response.channel.send(f'```py\n{fmt}\n```')
+                        pag = Paginator()
+                        pag.add(fmt)
+                        for page in pag.pages():
+                            await response.channel.send(page)
+                            await ctx.send(response.channel)
                 except discord.Forbidden:
                     pass
                 except discord.HTTPException as e:
@@ -157,15 +156,13 @@ class Repl:
             return
         try:
             body = self.cleanup_code(body)
-            result = await asyncio.wait_for(self.bot.loop.create_task(run_command(body)), 10)
-            value = result
-            for page in paginate(value):
+            pag = Paginator()
+            pag.add(await asyncio.wait_for(self.bot.loop.create_task(run_command(body)), 10))
+            for page in pag.pages():
                 await ctx.send(page)
             await ctx.message.add_reaction('✅')
         except asyncio.TimeoutError:
-            value = f"Command did not complete in the time allowed."
-            for page in paginate(value):
-                await ctx.send(page)
+            await ctx.send(f"Command did not complete in the time allowed.")
             await ctx.message.add_reaction('❌')
 
 

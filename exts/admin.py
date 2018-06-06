@@ -193,8 +193,9 @@ class Admin:
     @commands.command()
     @commands.is_owner()
     async def view_code(self, ctx, code_name):
-        pages = utils.paginate(inspect.getsource(self.bot.get_command(code_name).callback))
-        for page in pages:
+        pag = utils.Paginator()
+        pag.add(inspect.getsource(self.bot.get_command(code_name).callback))
+        for page in pag.pages():
             await ctx.send(page)
 
     @add.command(aliases=['prefix', 'p'])

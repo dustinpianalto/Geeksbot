@@ -150,10 +150,12 @@ class BotEvents:
 
     # noinspection PyMethodMayBeStatic
     async def on_command_error(self, ctx, error):
+        pag = utils.Paginator()
         import traceback
         if ctx.channel.id == 418452585683484680 and type(error) == commands.errors.CommandNotFound:
             return
-        for page in utils.paginate(''.join(traceback.format_exception(type(error), error, error.__traceback__))):
+        pag.add(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
+        for page in pag.pages():
             await ctx.send(page)
 
     async def on_guild_join(self, guild):

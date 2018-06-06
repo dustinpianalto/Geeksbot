@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import logging
-from .imports.utils import paginate, run_command
+from .imports.utils import Paginator, run_command
 import asyncio
 
 owner_id = 351794468870946827
@@ -29,6 +29,7 @@ class Git:
     @git.command()
     @commands.is_owner()
     async def pull(self, ctx):
+        pag = Paginator(max_line_length=60, max_lines=30, max_chars=1014)
         em = discord.Embed(style='rich',
                            title=f'Git Pull',
                            color=embed_color)
@@ -40,21 +41,22 @@ class Git:
                                                                                ' --abbrev-ref HEAD)')), 120) + '\n\n'
         result += await asyncio.wait_for(self.bot.loop.create_task(run_command('git show --stat | '
                                                                                'sed "s/.*@.*[.].*/ /g"')), 10)
-        results = paginate(result, maxlen=1014)
-        for page in results[:5]:
+        pag.add(result)
+        for page in pag.pages():
             em.add_field(name='￲', value=f'{page}')
         await ctx.send(embed=em)
 
     @git.command()
     @commands.is_owner()
     async def status(self, ctx):
+        pag = Paginator(max_line_length=60, max_lines=30, max_chars=1014)
         em = discord.Embed(style='rich',
                            title=f'Git Pull',
                            color=embed_color)
         em.set_thumbnail(url=f'{ctx.guild.me.avatar_url}')
         result = await asyncio.wait_for(self.bot.loop.create_task(run_command('git status')), 10)
-        results = paginate(result, maxlen=1014)
-        for page in results[:5]:
+        pag.add(result)
+        for page in pag.pages():
             em.add_field(name='￲', value=f'{page}')
         await ctx.send(embed=em)
 
