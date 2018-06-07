@@ -1,6 +1,6 @@
 import discord
 import json
-from . import utils
+from src.imports import utils
 
 owner_id = 351794468870946827
 
