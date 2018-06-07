@@ -4,7 +4,7 @@ import asyncio
 import discord
 from discord.ext.commands.formatter import Paginator as DannyPag
 from . import checks
-from geeksbot import Geeksbot
+from geeksbot_dev.geeksbot import Geeksbot
 import re
 import typing
 
