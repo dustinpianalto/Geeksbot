@@ -275,6 +275,7 @@ class Book:
                         pass
                     raise asyncio.CancelledError
                 else:
+                    await self._message.remove_reaction(reaction, user)
                     if str(reaction.emoji) == self._bot.book_emojis['close']:
                         await self._calling_message.delete()
                         await self._message.delete()
@@ -293,7 +294,6 @@ class Book:
                         self._locked = False
                         await self._message.remove_reaction(reaction, self._channel.guild.me)
                         continue
-                    await self._message.remove_reaction(reaction, user)
                     await self.display_page()
 
         self._bot.loop.create_task(reaction_checker())
