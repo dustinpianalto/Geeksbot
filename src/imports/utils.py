@@ -269,6 +269,10 @@ class Book:
                 try:
                     reaction, user = await self._bot.wait_for('reaction_add', timeout=60, check=check)
                 except asyncio.TimeoutError:
+                    try:
+                        await self._message.clear_reactions()
+                    except discord.Forbidden:
+                        pass
                     raise asyncio.CancelledError
                 else:
                     if str(reaction.emoji) == self._bot.book_emojis['close']:
@@ -285,7 +289,7 @@ class Book:
                         self._current_page = 0
                     elif str(reaction.emoji) == self._bot.book_emojis['hash']:
                         raise NotImplementedError
-                    elif str(reaction.emoji) == self._bot.book_emojis['lock']:
+                    elif str(reaction.emoji) == self._bot.book_emojis['unlock']:
                         self._locked = False
                         self._message.remove_reaction(reaction, self._channel.guild.me)
                         continue
