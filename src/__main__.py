@@ -81,15 +81,15 @@ class Geeksbot(commands.Bot):
                                         'left_fist': '🤛',
                                         'lock': '🔒',
                                         }
-        self.book_emojis: List[str] = [
-                                        '🔓',
-                                        '⏮',
-                                        '◀',
-                                        '#\N{COMBINING ENCLOSING KEYCAP}',
-                                        '▶',
-                                        '⏭',
-                                        '🇽',
-                                        ]
+        self.book_emojis: Dict[str, str] = {
+                                        'unlock': '🔓',
+                                        'start': '⏮',
+                                        'back': '◀',
+                                        'hash': '#\N{COMBINING ENCLOSING KEYCAP}',
+                                        'forward': '▶',
+                                        'end': '⏭',
+                                        'close': '🇽',
+                                        }
 
     async def logout(self):
         await self.db_con.close()

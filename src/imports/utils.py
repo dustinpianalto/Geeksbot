@@ -6,6 +6,7 @@ from discord.ext.commands.formatter import Paginator as DannyPag
 from src.imports import checks
 import re
 import typing
+from datetime import datetime
 
 
 class Capturing(list):
@@ -248,13 +249,49 @@ class Book:
             await self._message.edit(content=self._pages[self._current_page], embed=None)
 
         # noinspection PyUnresolvedReferences
-        for reaction in self._bot.book_emojis:
+        for emoji in self._bot.book_emojis.values():
             try:
-                await self._message.add_reaction(reaction)
+                await self._message.add_reaction(emoji)
             except (discord.Forbidden, KeyError):
                 pass
 
-#    async def create_book(self) -> None:
+    async def create_book(self) -> None:
+        async def reaction_checker():
+            def check(reaction, user):
+                if self._locked:
+                    return str(reaction.emoji) in self._bot.book_emojis and user == self._calling_message.author
+                else:
+                    return str(reaction.emoji) in self._bot.book_emojis
+
+            while True:
+                try:
+                    reaction, user = await self._bot.wait_for('reaction_add', timeout=60, check=check)
+                except asyncio.TimeoutError:
+                    raise asyncio.CancelledError
+                else:
+                    if str(reaction.emoji) == self._bot.book_emojis['close']:
+                        await self._calling_message.delete()
+                        await self._message.delete()
+                        raise asyncio.CancelledError
+                    elif str(reaction.emoji) == self._bot.book_emojis['forward']:
+                        self.advance_page()
+                    elif str(reaction.emoji) == self._bot.book_emojis['back']:
+                        self.reverse_page()
+                    elif str(reaction.emoji) == self._bot.book_emojis['end']:
+                        self._current_page = self._len_pages - 1
+                    elif str(reaction.emoji) == self._bot.book_emojis['start']:
+                        self._current_page = 0
+                    elif str(reaction.emoji) == self._bot.book_emojis['hash']:
+                        raise NotImplementedError
+                    elif str(reaction.emoji) == self._bot.book_emojis['lock']:
+                        self._locked = False
+                        self._message.remove_reaction(reaction, self._channel.guild.me)
+                        continue
+                    await self._message.remove_reaction(reaction, user)
+                    await self.display_page()
+
+        await self.display_page()
+        self._bot.loop.create_task(reaction_checker())
 
 
 
