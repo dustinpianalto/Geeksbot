@@ -110,6 +110,7 @@ class Paginator:
         self._max_lines = max_lines - (prefix + suffix).count('\n') + 1
         self._page_break = page_break
         self._max_line_length = max_line_length
+        self._pages = list()
 
     def pages(self) -> typing.List[str]:
         pages = list()
@@ -145,6 +146,7 @@ class Paginator:
             page += '\n' + part
 
         close_page()
+        self._pages = pages
         return pages
 
     def __len__(self):
