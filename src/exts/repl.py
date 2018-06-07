@@ -7,7 +7,7 @@ import inspect
 import textwrap
 from contextlib import redirect_stdout
 import io
-from src.imports import run_command, format_output, Paginator
+from src.imports.utils import run_command, format_output, Paginator
 
 ownerids = [351794468870946827, 275280442884751360]
 ownerid = 351794468870946827
