@@ -291,7 +291,7 @@ class Book:
                         raise NotImplementedError
                     elif str(reaction.emoji) == self._bot.book_emojis['unlock']:
                         self._locked = False
-                        self._message.remove_reaction(reaction, self._channel.guild.me)
+                        await self._message.remove_reaction(reaction, self._channel.guild.me)
                         continue
                     await self._message.remove_reaction(reaction, user)
                     await self.display_page()
