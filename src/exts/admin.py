@@ -6,7 +6,7 @@ import inspect
 import os
 from src.imports import checks, utils
 
-config_dir = 'config/'
+config_dir = 'src/config/'
 admin_id_file = 'admin_ids'
 owner_id = 351794468870946827
 embed_color = discord.Colour.from_rgb(49, 107, 111)
