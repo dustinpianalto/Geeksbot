@@ -289,7 +289,22 @@ class Book:
                     elif str(reaction.emoji) == self._bot.book_emojis['start']:
                         self._current_page = 0
                     elif str(reaction.emoji) == self._bot.book_emojis['hash']:
-                        raise NotImplementedError
+                        m = await self._channel.send(f'Please enter a number between 1 and {self._len_pages}')
+                        def num_check(message):
+                            if self._locked:
+                                return message.content.isdigit() \
+                                        and 0 < int(message.content) < self._len_pages \
+                                            and message.author == self._calling_message.author
+                            else:
+                                return message.content.isdigit() \
+                                       and 0 < int(message.content) < self._len_pages
+
+                        try:
+                            msg = self._bot.wait_for('message', timeout=30, check=num_check())
+                        except asyncio.TimeoutError:
+                            await m.edit(content='Message Timed out.')
+                        else:
+                            self._current_page = int(msg.content)
                     elif str(reaction.emoji) == self._bot.book_emojis['unlock']:
                         self._locked = False
                         await self._message.remove_reaction(reaction, self._channel.guild.me)
