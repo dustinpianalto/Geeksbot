@@ -305,6 +305,11 @@ class Book:
                             await m.edit(content='Message Timed out.')
                         else:
                             self._current_page = int(msg.content) - 1
+                            try:
+                                await m.delete()
+                                await msg.delete()
+                            except discord.Forbidden:
+                                pass
                     elif str(reaction.emoji) == self._bot.book_emojis['unlock']:
                         self._locked = False
                         await self._message.remove_reaction(reaction, self._channel.guild.me)
