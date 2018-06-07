@@ -248,14 +248,8 @@ class Book:
         else:
             await self._message.edit(content=self._pages[self._current_page], embed=None)
 
-        # noinspection PyUnresolvedReferences
-        for emoji in self._bot.book_emojis.values():
-            try:
-                await self._message.add_reaction(emoji)
-            except (discord.Forbidden, KeyError):
-                pass
-
     async def create_book(self) -> None:
+        # noinspection PyUnresolvedReferences
         async def reaction_checker():
             def check(reaction, user):
                 if self._locked:
@@ -264,6 +258,12 @@ class Book:
                     return str(reaction.emoji) in self._bot.book_emojis.values()
 
             await self.display_page()
+
+            for emoji in self._bot.book_emojis.values():
+                try:
+                    await self._message.add_reaction(emoji)
+                except (discord.Forbidden, KeyError):
+                    pass
 
             while True:
                 try:
@@ -297,7 +297,3 @@ class Book:
                     await self.display_page()
 
         self._bot.loop.create_task(reaction_checker())
-
-
-
-
