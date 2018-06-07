@@ -207,14 +207,17 @@ class Paginator:
 
 
 class Book:
-    def __init__(self, pag: Paginator, message: discord.Message):
+    def __init__(self, pag: Paginator, ctx: discord.ext.commands.Context):
         if pag == Paginator():
             raise RuntimeError('Cannot create a book out of an empty Paginator.')
 
         self._pages = pag.pages()
         self._len_pages = len(self._pages)
         self._current_page = 0
-        self._message = message
+        self._message = ctx.message
+        self._channel = ctx.channel
+        self._bot = ctx.bot
+        self._locked = True
 
     def advance_page(self, count: int=1):
         self._current_page += count
@@ -228,3 +231,30 @@ class Book:
 
     async def display_page(self):
         await self._message.edit(content=self._pages[self._current_page])
+
+        try:
+            if not self._current_page == 0:
+                await self._message.add_reaction(self._bot.unicode_emojis['start'])
+            if not self._current_page < 10:
+                await self._message.add_reaction(self._bot.unicode_emojis['rewind'])
+            if not self._current_page == 0:
+                await self._message.add_reaction(self.bot.unicode_emojis['back'])
+            if self._len_pages > 1:
+                await self._message.add_reaction(self.bot.unicode_emojis['hash'])
+            if not self._current_page == self._len_pages - 1:
+                await self._message.add_reaction(self.bot.unicode_emojis['forward'])
+            if not self._current_page > self._len_pages - 11:
+                await self._message.add_reaction(self._bot.unicode_emojis['fast_forward'])
+            if not self._current_page == self._len_pages - 1:
+                await self._message.add_reaction(self._bot.unicode_emojis['end'])
+            await self._message.add_reaction(self._bot.unicode_emojis['close'])
+            if self._locked:
+                await self._message.add_reaction(self._bot.unicode_emojis['open_lock'])
+            else:
+                await self._message.add_reaction(self._bot.unicode_emojis['lock'])
+        except (discord.Forbidden, KeyError):
+            pass
+
+
+
+
