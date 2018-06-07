@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import logging
-from src.imports import Paginator, run_command
+from src.imports.utils import Paginator, run_command
 import asyncio
 
 owner_id = 351794468870946827
