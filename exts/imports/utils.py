@@ -4,6 +4,7 @@ import asyncio
 import discord
 from discord.ext.commands.formatter import Paginator as DannyPag
 from . import checks
+from geeksbot import Geeksbot
 import re
 import typing
 
@@ -220,51 +221,40 @@ class Paginator:
 class Book:
     def __init__(self, pag: Paginator, ctx: typing.Tuple[discord.Message,
                                                          discord.TextChannel,
-                                                         discord.ext.commands.Bot]):
+                                                         Geeksbot,
+                                                         discord.Message]) -> None:
         if pag == Paginator():
             raise RuntimeError('Cannot create a book out of an empty Paginator.')
 
         self._pages = pag.process_pages()
         self._len_pages = len(self._pages)
         self._current_page = 0
-        self._message, self._channel, self._bot = ctx
+        self._message, self._channel, self._bot, self._calling_message = ctx
         self._locked = True
 
-    def advance_page(self, count: int=1):
-        self._current_page += count
+    def advance_page(self) -> None:
+        self._current_page += 1
         if self._current_page >= self._len_pages:
-            self._current_page = self._len_pages
-
-    def reverse_page(self, count: int=1):
-        self._current_page -= count
-        if self._current_page <= 0:
             self._current_page = 0
 
-    async def display_page(self):
-        await self._message.edit(content=self._pages[self._current_page])
+    def reverse_page(self) -> None:
+        self._current_page += -1
+        if self._current_page < 0:
+            self._current_page = self._len_pages - 1
 
-        try:
-            if not self._current_page == 0:
-                await self._message.add_reaction(self._bot.unicode_emojis['start'])
-            if not self._current_page < 10:
-                await self._message.add_reaction(self._bot.unicode_emojis['rewind'])
-            if not self._current_page == 0:
-                await self._message.add_reaction(self._bot.unicode_emojis['back'])
-            if self._len_pages > 1:
-                await self._message.add_reaction(self._bot.unicode_emojis['hash'])
-            if not self._current_page == self._len_pages - 1:
-                await self._message.add_reaction(self._bot.unicode_emojis['forward'])
-            if not self._current_page > self._len_pages - 11:
-                await self._message.add_reaction(self._bot.unicode_emojis['fast_forward'])
-            if not self._current_page == self._len_pages - 1:
-                await self._message.add_reaction(self._bot.unicode_emojis['end'])
-            await self._message.add_reaction(self._bot.unicode_emojis['close'])
-            if self._locked:
-                await self._message.add_reaction(self._bot.unicode_emojis['open_lock'])
-            else:
-                await self._message.add_reaction(self._bot.unicode_emojis['lock'])
-        except (discord.Forbidden, KeyError):
-            pass
+    async def display_page(self) -> None:
+        if isinstance(self._pages[self._current_page], discord.Embed):
+            await self._message.edit(content=None, embed=self._pages[self._current_page])
+        else:
+            await self._message.edit(content=self._pages[self._current_page], embed=None)
+
+        for reaction in self._bot.book_emojis:
+            try:
+                await self._message.add_reaction(reaction)
+            except (discord.Forbidden, KeyError):
+                pass
+
+#    async def create_book(self) -> None:
 
 
 

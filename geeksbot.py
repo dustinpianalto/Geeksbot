@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 import discord
 from discord.ext import commands
@@ -80,16 +80,16 @@ class Geeksbot(commands.Bot):
                                         'boom': '💥',
                                         'left_fist': '🤛',
                                         'lock': '🔒',
-                                        'open_lock': '🔓',
-                                        'back': '◀',
-                                        'forward': '▶',
-                                        'fast_forward': '⏩',
-                                        'rewind': '⏪',
-                                        'end': '⏭',
-                                        'start': '⏮',
-                                        'hash': '#\N{COMBINING ENCLOSING KEYCAP}',
-                                        'close': '🇽',
                                         }
+        self.book_emojis: List[str] = [
+                                        '🔓',
+                                        '⏮',
+                                        '◀',
+                                        '#\N{COMBINING ENCLOSING KEYCAP}',
+                                        '▶',
+                                        '⏭',
+                                        '🇽',
+                                        ]
 
     async def logout(self):
         await self.db_con.close()
