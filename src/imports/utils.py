@@ -4,7 +4,6 @@ import asyncio
 import discord
 from discord.ext.commands.formatter import Paginator as DannyPag
 from src.imports import checks
-from src.__main__ import Geeksbot
 import re
 import typing
 
@@ -221,7 +220,7 @@ class Paginator:
 class Book:
     def __init__(self, pag: Paginator, ctx: typing.Tuple[discord.Message,
                                                          discord.TextChannel,
-                                                         Geeksbot,
+                                                         discord.ext.commands.Bot,
                                                          discord.Message]) -> None:
         if pag == Paginator():
             raise RuntimeError('Cannot create a book out of an empty Paginator.')
@@ -248,6 +247,7 @@ class Book:
         else:
             await self._message.edit(content=self._pages[self._current_page], embed=None)
 
+        # noinspection PyUnresolvedReferences
         for reaction in self._bot.book_emojis:
             try:
                 await self._message.add_reaction(reaction)
