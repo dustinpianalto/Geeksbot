@@ -1,6 +1,6 @@
 #!/bin/bash
 
-until python -m /home/dusty/bin/geeksbot_dev; do
+until python -m src; do
 	echo "Geeksbot shutdown with error: $?. Restarting..." >&2
 	sleep 1
 done
