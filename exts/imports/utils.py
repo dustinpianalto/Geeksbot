@@ -93,20 +93,21 @@ async def run_command(args):
 
 class Paginator:
     def __init__(self, *,
-                 max_chars: int=1990,
+                 max_chars: int=1970,
                  max_lines: int=20,
                  prefix: str='```md',
                  suffix: str='```',
                  page_break: str='\uFFF8',
                  max_line_length: int=100):
+        _max_len = 1980
         assert 0 < max_lines <= max_chars
         assert 0 < max_line_length < 120
 
         self._parts = list()
         self._prefix = prefix
         self._suffix = suffix
-        self._max_chars = max_chars if max_chars + len(prefix) + len(suffix) + 2 <= 2000 \
-            else 2000 - len(prefix) - len(suffix) - 2
+        self._max_chars = max_chars if max_chars + len(prefix) + len(suffix) + 2 <= _max_len \
+            else _max_len - len(prefix) - len(suffix) - 2
         self._max_lines = max_lines - (prefix + suffix).count('\n') + 1
         self._page_break = page_break
         self._max_line_length = max_line_length
@@ -116,7 +117,6 @@ class Paginator:
         pages = list()
         page = ''
         lines = 0
-        parts = list()
 
         def open_page():
             nonlocal page, lines
@@ -148,6 +148,15 @@ class Paginator:
         close_page()
         self._pages = pages
         return pages
+
+    def process_pages(self) -> typing.List[str]:
+        _pages = self._pages or self.pages()
+        _len_pages = len(_pages)
+        _len_page_str = len(f'{_len_pages}/{_len_pages}')
+        for i, page in enumerate(_pages):
+            if len(page) + _len_page_str <= 2000:
+                _pages[i] = f'{i + 1}/{_len_pages}\n{page}'
+        return _pages
 
     def __len__(self):
         return sum(len(p) for p in self._parts)
@@ -215,7 +224,7 @@ class Book:
         if pag == Paginator():
             raise RuntimeError('Cannot create a book out of an empty Paginator.')
 
-        self._pages = pag.pages()
+        self._pages = pag.process_pages()
         self._len_pages = len(self._pages)
         self._current_page = 0
         self._message, self._channel, self._bot = ctx
