@@ -25,7 +25,7 @@ formatter = logging.Formatter(log_format, style='{', datefmt=date_format)
 console_handler.setFormatter(formatter)
 logging.getLogger('').addHandler(console_handler)
 
-config_dir = 'config/'
+config_dir = 'src/config/'
 admin_id_file = 'admin_ids'
 extension_dir = 'exts'
 owner_id = 351794468870946827
@@ -101,12 +101,12 @@ class Geeksbot(commands.Bot):
                                               message.guild.id) or bot_inst.default_prefix
 
     async def load_ext(self, ctx, mod=None):
-        self.load_extension('{0}.{1}'.format(extension_dir, mod))
+        self.load_extension('src.{0}.{1}'.format(extension_dir, mod))
         if ctx is not None:
             await ctx.send('{0} loaded.'.format(mod))
 
     async def unload_ext(self, ctx, mod=None):
-        self.unload_extension('{0}.{1}'.format(extension_dir, mod))
+        self.unload_extension('src.{0}.{1}'.format(extension_dir, mod))
         if ctx is not None:
             await ctx.send('{0} unloaded.'.format(mod))
 

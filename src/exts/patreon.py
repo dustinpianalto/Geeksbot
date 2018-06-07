@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import json
-from .imports import checks
+from src.imports import checks
 
 config_dir = 'config'
 extension_dir = 'extensions'

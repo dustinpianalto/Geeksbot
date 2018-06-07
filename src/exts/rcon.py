@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 import asyncio
 import traceback
-from .imports import checks
+from src.imports import checks
 
 config_dir = 'config'
 admin_id_file = 'admin_ids'

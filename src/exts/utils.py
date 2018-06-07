@@ -7,7 +7,7 @@ import psutil
 from datetime import datetime, timedelta
 import asyncio
 import async_timeout
-from .imports import checks, utils
+from src.imports import checks, utils
 import pytz
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials

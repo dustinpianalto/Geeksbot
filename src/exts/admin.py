@@ -4,7 +4,7 @@ import json
 import logging
 import inspect
 import os
-from .imports import checks, utils
+from src.imports import checks, utils
 
 config_dir = 'config/'
 admin_id_file = 'admin_ids'

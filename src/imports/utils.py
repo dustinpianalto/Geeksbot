@@ -3,8 +3,8 @@ import sys
 import asyncio
 import discord
 from discord.ext.commands.formatter import Paginator as DannyPag
-from . import checks
-from geeksbot_dev.geeksbot import Geeksbot
+from src.imports import checks
+from src.__main__ import Geeksbot
 import re
 import typing
 
