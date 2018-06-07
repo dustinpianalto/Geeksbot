@@ -263,6 +263,8 @@ class Book:
                 else:
                     return str(reaction.emoji) in self._bot.book_emojis
 
+            await self.display_page()
+
             while True:
                 try:
                     reaction, user = await self._bot.wait_for('reaction_add', timeout=60, check=check)
@@ -290,7 +292,6 @@ class Book:
                     await self._message.remove_reaction(reaction, user)
                     await self.display_page()
 
-        await self.display_page()
         self._bot.loop.create_task(reaction_checker())
 
 
