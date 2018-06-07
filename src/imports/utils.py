@@ -300,7 +300,7 @@ class Book:
                                        and 0 < int(message.content) < self._len_pages
 
                         try:
-                            msg = self._bot.wait_for('message', timeout=30, check=num_check)
+                            msg = await self._bot.wait_for('message', timeout=30, check=num_check)
                         except asyncio.TimeoutError:
                             await m.edit(content='Message Timed out.')
                         else:
