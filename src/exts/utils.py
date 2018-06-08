@@ -701,17 +701,17 @@ class Utils:
 # TODO Create Help command
     @commands.command(name='help', aliases=['h'])
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def custom_help(self, ctx, command: str=None):
+    async def custom_help(self, ctx, *, command: str=None):
         pag = utils.Paginator(self.bot, embed=True, max_line_length=48)
         prefixes = await self.bot.get_custom_prefix(self.bot, ctx.message)
         if isinstance(prefixes, list):
             prefixes = ', '.join(prefixes)
         owner = await self.bot.get_user_info(self.bot.owner_id)
-        pag.set_embed_meta(title='Geeksbot Help',
-                           description=f'For more information about a command please run\n'
-                                       f'{prefixes.split(",")[0]}help [group] <command>',
-                           thumbnail=f'{ctx.guild.me.avatar_url}')
         if command is None:
+            pag.set_embed_meta(title='Geeksbot Help',
+                               description=f'For more information about a command please run\n'
+                                           f'{prefixes.split(",")[0]}help [group] <command>',
+                               thumbnail=f'{ctx.guild.me.avatar_url}')
             pag.add(f"\uFFF6Welcome to Geeksbot's help command.\n"
                     f"< {self.bot.description} >\n\n"
                     f"Below you will find some basic information about me.\n\n"
@@ -735,6 +735,22 @@ class Utils:
                             pass
                         pag.add('\uFFF7')
                 pag.add('\uFFF8')
+        else:
+            pag.set_embed_meta(title='Geeksbot Help',
+                               thumbnail=f'{ctx.guild.me.avatar_url}')
+            command = command.split(maxsplit=1)
+            if command[0] in self.bot.all_commands:
+                if len(command) > 1 and self.bot.all_commands[command[0]].group:
+                    command = self.bot.all_commands[command[0]].all_commands.get(command[1], None)
+                else:
+                    command = self.bot.all_commands[command[0]]
+            else:
+                command = None
+
+            if command and not command.hidden:
+                pag.add(f'\uFFF6{command.name}')
+                pag.add(f'{command.help}')
+
         book = utils.Book(pag, (None, ctx.channel, self.bot, ctx.message))
         await book.create_book()
 
