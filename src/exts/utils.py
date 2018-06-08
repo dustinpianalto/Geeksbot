@@ -702,7 +702,7 @@ class Utils:
     @commands.command(name='help', aliases=['h'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def custom_help(self, ctx, command: str=None):
-        pag = utils.Paginator(self.bot, embed=True, max_line_length=50)
+        pag = utils.Paginator(self.bot, embed=True, max_line_length=48)
         prefixes = await self.bot.get_custom_prefix(self.bot, ctx.message)
         if isinstance(prefixes, list):
             prefixes = ', '.join(prefixes)
