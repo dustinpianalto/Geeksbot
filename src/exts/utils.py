@@ -727,7 +727,7 @@ class Utils:
                         pag.add(f'\uFFF6{command.name}')
                         pag.add(f'> {command.short_doc}', truncate=True)
                         try:
-                            for com in command.commands:
+                            for com in sorted(command.commands, key=lambda x: x.name):
                                 if not com.hidden:
                                     pag.add(f'# {com.name}')
                                     pag.add(f'>     {com.short_doc}', truncate=True)
