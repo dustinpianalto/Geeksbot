@@ -150,7 +150,7 @@ class BotEvents:
 
     # noinspection PyMethodMayBeStatic
     async def on_command_error(self, ctx, error):
-        pag = utils.Paginator()
+        pag = utils.Paginator(ctx.bot)
         import traceback
         if ctx.channel.id == 418452585683484680 and type(error) == commands.errors.CommandNotFound:
             return
