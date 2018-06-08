@@ -173,7 +173,8 @@ class Paginator:
                 _page += self._suffix
                 _pages.append(_page)
             else:
-                _pages.append(_fields)
+                if _fields:
+                    _pages.append(_fields)
             open_page()
 
         open_page()
