@@ -103,6 +103,7 @@ class Paginator:
                  page_break: str='\uFFF8',
                  field_break: str='\uFFF7',
                  field_name_char: str='\uFFF6',
+                 inline_char: str='\uFFF5',
                  max_line_length: int=100,
                  embed=False):
         _max_len = 6000 if embed else 1980
@@ -124,6 +125,7 @@ class Paginator:
         self._embed = embed
         self._field_break = field_break
         self._field_name_char = field_name_char
+        self._inline_char = inline_char
         self._embed_title = ''
         self._embed_description = ''
         self._bot = bot
@@ -145,6 +147,7 @@ class Paginator:
         _lines = 0
         _field_name = ''
         _field_value = ''
+        _inline = False
 
         def open_page():
             nonlocal _page, _lines
@@ -188,7 +191,7 @@ class Paginator:
             def close_field(next_name: str=None):
                 nonlocal _field_name, _field_value, _fields
                 _field_value += self._suffix
-                _fields.append({'name': _field_name, 'value': _field_value})
+                _fields.append({'name': _field_name, 'value': _field_value, 'inline': _inline})
                 if next_name:
                     open_field(next_name)
 
@@ -205,10 +208,16 @@ class Paginator:
                         close_page()
 
                 if part.startswith(self._field_name_char):
-                    if _field_value:
-                        close_field(part.replace(self._field_name_char, ''))
+                    part = part.replace(self._field_name_char, '')
+                    if part.startswith(self._inline_char):
+                        _inline = True
+                        part = part.replace(self._inline_char, '')
                     else:
-                        _field_name = part.replace(self._field_name_char, '')
+                        _inline = False
+                    if _field_value:
+                        close_field(part)
+                    else:
+                        _field_name = part
                     continue
 
                 _field_value += '\n' + part
