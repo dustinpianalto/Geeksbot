@@ -93,7 +93,9 @@ async def run_command(args):
 
 
 class Paginator:
-    def __init__(self, *,
+    def __init__(self,
+                 bot: discord.ext.commands.Bot,
+                 *,
                  max_chars: int=1970,
                  max_lines: int=20,
                  prefix: str='```md',
@@ -124,6 +126,7 @@ class Paginator:
         self._field_name_char = field_name_char
         self._embed_title = ''
         self._embed_description = ''
+        self._bot = bot
 
     def set_embed_meta(self, title: str='\uFFF0', description: str='\uFFF0'):
         if len(title) <= self._max_field_name:
@@ -136,7 +139,7 @@ class Paginator:
             raise RuntimeError('Provided Description is too long')
 
     def pages(self) -> typing.List[str]:
-        pages = list()
+        _pages = list()
         _fields = list()
         _page = ''
         _lines = 0
@@ -151,7 +154,7 @@ class Paginator:
         def close_page():
             nonlocal _page, _lines
             _page += self._suffix
-            pages.append(_page)
+            _pages.append(_page)
             open_page()
 
         open_page()
@@ -172,33 +175,60 @@ class Paginator:
                 _page += '\n' + part
         else:
             def open_field(name: str):
+                nonlocal _field_value, _field_name
                 _field_name = name
-                _field_value = '\uFFF0'
+                _field_value = self._prefix
 
-            def close_field():
-                pass
+            def close_field(next_name: str=None):
+                nonlocal _field_name, _field_value, _fields
+                _field_value += self._suffix
+                _fields.append({'name': _field_name, 'value': _field_value})
+                if next_name:
+                    open_field(next_name)
 
             for part in [str(p) for p in self._parts]:
                 if part == self._page_break:
                     close_page()
                 elif part == self._field_break:
-                    close_field()
+                    if len(_fields) + 1 < 25:
+                        close_field(next_name='\uFFF0')
+                    else:
+                        close_field()
+                        close_page()
 
+                if part.startswith(self._field_name_char):
+                    if _field_value:
+                        close_field(part.replace(self._field_name_char, ''))
+                    else:
+                        _field_name = part.replace(self._field_name_char, '')
+                    continue
 
+                _field_value += '\n' + part
 
-
+            close_field()
 
         close_page()
-        self._pages = pages
-        return pages
+        self._pages = _pages
+        return _pages
 
     def process_pages(self) -> typing.List[str]:
         _pages = self._pages or self.pages()
         _len_pages = len(_pages)
         _len_page_str = len(f'{_len_pages}/{_len_pages}')
-        for i, page in enumerate(_pages):
-            if len(page) + _len_page_str <= 2000:
-                _pages[i] = f'{i + 1}/{_len_pages}\n{page}'
+        if not self._embed:
+            for i, page in enumerate(_pages):
+                if len(page) + _len_page_str <= 2000:
+                    _pages[i] = f'{i + 1}/{_len_pages}\n{page}'
+        else:
+            for i, page in enumerate(_pages):
+                em = discord.Embed(title=self._embed_title,
+                                   description=self._embed_description,
+                                   color=self._bot.embed_color,
+                                   )
+                em.set_footer(text=f'{i + 1}/{_len_pages}')
+                for field in page:
+                    em.add_field(name=field['name'], value=field['value'], inline=field['inline'])
+                _pages[i] = em
         return _pages
 
     def __len__(self):
@@ -293,6 +323,7 @@ class Book:
     async def create_book(self) -> None:
         # noinspection PyUnresolvedReferences
         async def reaction_checker():
+            # noinspection PyShadowingNames
             def check(reaction, user):
                 if self._locked:
                     return str(reaction.emoji) in self._bot.book_emojis.values() and user == self._calling_message.author
