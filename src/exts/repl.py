@@ -141,7 +141,7 @@ class Repl:
                         fmt = '{}'.format(value)
                 try:
                     if fmt is not None:
-                        pag = Paginator()
+                        pag = Paginator(self.bot)
                         pag.add(fmt)
                         for page in pag.pages():
                             await response.channel.send(page)
@@ -157,7 +157,7 @@ class Repl:
             return
         try:
             body = self.cleanup_code(body)
-            pag = Paginator()
+            pag = Paginator(self.bot)
             pag.add(await asyncio.wait_for(self.bot.loop.create_task(run_command(body)), 10))
             for page in pag.pages():
                 await ctx.send(page)

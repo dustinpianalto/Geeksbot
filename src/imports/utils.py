@@ -128,9 +128,16 @@ class Paginator:
         self._inline_char = inline_char
         self._embed_title = ''
         self._embed_description = ''
+        self._embed_color = None
+        self._embed_thumbnail = None
+        self._embed_url = None
         self._bot = bot
 
-    def set_embed_meta(self, title: str='\uFFF0', description: str='\uFFF0'):
+    def set_embed_meta(self, title: str='\uFFF0',
+                       description: str='\uFFF0',
+                       color: discord.Colour=None,
+                       thumbnail: str=None,
+                       url: str=None):
         if len(title) <= self._max_field_name:
             self._embed_title = title
         else:
@@ -139,6 +146,9 @@ class Paginator:
             self._embed_description = description
         else:
             raise RuntimeError('Provided Description is too long')
+        self._embed_color = color
+        self._embed_thumbnail = thumbnail
+        self._embed_url = url
 
     def pages(self) -> typing.List[str]:
         _pages = list()
@@ -163,7 +173,8 @@ class Paginator:
                 _page += self._suffix
                 _pages.append(_page)
             else:
-                _pages.append(_fields)
+                if _fields:
+                    _pages.append(_fields)
             open_page()
 
         open_page()
@@ -191,7 +202,8 @@ class Paginator:
             def close_field(next_name: str=None):
                 nonlocal _field_name, _field_value, _fields
                 _field_value += self._suffix
-                _fields.append({'name': _field_name, 'value': _field_value, 'inline': _inline})
+                if _field_value != self._prefix + self._suffix:
+                    _fields.append({'name': _field_name, 'value': _field_value, 'inline': _inline})
                 if next_name:
                     open_field(next_name)
 
@@ -244,6 +256,12 @@ class Paginator:
                                    description=self._embed_description,
                                    color=self._bot.embed_color,
                                    )
+                if self._embed_thumbnail:
+                    em.set_thumbnail(url=self._embed_thumbnail)
+                if self._embed_url:
+                    em.url = self._embed_url
+                if self._embed_color:
+                    em.color = self._embed_color
                 em.set_footer(text=f'{i + 1}/{_len_pages}')
                 for field in page:
                     em.add_field(name=field['name'], value=field['value'], inline=field['inline'])
@@ -348,9 +366,12 @@ class Book:
             # noinspection PyShadowingNames
             def check(reaction, user):
                 if self._locked:
-                    return str(reaction.emoji) in self._bot.book_emojis.values() and user == self._calling_message.author
+                    return str(reaction.emoji) in self._bot.book_emojis.values() \
+                           and user == self._calling_message.author \
+                           and reaction.message.id == self._message.id
                 else:
-                    return str(reaction.emoji) in self._bot.book_emojis.values()
+                    return str(reaction.emoji) in self._bot.book_emojis.values() \
+                           and reaction.message.id == self._message.id
 
             await self.display_page()
 
@@ -384,15 +405,16 @@ class Book:
                     elif str(reaction.emoji) == self._bot.book_emojis['start']:
                         self._current_page = 0
                     elif str(reaction.emoji) == self._bot.book_emojis['hash']:
-                        m = await self._channel.send(f'Please enter a number between 1 and {self._len_pages}')
+                        m = await self._channel.send(f'Please enter a number in range 1 to {self._len_pages}')
+
                         def num_check(message):
                             if self._locked:
                                 return message.content.isdigit() \
-                                        and 0 < int(message.content) < self._len_pages \
-                                            and message.author == self._calling_message.author
+                                        and 0 < int(message.content) <= self._len_pages \
+                                        and message.author == self._calling_message.author
                             else:
                                 return message.content.isdigit() \
-                                       and 0 < int(message.content) < self._len_pages
+                                       and 0 < int(message.content) <= self._len_pages
 
                         try:
                             msg = await self._bot.wait_for('message', timeout=30, check=num_check)
