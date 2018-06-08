@@ -551,7 +551,7 @@ class Utils:
 
         if await checks.is_admin(self.bot, ctx):
             if member:
-                deleted = await ctx.channel.purge(limit=number, check=is_member)
+                deleted = await ctx.channel.purge(limit=number, check=await is_member)
                 if member != ctx.author:
                     await ctx.message.delete()
             else:
