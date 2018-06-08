@@ -701,7 +701,7 @@ class Utils:
 # TODO Create Help command
     @commands.command(name='help', aliases=['h'])
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def custom_help(self, ctx, command):
+    async def custom_help(self, ctx, command: str=None):
         pag = utils.Paginator(self.bot, embed=True, max_line_length=44)
         msg = await ctx.send('Loading Help...')
         pag.add('\uFFF6My new help\nTest message\n\uFFF7\n\uFFF8')
