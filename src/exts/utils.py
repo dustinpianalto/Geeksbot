@@ -531,11 +531,8 @@ class Utils:
         async def is_me(message):
             if message.author == self.bot.user:
                 return True
-            prefixes = self.bot.loop.create_task(self.bot.db_con.fetchval('select prefix from guild_config '
-                                                                          'where guild_id = $1', ctx.guild.id))
-            while not prefixes.done():
-                await asyncio.sleep(0)
-            prefixes = prefixes.result()
+            prefixes = await self.bot.db_con.fetchval('select prefix from guild_config '
+                                                      'where guild_id = $1', ctx.guild.id)
             if prefixes:
                 for prefix in prefixes:
                     if message.content.startswith(prefix):
