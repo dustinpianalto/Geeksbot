@@ -356,9 +356,15 @@ class Book:
 
     async def display_page(self) -> None:
         if isinstance(self._pages[self._current_page], discord.Embed):
-            await self._message.edit(content=None, embed=self._pages[self._current_page])
+            if self._message:
+                await self._message.edit(content=None, embed=self._pages[self._current_page])
+            else:
+                await self._channel.send(embed=self._pages[self._current_page])
         else:
-            await self._message.edit(content=self._pages[self._current_page], embed=None)
+            if self._message:
+                await self._message.edit(content=self._pages[self._current_page], embed=None)
+            else:
+                await self._channel.send(self._pages[self._current_page])
 
     async def create_book(self) -> None:
         # noinspection PyUnresolvedReferences
