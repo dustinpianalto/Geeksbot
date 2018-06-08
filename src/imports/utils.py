@@ -150,7 +150,7 @@ class Paginator:
         _inline = False
 
         def open_page():
-            nonlocal _page, _lines
+            nonlocal _page, _lines, _fields
             if not self._embed:
                 _page = self._prefix
                 _lines = 0
@@ -158,7 +158,7 @@ class Paginator:
                 _fields = dict()
 
         def close_page():
-            nonlocal _page, _lines
+            nonlocal _page, _lines, _fields
             if not self._embed:
                 _page += self._suffix
                 _pages.append(_page)
