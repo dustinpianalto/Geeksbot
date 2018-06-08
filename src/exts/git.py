@@ -29,7 +29,7 @@ class Git:
     @git.command()
     @commands.is_owner()
     async def pull(self, ctx):
-        pag = Paginator(self.bot, max_line_length=60, embed=True)
+        pag = Paginator(self.bot, max_line_length=44, embed=True)
         pag.set_embed_meta(title='Git Pull',
                            color=self.bot.embed_color,
                            thumbnail=f'{ctx.guild.me.avatar_url}')
