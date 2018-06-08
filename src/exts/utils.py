@@ -752,7 +752,7 @@ class Utils:
                 pag.add(f'Usage: {prefixes.split()[0]}{command.signature}\n')
                 pag.add(f'\uFFF0\n{command.help}')
             else:
-                pag.add('\uFFF6There is no command by that name.')
+                pag.add('\uFFF6There is no command by that name.\n>')
 
         book = utils.Book(pag, (None, ctx.channel, self.bot, ctx.message))
         await book.create_book()
