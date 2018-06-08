@@ -534,7 +534,7 @@ class Utils:
             prefixes = self.bot.loop.create_task(self.bot.db_con.fetchval('select prefix from guild_config '
                                                                           'where guild_id = $1', ctx.guild.id))
             while not prefixes.done():
-                pass
+                asyncio.sleep(0)
             prefixes = prefixes.result()
             if prefixes:
                 for prefix in prefixes:
