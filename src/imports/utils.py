@@ -296,7 +296,7 @@ class Book:
                                                          discord.TextChannel,
                                                          discord.ext.commands.Bot,
                                                          discord.Message]) -> None:
-        if pag == Paginator():
+        if pag == Paginator(ctx.bot):
             raise RuntimeError('Cannot create a book out of an empty Paginator.')
 
         self._pages = pag.process_pages()
