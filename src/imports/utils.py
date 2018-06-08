@@ -246,7 +246,7 @@ class Paginator:
                 for field in page:
                     em.add_field(name=field['name'], value=field['value'], inline=field['inline'])
                 _pages[i] = em
-
+        print(_pages)
         return _pages
 
     def __len__(self):
