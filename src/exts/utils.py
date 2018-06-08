@@ -708,19 +708,19 @@ class Utils:
             prefixes = ', '.join(prefixes)
         owner = await self.bot.get_user_info(self.bot.owner_id)
         pag.set_embed_meta(title='Geeksbot Help',
-                           description=f'{self.bot.description}\n'
-                                       f'For more information about a command please run\n'
+                           description=f'For more information about a command please run\n'
                                        f'{prefixes.split(",")[0]}help [group] <command>',
                            thumbnail=f'{ctx.guild.me.avatar_url}')
         if command is None:
-            pag.add(f"Welcome to Geeksbot's help command.\n"
+            pag.add(f"\uFFF6Welcome to Geeksbot's help command.\n"
+                    f"[{self.bot.description}]\n"
                     f"Below you will find some basic information about me.\n\n"
-                    f"Version: {self.bot.__version__}\n\n"
-                    f"Owner: Dusty.P\n"
-                    f"    Username: {owner.name}#{owner.discriminator}\n"
-                    f"    ID: {owner.id}\n\n"
+                    f"Version: <{self.bot.__version__}>\n\n"
+                    f"Owner: <Dusty.P>\n"
+                    f">      Username: {owner.name}#{owner.discriminator}\n"
+                    f">      ID: {owner.id}\n\n"
                     f"Prefixes available for this guild:\n"
-                    f"    {prefixes}\n\uFFF7\n\uFFF8")
+                    f"> {prefixes}\n\uFFF7\n\uFFF8")
             for cog in sorted(self.bot.cogs):
                 for command in self.bot.get_cog_commands(cog):
                     if not command.hidden:
