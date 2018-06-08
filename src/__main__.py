@@ -44,7 +44,7 @@ emojis: Dict[str, str] = {
 class Geeksbot(commands.Bot):
     def __init__(self, **kwargs):
         kwargs["command_prefix"] = self.get_custom_prefix
-        self.description = 'I am Geeksbot Dev! Fear me!\nI might just break and take you with me :P'
+        self.description = 'I am Geeksbot Dev! Fear me!\n  I might just break and take you with me :P'
         kwargs['description'] = self.description
         super().__init__(**kwargs)
         self.aio_session = aiohttp.ClientSession(loop=self.loop)

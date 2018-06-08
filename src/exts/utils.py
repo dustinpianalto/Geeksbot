@@ -713,7 +713,7 @@ class Utils:
                            thumbnail=f'{ctx.guild.me.avatar_url}')
         if command is None:
             pag.add(f"\uFFF6Welcome to Geeksbot's help command.\n"
-                    f"[{self.bot.description}]\n"
+                    f"< {self.bot.description} >\n"
                     f"Below you will find some basic information about me.\n\n"
                     f"Version: <{self.bot.__version__}>\n\n"
                     f"Owner: <Dusty.P>\n"
