@@ -198,6 +198,7 @@ class Paginator:
                 if part == self._page_break:
                     close_page()
                 elif part == self._field_break:
+                    print(_field_value)
                     if len(_fields) + 1 < 25:
                         close_field(next_name='\uFFF0')
                     else:
