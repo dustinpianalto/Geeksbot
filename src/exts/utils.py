@@ -528,13 +528,13 @@ class Utils:
 
         Note: Geeksbot will not find <number> of messages by the given member, it will instead
         search the last <number> messages in the channel and delete any by the given member"""
-        def is_me(message):
+        async def is_me(message):
             if message.author == self.bot.user:
                 return True
             prefixes = self.bot.loop.create_task(self.bot.db_con.fetchval('select prefix from guild_config '
                                                                           'where guild_id = $1', ctx.guild.id))
             while not prefixes.done():
-                asyncio.sleep(0)
+                await asyncio.sleep(0)
             prefixes = prefixes.result()
             if prefixes:
                 for prefix in prefixes:
