@@ -192,6 +192,8 @@ class Paginator:
                 if next_name:
                     open_field(next_name)
 
+            open_field('\uFFF0')
+
             for part in [str(p) for p in self._parts]:
                 if part == self._page_break:
                     close_page()
