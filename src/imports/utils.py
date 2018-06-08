@@ -230,6 +230,7 @@ class Paginator:
 
     def process_pages(self) -> typing.List[str]:
         _pages = self._pages or self.pages()
+        print(_pages)
         _len_pages = len(_pages)
         _len_page_str = len(f'{_len_pages}/{_len_pages}')
         if not self._embed:
@@ -246,7 +247,6 @@ class Paginator:
                 for field in page:
                     em.add_field(name=field['name'], value=field['value'], inline=field['inline'])
                 _pages[i] = em
-        print(_pages)
         return _pages
 
     def __len__(self):
