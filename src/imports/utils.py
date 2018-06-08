@@ -380,15 +380,16 @@ class Book:
                     elif str(reaction.emoji) == self._bot.book_emojis['start']:
                         self._current_page = 0
                     elif str(reaction.emoji) == self._bot.book_emojis['hash']:
-                        m = await self._channel.send(f'Please enter a number between 1 and {self._len_pages}')
+                        m = await self._channel.send(f'Please enter a number in range 1 to {self._len_pages}')
+
                         def num_check(message):
                             if self._locked:
                                 return message.content.isdigit() \
-                                        and 0 < int(message.content) < self._len_pages \
-                                            and message.author == self._calling_message.author
+                                        and 0 < int(message.content) <= self._len_pages \
+                                        and message.author == self._calling_message.author
                             else:
                                 return message.content.isdigit() \
-                                       and 0 < int(message.content) < self._len_pages
+                                       and 0 < int(message.content) <= self._len_pages
 
                         try:
                             msg = await self._bot.wait_for('message', timeout=30, check=num_check)
