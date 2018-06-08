@@ -214,7 +214,7 @@ class Paginator:
                         part = part.replace(self._inline_char, '')
                     else:
                         _inline = False
-                    if _field_value:
+                    if _field_value and _field_value != self._prefix:
                         close_field(part)
                     else:
                         _field_name = part
@@ -230,7 +230,6 @@ class Paginator:
 
     def process_pages(self) -> typing.List[str]:
         _pages = self._pages or self.pages()
-        print(_pages)
         _len_pages = len(_pages)
         _len_page_str = len(f'{_len_pages}/{_len_pages}')
         if not self._embed:
