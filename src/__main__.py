@@ -40,12 +40,12 @@ emojis: Dict[str, str] = {
     'boom': '💥',
 }
 
-description = 'I am Geeksbot Dev! Fear me I might just break and take you with me :P'
-
 
 class Geeksbot(commands.Bot):
     def __init__(self, **kwargs):
         kwargs["command_prefix"] = self.get_custom_prefix
+        self.description = 'I am Geeksbot Dev! Fear me I might just break and take you with me :P'
+        kwargs['description'] = self.description
         super().__init__(**kwargs)
         self.aio_session = aiohttp.ClientSession(loop=self.loop)
         with open(f'{config_dir}{bot_config_file}') as file:
@@ -106,7 +106,7 @@ class Geeksbot(commands.Bot):
         self.aio_session.close()  # aiohttp is drunk and can't decide if it's a coro or not
 
 
-bot = Geeksbot(description=description, case_insensitive=True)
+bot = Geeksbot(case_insensitive=True)
 
 
 @bot.command(hidden=True)
