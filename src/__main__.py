@@ -160,6 +160,7 @@ async def on_message(ctx):
 
 @bot.event
 async def on_ready():
+    bot.remove_command('help')
     bot.recent_msgs = {}
     logging.info('Logged in as {0.name}|{0.id}'.format(bot.user))
     load_list = bot.bot_config['load_list']
