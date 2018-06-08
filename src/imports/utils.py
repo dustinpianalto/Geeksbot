@@ -332,7 +332,7 @@ class Paginator:
 
 
 class Book:
-    def __init__(self, pag: Paginator, ctx: typing.Tuple[discord.Message,
+    def __init__(self, pag: Paginator, ctx: typing.Tuple[typing.Optional[discord.Message],
                                                          discord.TextChannel,
                                                          discord.ext.commands.Bot,
                                                          discord.Message]) -> None:
