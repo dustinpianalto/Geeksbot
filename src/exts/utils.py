@@ -722,7 +722,7 @@ class Utils:
                     f"Prefixes available for this guild:\n"
                     f"> {prefixes}\n\uFFF7\n\uFFF8")
             for cog in sorted(self.bot.cogs):
-                for command in self.bot.get_cog_commands(cog):
+                for command in sorted(self.bot.get_cog_commands(cog)):
                     if not command.hidden:
                         pag.add(f'\uFFF6{command.name}')
                         pag.add(f'> {command.short_doc}', truncate=True)
