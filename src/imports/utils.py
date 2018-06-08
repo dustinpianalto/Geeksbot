@@ -128,9 +128,16 @@ class Paginator:
         self._inline_char = inline_char
         self._embed_title = ''
         self._embed_description = ''
+        self._embed_color = None
+        self._embed_thumbnail = None
+        self._embed_url = None
         self._bot = bot
 
-    def set_embed_meta(self, title: str='\uFFF0', description: str='\uFFF0'):
+    def set_embed_meta(self, title: str='\uFFF0',
+                       description: str='\uFFF0',
+                       color: discord.Colour=None,
+                       thumbnail: str=None,
+                       url: str=None):
         if len(title) <= self._max_field_name:
             self._embed_title = title
         else:
@@ -139,6 +146,9 @@ class Paginator:
             self._embed_description = description
         else:
             raise RuntimeError('Provided Description is too long')
+        self._embed_color = color
+        self._embed_thumbnail = thumbnail
+        self._embed_url = url
 
     def pages(self) -> typing.List[str]:
         _pages = list()
@@ -244,6 +254,12 @@ class Paginator:
                                    description=self._embed_description,
                                    color=self._bot.embed_color,
                                    )
+                if self._embed_thumbnail:
+                    em.set_thumbnail(url=self._embed_thumbnail)
+                if self._embed_url:
+                    em.url = self._embed_url
+                if self._embed_color:
+                    em.color = self._embed_color
                 em.set_footer(text=f'{i + 1}/{_len_pages}')
                 for field in page:
                     em.add_field(name=field['name'], value=field['value'], inline=field['inline'])
