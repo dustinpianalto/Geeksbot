@@ -296,14 +296,13 @@ class Book:
                                                          discord.TextChannel,
                                                          discord.ext.commands.Bot,
                                                          discord.Message]) -> None:
-        if pag == Paginator(ctx.bot):
-            raise RuntimeError('Cannot create a book out of an empty Paginator.')
-
         self._pages = pag.process_pages()
         self._len_pages = len(self._pages)
         self._current_page = 0
         self._message, self._channel, self._bot, self._calling_message = ctx
         self._locked = True
+        if pag == Paginator(self._bot):
+            raise RuntimeError('Cannot create a book out of an empty Paginator.')
 
     def advance_page(self) -> None:
         self._current_page += 1
