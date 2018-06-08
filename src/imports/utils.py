@@ -152,7 +152,7 @@ class Paginator:
                 _page = self._prefix
                 _lines = 0
             else:
-                _page = dict()
+                _fields = dict()
 
         def close_page():
             nonlocal _page, _lines
@@ -160,7 +160,7 @@ class Paginator:
                 _page += self._suffix
                 _pages.append(_page)
             else:
-                _pages.append(_page)
+                _pages.append(_fields)
             open_page()
 
         open_page()
@@ -198,7 +198,6 @@ class Paginator:
                 if part == self._page_break:
                     close_page()
                 elif part == self._field_break:
-                    print(_field_value)
                     if len(_fields) + 1 < 25:
                         close_field(next_name='\uFFF0')
                     else:
@@ -230,7 +229,6 @@ class Paginator:
                     _pages[i] = f'{i + 1}/{_len_pages}\n{page}'
         else:
             for i, page in enumerate(_pages):
-                print(page)
                 em = discord.Embed(title=self._embed_title,
                                    description=self._embed_description,
                                    color=self._bot.embed_color,
