@@ -227,6 +227,7 @@ class Paginator:
                     _pages[i] = f'{i + 1}/{_len_pages}\n{page}'
         else:
             for i, page in enumerate(_pages):
+                print(page)
                 em = discord.Embed(title=self._embed_title,
                                    description=self._embed_description,
                                    color=self._bot.embed_color,
