@@ -699,7 +699,27 @@ class Utils:
             await msg.edit(content=f'I can\'t find any data for that location.\nPlease try again.')
 
 # TODO Create Help command
-
+    @commands.command(name='help', aliases=['h'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def custom_help(self, ctx, command):
+        pag = utils.Paginator(self.bot, embed=True, max_line_length=44)
+        msg = await ctx.send('Loading Help...')
+        pag.add('\uFFF6My new help\nTest message\n\uFFF7\n\uFFF8')
+        for cog in self.bot.cogs:
+            for command in self.bot.get_cog_commands(cog):
+                if not command.hidden:
+                    pag.add(f'\uFFF6{command.name}')
+                    pag.add(f'{command.short_doc}', truncate=True)
+                    try:
+                        for com in command.commands:
+                            if not com.hidden:
+                                pag.add(f'{com.name}')
+                    except AttributeError as e:
+                        pass
+                    pag.add('\uFFF7')
+            pag.add('\uFFF8')
+        book = utils.Book(pag, (msg, ctx.channel, self.bot, ctx.message))
+        await book.create_book()
 
 def setup(bot):
     bot.add_cog(Utils(bot))
