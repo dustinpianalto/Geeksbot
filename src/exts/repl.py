@@ -37,7 +37,7 @@ class Repl:
     async def _eval(self, ctx, *, body: str):
         if ctx.author.id != ownerid:
             return
-        pag = Paginator()
+        pag = Paginator(self.bot)
         env = {
             'bot': self.bot,
             'ctx': ctx,
