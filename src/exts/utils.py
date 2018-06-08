@@ -580,15 +580,17 @@ class Utils:
     async def google_search(self, ctx, *, search):
         """WIP Search Google for the given string"""
         res = self.bot.gcs_service.cse().list(q=search, cx=self.bot.bot_secrets['cx']).execute()
-        results = res['items'][:4]
-        em = discord.Embed()
-        em.title = f'Google Search'
-        em.description = f'Top 4 results for "{search}"'
-        em.colour = embed_color
+        results = res['items']
+        pag = utils.Paginator(self.bot, max_line_length=100, embed=True)
+        pag.set_embed_meta(title='Google Search', description=f'Top results for "{search}"', color=self.bot.embed_color)
         # TODO Fix layout of Results
         for result in results:
-            em.add_field(name=f'{result["title"]}', value=f'{result["snippet"]}\n{result["link"]}')
-        await ctx.send(embed=em)
+            pag.add(f'\uFFF6{result["title"]}\n{result["link"]}')
+            pag.add(f'{result["snippet"]}')
+            pag.add('\uFFF7\n\uFFF8')
+        msg = await ctx.send('Starting Book')
+        book = utils.Book(pag, (msg, ctx.channel, self.bot, ctx.message))
+        await book.create_book()
 
     @commands.command(hidden=True, name='sheets')
     async def google_sheets(self, ctx, member: discord.Member):
