@@ -148,13 +148,19 @@ class Paginator:
 
         def open_page():
             nonlocal _page, _lines
-            _page = self._prefix
-            _lines = 0
+            if not self._embed:
+                _page = self._prefix
+                _lines = 0
+            else:
+                _page = dict()
 
         def close_page():
             nonlocal _page, _lines
-            _page += self._suffix
-            _pages.append(_page)
+            if not self._embed:
+                _page += self._suffix
+                _pages.append(_page)
+            else:
+                _pages.append(_page)
             open_page()
 
         open_page()
