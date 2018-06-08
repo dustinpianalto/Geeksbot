@@ -749,7 +749,7 @@ class Utils:
 
             if command and not command.hidden:
                 pag.add(f'\uFFF6{command.name}')
-                pag.add(f'Usage: {prefixes.split()[0]}{command.signature}\n')
+                pag.add(f'Usage: {prefixes.split()[0]}{command.signature}\n\n')
                 pag.add(f'{command.help}')
             else:
                 pag.add('\uFFF6There is no command by that name.')
