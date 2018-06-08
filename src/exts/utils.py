@@ -528,11 +528,14 @@ class Utils:
 
         Note: Geeksbot will not find <number> of messages by the given member, it will instead
         search the last <number> messages in the channel and delete any by the given member"""
-        async def is_me(message):
+        prefixes = await self.bot.db_con.fetchval('select prefix from guild_config '
+                                                  'where guild_id = $1', ctx.guild.id)
+
+        def is_me(message):
+            nonlocal prefixes
             if message.author == self.bot.user:
                 return True
-            prefixes = await self.bot.db_con.fetchval('select prefix from guild_config '
-                                                      'where guild_id = $1', ctx.guild.id)
+
             if prefixes:
                 for prefix in prefixes:
                     if message.content.startswith(prefix):
@@ -552,7 +555,7 @@ class Utils:
                 if member != ctx.author:
                     await ctx.message.delete()
             else:
-                deleted = await ctx.channel.purge(limit=number, check=(await is_me))
+                deleted = await ctx.channel.purge(limit=number, check=is_me)
         else:
             deleted = await ctx.channel.purge(limit=number, check=is_author)
         em = discord.Embed(title='❌ Purge', colour=discord.Colour.red())
