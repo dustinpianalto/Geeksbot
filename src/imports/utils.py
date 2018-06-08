@@ -201,7 +201,8 @@ class Paginator:
             def close_field(next_name: str=None):
                 nonlocal _field_name, _field_value, _fields
                 _field_value += self._suffix
-                _fields.append({'name': _field_name, 'value': _field_value, 'inline': _inline})
+                if _field_value != self._prefix + self._suffix:
+                    _fields.append({'name': _field_name, 'value': _field_value, 'inline': _inline})
                 if next_name:
                     open_field(next_name)
 
