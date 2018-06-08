@@ -361,9 +361,11 @@ class Book:
             def check(reaction, user):
                 if self._locked:
                     return str(reaction.emoji) in self._bot.book_emojis.values() \
-                           and user == self._calling_message.author and reaction.message == self._message
+                           and user == self._calling_message.author \
+                           and reaction.message.id == self._message.id
                 else:
-                    return str(reaction.emoji) in self._bot.book_emojis.values() and reaction.message == self._message
+                    return str(reaction.emoji) in self._bot.book_emojis.values() \
+                           and reaction.message.id == self._message.id
 
             await self.display_page()
 
