@@ -200,12 +200,14 @@ class Paginator:
             for part in [str(p) for p in self._parts]:
                 if part == self._page_break:
                     close_page()
+                    continue
                 elif part == self._field_break:
                     if len(_fields) + 1 < 25:
                         close_field(next_name='\uFFF0')
                     else:
                         close_field()
                         close_page()
+                    continue
 
                 if part.startswith(self._field_name_char):
                     part = part.replace(self._field_name_char, '')
