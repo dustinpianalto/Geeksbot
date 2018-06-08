@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import logging
-from src.imports.utils import Paginator, run_command
+from src.imports.utils import Paginator, run_command, Book
 import asyncio
 
 owner_id = 351794468870946827
@@ -29,22 +29,21 @@ class Git:
     @git.command()
     @commands.is_owner()
     async def pull(self, ctx):
-        pag = Paginator(max_line_length=60, max_lines=30, max_chars=1014)
-        em = discord.Embed(style='rich',
-                           title=f'Git Pull',
-                           color=embed_color)
-        em.set_thumbnail(url=f'{ctx.guild.me.avatar_url}')
-        result = await asyncio.wait_for(self.bot.loop.create_task(run_command('git fetch --all')), 120) + '\n'
-        result += await asyncio.wait_for(self.bot.loop.create_task(run_command('git reset --hard '
-                                                                               'origin/$(git '
-                                                                               'rev-parse --symbolic-full-name'
-                                                                               ' --abbrev-ref HEAD)')), 120) + '\n\n'
-        result += await asyncio.wait_for(self.bot.loop.create_task(run_command('git show --stat | '
-                                                                               'sed "s/.*@.*[.].*/ /g"')), 10)
-        pag.add(result)
-        for page in pag.pages():
-            em.add_field(name='￲', value=f'{page}')
-        await ctx.send(embed=em)
+        pag = Paginator(self.bot, max_line_length=60, embed=True)
+        pag.set_embed_meta(title='Git Pull',
+                           color=self.bot.embed_color,
+                           thumbnail=f'{ctx.guild.me.avatar_url}')
+        pag.add('\uFFF6' + await asyncio.wait_for(self.bot.loop.create_task(run_command('git fetch --all')), 120))
+        pag.add(await asyncio.wait_for(self.bot.loop.create_task(run_command('git reset --hard '
+                                                                             'origin/$(git '
+                                                                             'rev-parse --symbolic-full-name'
+                                                                             ' --abbrev-ref HEAD)')), 120))
+        pag.add('\uFFF7\n\uFFF8')
+        pag.add(await asyncio.wait_for(self.bot.loop.create_task(run_command('git show --stat | '
+                                                                             'sed "s/.*@.*[.].*/ /g"')), 10))
+        msg = await ctx.send('Starting Book')
+        book = Book(pag, (msg, ctx.channel, self.bot, ctx.message))
+        await book.create_book()
 
     @git.command()
     @commands.is_owner()
