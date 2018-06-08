@@ -381,9 +381,16 @@ class Book:
 
             await self.display_page()
 
-            for emoji in self._bot.book_emojis.values():
+            if len(self._pages) > 1:
+                for emoji in self._bot.book_emojis.values():
+                    try:
+                        await self._message.add_reaction(emoji)
+                    except (discord.Forbidden, KeyError):
+                        pass
+            else:
                 try:
-                    await self._message.add_reaction(emoji)
+                    await self._message.add_reaction(self._bot.book_emojis['unlock'])
+                    await self._message.add_reaction(self._bot.book_emojis['close'])
                 except (discord.Forbidden, KeyError):
                     pass
 
