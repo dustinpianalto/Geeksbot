@@ -698,7 +698,6 @@ class Utils:
         else:
             await msg.edit(content=f'I can\'t find any data for that location.\nPlease try again.')
 
-# TODO Create Help command
     @commands.command(name='help', aliases=['h'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def custom_help(self, ctx, *, command: str=None):
