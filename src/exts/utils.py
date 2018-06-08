@@ -583,7 +583,6 @@ class Utils:
         results = res['items']
         pag = utils.Paginator(self.bot, max_line_length=100, embed=True)
         pag.set_embed_meta(title='Google Search', description=f'Top results for "{search}"', color=self.bot.embed_color)
-        # TODO Fix layout of Results
         for result in results:
             pag.add(f'\uFFF6{result["title"]}\n{result["link"]}', keep_intact=True)
             pag.add(f'{result["snippet"]}')
