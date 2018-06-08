@@ -155,7 +155,7 @@ class Paginator:
                 _page = self._prefix
                 _lines = 0
             else:
-                _fields = dict()
+                _fields = list()
 
         def close_page():
             nonlocal _page, _lines, _fields
