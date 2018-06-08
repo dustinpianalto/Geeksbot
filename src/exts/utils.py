@@ -705,7 +705,7 @@ class Utils:
         pag = utils.Paginator(self.bot, embed=True, max_line_length=44)
         if command is None:
             pag.add('\uFFF6My new help\nTest message\n\uFFF7\n\uFFF8')
-            for cog in self.bot.cogs:
+            for cog in sorted(self.bot.cogs):
                 for command in self.bot.get_cog_commands(cog):
                     if not command.hidden:
                         pag.add(f'\uFFF6{command.name}')
