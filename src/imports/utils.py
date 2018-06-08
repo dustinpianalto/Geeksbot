@@ -360,9 +360,10 @@ class Book:
             # noinspection PyShadowingNames
             def check(reaction, user):
                 if self._locked:
-                    return str(reaction.emoji) in self._bot.book_emojis.values() and user == self._calling_message.author
+                    return str(reaction.emoji) in self._bot.book_emojis.values() \
+                           and user == self._calling_message.author and reaction.message == self._message
                 else:
-                    return str(reaction.emoji) in self._bot.book_emojis.values()
+                    return str(reaction.emoji) in self._bot.book_emojis.values() and reaction.message == self._message
 
             await self.display_page()
 
