@@ -585,7 +585,7 @@ class Utils:
         pag.set_embed_meta(title='Google Search', description=f'Top results for "{search}"', color=self.bot.embed_color)
         # TODO Fix layout of Results
         for result in results:
-            pag.add(f'\uFFF6{result["title"]}|{result["link"]}')
+            pag.add(f'\uFFF6{result["title"]} | {result["link"]}', keep_intact=True)
             pag.add(f'{result["snippet"]}')
             pag.add('\uFFF7\n\uFFF8')
         msg = await ctx.send('Starting Book')
