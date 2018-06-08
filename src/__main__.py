@@ -62,7 +62,7 @@ class Geeksbot(commands.Bot):
         self.voice_chans = {}
         self.spam_list = {}
         self.owner_id = 351794468870946827
-        self.__version__ = '0.6.0a'
+        self.__version__ = '0.6.1a'
         self.gcs_service = build('customsearch', 'v1', developerKey=self.bot_secrets['google_search_key'])
         self.tpe = futures.ThreadPoolExecutor()
         self.geo_api = '2d4e419c2be04c8abe91cb5dd1548c72'
