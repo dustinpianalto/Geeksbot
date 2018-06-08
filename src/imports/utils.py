@@ -99,8 +99,11 @@ class Paginator:
                  prefix: str='```md',
                  suffix: str='```',
                  page_break: str='\uFFF8',
-                 max_line_length: int=100):
-        _max_len = 1980
+                 field_break: str='\uFFF7',
+                 field_name_char: str='\uFFF6',
+                 max_line_length: int=100,
+                 embed=False):
+        _max_len = 6000 if embed else 1980
         assert 0 < max_lines <= max_chars
         assert 0 < max_line_length < 120
 
@@ -113,38 +116,77 @@ class Paginator:
         self._page_break = page_break
         self._max_line_length = max_line_length
         self._pages = list()
+        self._max_field_chars = 1014
+        self._max_field_name = 256
+        self._max_description = 2048
+        self._embed = embed
+        self._field_break = field_break
+        self._field_name_char = field_name_char
+        self._embed_title = ''
+        self._embed_description = ''
+
+    def set_embed_meta(self, title: str='\uFFF0', description: str='\uFFF0'):
+        if len(title) <= self._max_field_name:
+            self._embed_title = title
+        else:
+            raise RuntimeError('Provided Title is too long')
+        if len(description) <= self._max_description:
+            self._embed_description = description
+        else:
+            raise RuntimeError('Provided Description is too long')
 
     def pages(self) -> typing.List[str]:
         pages = list()
-        page = ''
-        lines = 0
+        _fields = list()
+        _page = ''
+        _lines = 0
+        _field_name = ''
+        _field_value = ''
 
         def open_page():
-            nonlocal page, lines
-            page = self._prefix
-            lines = 0
+            nonlocal _page, _lines
+            _page = self._prefix
+            _lines = 0
 
         def close_page():
-            nonlocal page, lines
-            page += self._suffix
-            pages.append(page)
+            nonlocal _page, _lines
+            _page += self._suffix
+            pages.append(_page)
             open_page()
 
         open_page()
 
-        for part in [str(p) for p in self._parts]:
-            if part == self._page_break:
-                close_page()
+        if not self._embed:
+            for part in [str(p) for p in self._parts]:
+                if part == self._page_break:
+                    close_page()
 
-            new_chars = len(page) + len(part)
+                new_chars = len(_page) + len(part)
 
-            if new_chars > self._max_chars:
-                close_page()
-            elif (lines + (part.count('\n') + 1 or 1)) > self._max_lines:
-                close_page()
+                if new_chars > self._max_chars:
+                    close_page()
+                elif (_lines + (part.count('\n') + 1 or 1)) > self._max_lines:
+                    close_page()
 
-            lines += (part.count('\n') + 1 or 1)
-            page += '\n' + part
+                _lines += (part.count('\n') + 1 or 1)
+                _page += '\n' + part
+        else:
+            def open_field(name: str):
+                _field_name = name
+                _field_value = '\uFFF0'
+
+            def close_field():
+                pass
+
+            for part in [str(p) for p in self._parts]:
+                if part == self._page_break:
+                    close_page()
+                elif part == self._field_break:
+                    close_field()
+
+
+
+
 
         close_page()
         self._pages = pages
@@ -173,7 +215,7 @@ class Paginator:
         item = str(item)
         i = 0
         if not keep_intact and not item == self._page_break:
-            item_parts = item.strip().split('\n')
+            item_parts = item.strip('\n').split('\n')
             for part in item_parts:
                 if len(part) > self._max_line_length:
                     length = 0

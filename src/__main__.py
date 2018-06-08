@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict
 
 import discord
 from discord.ext import commands
@@ -8,7 +8,7 @@ import json
 import aiohttp
 from googleapiclient.discovery import build
 from concurrent import futures
-from shared_libs import database
+from src.shared_libs import database
 
 
 log_format = '{asctime}.{msecs:03.0f}|{levelname:<8}|{name}::{message}'
@@ -52,19 +52,10 @@ class Geeksbot(commands.Bot):
             self.bot_config = json.load(file)
         with open(f'{config_dir}{secrets_file}') as file:
             self.bot_secrets = json.load(file)
-        # with open(f'{config_dir}{profane_words_file}') as file:
-        #     self.profane_words = file.readlines()
         self.guild_config = {}
         self.infected = {}
         self.TOKEN = self.bot_secrets['token']
         self.embed_color = discord.Colour.from_rgb(49, 107, 111)
-
-        # async def connect_db():
-        #     return await asyncpg.create_pool(host=self.bot_secrets['db_con']['host'],
-        #                                      database=self.bot_secrets['db_con']['db_name'],
-        #                                      user=self.bot_secrets['db_con']['user'],
-        #                                      password=self.bot_secrets['db_con']['password'],
-        #                                      loop=asyncio.get_event_loop())
         del self.bot_secrets['token']
         self.db_con = database.DatabaseConnection(**self.bot_secrets['db_con'])
         self.default_prefix = 'g~'
