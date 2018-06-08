@@ -703,6 +703,9 @@ class Utils:
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def custom_help(self, ctx, command: str=None):
         pag = utils.Paginator(self.bot, embed=True, max_line_length=44)
+        pag.set_embed_meta(title='Geeksbot Help',
+                           description=f'{self.bot.description}',
+                           thumbnail=f'{ctx.guild.me.avatar_url}')
         if command is None:
             pag.add('\uFFF6My new help\nTest message\n\uFFF7\n\uFFF8')
             for cog in sorted(self.bot.cogs):
