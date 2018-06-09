@@ -175,7 +175,7 @@ class Admin:
                                                               json.dumps(allowed_channels))
                                 added = f'{added}\n{channel}'
                         else:
-                            admin_log.info('Chan not found in config')
+                            admin_log.info('Config is empty')
                             allowed_channels = [chnl.id]
                             await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
                                                           'where guild_id = $1', ctx.guild.id,
