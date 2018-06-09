@@ -168,13 +168,14 @@ class Admin:
                                 await ctx.send(f'{channel} is already in the list of allowed channels. Skipping...')
                             else:
                                 admin_log.info('Chan not found in config')
-                                allowed_channels = json.loads(await self.bot.db_con.fetchval('select allowed_channels '
-                                                                                             'from guild_config '
-                                                                                             'where guild_id = $1',
-                                                                                             ctx.guild.id))\
-                                    .append(chnl.id)
+                                allowed_channels = (json.loads(
+                                    await self.bot.db_con.fetchval('select allowed_channels '
+                                                                   'from guild_config '
+                                                                   'where guild_id = $1',
+                                                                   ctx.guild.id))).append(chnl.id)
                                 await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
-                                                              'where guild_id = $1', ctx.guild.id, allowed_channels)
+                                                              'where guild_id = $1', ctx.guild.id,
+                                                              json.dumps(allowed_channels))
                                 added = f'{added}\n{channel}'
                         else:
                             admin_log.info('Chan not found in config')
