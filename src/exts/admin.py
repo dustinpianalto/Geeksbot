@@ -180,7 +180,8 @@ class Admin:
                             admin_log.info('Chan not found in config')
                             allowed_channels = [chnl.id]
                             await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
-                                                          'where guild_id = $1', ctx.guild.id, allowed_channels)
+                                                          'where guild_id = $1', ctx.guild.id,
+                                                          json.dumps(allowed_channels))
                             added = f'{added}\n{channel}'
                 if added != '':
                     await ctx.send(f'The following channels have been added to the allowed channel list: {added}')
