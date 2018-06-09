@@ -159,7 +159,7 @@ class Admin:
                     else:
                         admin_log.info('Chan found')
                         allowed_channels = await self.bot.db_con.fetchval('select allowed_channels from guild_config '
-                                                                          'where guild_id = $1', ctx.guild.id):
+                                                                          'where guild_id = $1', ctx.guild.id)
                         if allowed_channels
                             allowed_channels = json.loads(allowed_channels)
                             if chnl.id in allowed_channels:
