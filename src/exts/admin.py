@@ -160,10 +160,10 @@ class Admin:
                         admin_log.info('Chan found')
                         allowed_channels = await self.bot.db_con.fetchval('select allowed_channels from guild_config '
                                                                           'where guild_id = $1', ctx.guild.id)
-                        print(allowed_channels)
+                        if allowed_channels == 'null':
+                            allowed_channels = None
                         if allowed_channels:
                             allowed_channels = json.loads(allowed_channels)
-                            print(allowed_channels)
                             if chnl.id in allowed_channels:
                                 admin_log.info('Chan found in config')
                                 await ctx.send(f'{channel} is already in the list of allowed channels. Skipping...')
