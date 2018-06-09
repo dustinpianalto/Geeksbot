@@ -158,21 +158,16 @@ class Admin:
                         await ctx.send(f'{channel} is not a valid text channel in this guild.')
                     else:
                         admin_log.info('Chan found')
-                        if await self.bot.db_con.fetchval('select allowed_channels from guild_config '
-                                                          'where guild_id = $1', ctx.guild.id):
-                            if chnl.id in json.loads(await self.bot.db_con.fetchval('select allowed_channels '
-                                                                                    'from guild_config '
-                                                                                    'where guild_id = $1',
-                                                                                    ctx.guild.id)):
+                        allowed_channels = await self.bot.db_con.fetchval('select allowed_channels from guild_config '
+                                                                          'where guild_id = $1', ctx.guild.id):
+                        if allowed_channels
+                            allowed_channels = json.loads(allowed_channels)
+                            if chnl.id in allowed_channels:
                                 admin_log.info('Chan found in config')
                                 await ctx.send(f'{channel} is already in the list of allowed channels. Skipping...')
                             else:
                                 admin_log.info('Chan not found in config')
-                                allowed_channels = (json.loads(
-                                    await self.bot.db_con.fetchval('select allowed_channels '
-                                                                   'from guild_config '
-                                                                   'where guild_id = $1',
-                                                                   ctx.guild.id))).append(chnl.id)
+                                allowed_channels = allowed_channels.append(chnl.id)
                                 await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
                                                               'where guild_id = $1', ctx.guild.id,
                                                               json.dumps(allowed_channels))
