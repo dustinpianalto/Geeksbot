@@ -152,6 +152,7 @@ class Admin:
             if await checks.is_admin(self.bot, ctx):
                 channels = channels.lower().replace(' ', '').split(',')
                 added = ''
+                admin_log.info((channels))
                 for channel in channels:
                     chnl = discord.utils.get(ctx.guild.channels, name=channel)
                     if chnl is None:
