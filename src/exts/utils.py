@@ -704,7 +704,7 @@ class Utils:
     @commands.command(name='help', aliases=['h'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def custom_help(self, ctx, *, command: str=None):
-        pag = utils.Paginator(self.bot, embed=True, max_line_length=44)
+        pag = utils.Paginator(self.bot, embed=True, max_line_length=43)
         prefixes = await self.bot.get_custom_prefix(self.bot, ctx.message)
         if isinstance(prefixes, list):
             prefixes = ', '.join(prefixes)
@@ -732,7 +732,7 @@ class Utils:
                             for com in sorted(command.commands, key=lambda x: x.name):
                                 if not com.hidden:
                                     pag.add(f'# {com.name}')
-                                    pag.add(f'>     {com.short_doc}', truncate=True)
+                                    pag.add(f'>  {com.short_doc}', truncate=True)
                         except AttributeError as e:
                             pass
                         pag.add('\uFFF7')
