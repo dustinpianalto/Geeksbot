@@ -152,7 +152,7 @@ class Admin:
         if ctx.guild:
             if await checks.is_admin(self.bot, ctx):
                 channels = channels.lower().replace(' ', '').split(',')
-                added = ''
+                existing_channels = list()
                 admin_log.info(channels)
                 allowed_channels = await self.bot.db_con.fetchval('select allowed_channels from guild_config '
                                                                   'where guild_id = $1', ctx.guild.id)
@@ -164,6 +164,7 @@ class Admin:
 
                 if allowed_channels and channels:
                     allowed_channels = [int(channel) for channel in json.loads(allowed_channels)]
+                    existing_channels = [channel for channel in channels if channel.id in allowed_channels]
                     channels = [channel.id for channel in channels if channel.id not in allowed_channels]
                     allowed_channels += channels
                     await self.bot.db_con.execute('update guild_config set allowed_channels = $2 where guild_id = $1',
@@ -178,10 +179,14 @@ class Admin:
                     await ctx.send('None of those are valid text channels for this guild.')
                     return
 
+                if existing_channels:
+                    channel_str = '\n'.join([str(channel.name) for channel in existing_channels])
+                    await ctx.send(f'The following channels were skipped because they are already in the config:\n'
+                                   f'{channel_str}\n')
                 if channels:
                     channel_str = '\n'.join([str(channel.name) for channel in channels])
-                    await ctx.send('The following channels have been added to the allowed channel list: '
-                                   f'{channel_str}')
+                    await ctx.send('The following channels have been added to the allowed channel list:\n'
+                                   f'{channel_str}\n')
                 await ctx.message.add_reaction('✅')
             else:
                 await ctx.send(f'You are not authorized to run this command.')
