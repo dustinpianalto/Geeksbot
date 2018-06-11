@@ -147,54 +147,59 @@ class Admin:
     @add.command(name='allowed_channels', aliases=['channel', 'ac'])
     async def _allowed_channels(self, ctx, *, channels):
         """Allows Admin to restrict what channels Geeksbot is allowed to access
-        This only takes effect if channel_lockdown is enabled."""
+        This only takes effect if channel_lockdown is enabled.
+        If one of the channels passed is not found then it is ignored."""
         if ctx.guild:
             if await checks.is_admin(self.bot, ctx):
                 channels = channels.lower().replace(' ', '').split(',')
-                added = ''
-                for channel in channels:
-                    chnl = discord.utils.get(ctx.guild.channels, name=channel)
-                    if chnl is None:
-                        await ctx.send(f'{channel} is not a valid text channel in this guild.')
-                    else:
-                        admin_log.info('Chan found')
-                        if await self.bot.db_con.fetchval('select allowed_channels from guild_config '
-                                                          'where guild_id = $1', ctx.guild.id):
-                            if chnl.id in json.loads(await self.bot.db_con.fetchval('select allowed_channels '
-                                                                                    'from guild_config '
-                                                                                    'where guild_id = $1',
-                                                                                    ctx.guild.id)):
-                                admin_log.info('Chan found in config')
-                                await ctx.send(f'{channel} is already in the list of allowed channels. Skipping...')
-                            else:
-                                admin_log.info('Chan not found in config')
-                                allowed_channels = json.loads(await self.bot.db_con.fetchval('select allowed_channels '
-                                                                                             'from guild_config '
-                                                                                             'where guild_id = $1',
-                                                                                             ctx.guild.id))\
-                                    .append(chnl.id)
-                                await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
-                                                              'where guild_id = $1', ctx.guild.id, allowed_channels)
-                                added = f'{added}\n{channel}'
-                        else:
-                            admin_log.info('Chan not found in config')
-                            allowed_channels = [chnl.id]
-                            await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
-                                                          'where guild_id = $1', ctx.guild.id, allowed_channels)
-                            added = f'{added}\n{channel}'
-                if added != '':
-                    await ctx.send(f'The following channels have been added to the allowed channel list: {added}')
+                existing_channels = list()
+                channels_add = list()
+                admin_log.info(channels)
+                allowed_channels = await self.bot.db_con.fetchval('select allowed_channels from guild_config '
+                                                                  'where guild_id = $1', ctx.guild.id)
+                if allowed_channels == 'null':
+                    allowed_channels = None
+
+                channels = [discord.utils.get(ctx.guild.channels, name=channel)
+                            for channel in channels if channel is not None]
+
+                if allowed_channels and channels:
+                    allowed_channels = [int(channel) for channel in json.loads(allowed_channels)]
+                    existing_channels = [channel for channel in channels if channel.id in allowed_channels]
+                    channels_add = [channel for channel in channels if channel.id not in allowed_channels]
+                    allowed_channels += [channel.id for channel in channels if channel.id not in allowed_channels]
+                    await self.bot.db_con.execute('update guild_config set allowed_channels = $2 where guild_id = $1',
+                                                  ctx.guild.id, json.dumps(allowed_channels))
+                elif channels:
+                    admin_log.info('Config is empty')
+                    allowed_channels = [channel.id for channel in channels]
+                    await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
+                                                  'where guild_id = $1', ctx.guild.id,
+                                                  json.dumps(allowed_channels))
+                else:
+                    await ctx.send('None of those are valid text channels for this guild.')
+                    return
+
+                if existing_channels:
+                    channel_str = '\n'.join([str(channel.name) for channel in existing_channels])
+                    await ctx.send(f'The following channels were skipped because they are already in the config:\n'
+                                   f'{channel_str}\n')
+                if channels_add:
+                    channel_str = '\n'.join([str(channel.name) for channel in channels_add])
+                    await ctx.send('The following channels have been added to the allowed channel list:\n'
+                                   f'{channel_str}\n')
                 await ctx.message.add_reaction('✅')
             else:
                 await ctx.send(f'You are not authorized to run this command.')
         else:
             await ctx.send('This command must be run from inside a guild.')
 
-    @commands.command()
+# TODO Fix view_code
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def view_code(self, ctx, code_name):
         pag = utils.Paginator(self.bot, prefix='```py', suffix='```')
-        pag.add(inspect.getsource(self.bot.get_command(code_name).callback))
+        pag.add(inspect.getsource(self.bot.all_commands[code_name].callback))
         for page in pag.pages():
             await ctx.send(page)
 

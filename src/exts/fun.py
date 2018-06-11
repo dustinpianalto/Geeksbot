@@ -57,7 +57,7 @@ class Fun:
             else:
                 await ctx.send(f'{member.display_name} is not infected...')
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def print_infections(self, ctx):
         await ctx.author.send(f'```{self.bot.infected}```')

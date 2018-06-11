@@ -254,17 +254,12 @@ class Utils:
                     if channel:
                         chan = discord.utils.get(ctx.guild.channels, id=channel)
                         msg = ''
-                        admin_roles = []
                         roles = await self.bot.db_con.fetchval(f'select admin_roles,rcon_admin_roles from guild_config '
-                                                               f'where $1', ctx.guild.id)
+                                                               f'where guild_id = $1', ctx.guild.id)
                         request_id = await self.bot.db_con.fetchval(f'select id from admin_requests where '
                                                                     f'issuing_member_id = $1 and request_time = $2',
                                                                     ctx.author.id, ctx.message.created_at)
-                        for item in roles:
-                            i = json.loads(item)
-                            for j in i:
-                                if i[j] not in admin_roles:
-                                    admin_roles.append(i[j])
+                        admin_roles = json.loads(roles).values()
                         for role in admin_roles:
                             msg = '{0} {1}'.format(msg, discord.utils.get(ctx.guild.roles, id=role).mention)
                         msg += f"New Request ID: {request_id} " \
@@ -372,7 +367,7 @@ class Utils:
                     except ValueError:
                         await ctx.send(f'{request_id} is not a valid request id.')
                     else:
-                        request = await self.bot.db_con.fetchval(f'select * from admin_requests where id = $1',
+                        request = await self.bot.db_con.fetchrow(f'select * from admin_requests where id = $1',
                                                                  request_id)
                         if request:
                             if request[3] == ctx.guild.id:
@@ -704,7 +699,7 @@ class Utils:
     @commands.command(name='help', aliases=['h'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def custom_help(self, ctx, *, command: str=None):
-        pag = utils.Paginator(self.bot, embed=True, max_line_length=48)
+        pag = utils.Paginator(self.bot, embed=True, max_line_length=40)
         prefixes = await self.bot.get_custom_prefix(self.bot, ctx.message)
         if isinstance(prefixes, list):
             prefixes = ', '.join(prefixes)
@@ -732,7 +727,7 @@ class Utils:
                             for com in sorted(command.commands, key=lambda x: x.name):
                                 if not com.hidden:
                                     pag.add(f'# {com.name}')
-                                    pag.add(f'>     {com.short_doc}', truncate=True)
+                                    pag.add(f'>  {com.short_doc}', truncate=True)
                         except AttributeError as e:
                             pass
                         pag.add('\uFFF7')
