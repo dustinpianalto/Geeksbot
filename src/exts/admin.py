@@ -166,15 +166,19 @@ class Admin:
                     allowed_channels += [channel for channel in channels if channel not in allowed_channels]
                     await self.bot.db_con.execute('update guild_config set allowed_channels = $2 where guild_id = $1',
                                                   ctx.guild.id, json.dumps(allowed_channels))
-                else:
+                elif channels:
                     admin_log.info('Config is empty')
                     allowed_channels = [channel.id for channel in channels]
                     await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
                                                   'where guild_id = $1', ctx.guild.id,
                                                   json.dumps(allowed_channels))
-                    added = f'{added}\n{channel}'
-                if added != '':
-                    await ctx.send(f'The following channels have been added to the allowed channel list: {added}')
+                else:
+                    await ctx.send('None of those are valid text channels for this guild.')
+                    return
+
+                if channels:
+                    await ctx.send('The following channels have been added to the allowed channel list: '
+                                   f'{"\n".join(channels)}')
                 await ctx.message.add_reaction('✅')
             else:
                 await ctx.send(f'You are not authorized to run this command.')
