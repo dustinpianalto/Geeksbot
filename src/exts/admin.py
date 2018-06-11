@@ -147,41 +147,32 @@ class Admin:
     @add.command(name='allowed_channels', aliases=['channel', 'ac'])
     async def _allowed_channels(self, ctx, *, channels):
         """Allows Admin to restrict what channels Geeksbot is allowed to access
-        This only takes effect if channel_lockdown is enabled."""
+        This only takes effect if channel_lockdown is enabled.
+        If one of the channels passed is not found then it is ignored."""
         if ctx.guild:
             if await checks.is_admin(self.bot, ctx):
                 channels = channels.lower().replace(' ', '').split(',')
                 added = ''
-                admin_log.info((channels))
-                for channel in channels:
-                    chnl = discord.utils.get(ctx.guild.channels, name=channel)
-                    if chnl is None:
-                        await ctx.send(f'{channel} is not a valid text channel in this guild.')
-                    else:
-                        admin_log.info('Chan found')
-                        allowed_channels = await self.bot.db_con.fetchval('select allowed_channels from guild_config '
-                                                                          'where guild_id = $1', ctx.guild.id)
-                        if allowed_channels == 'null':
-                            allowed_channels = None
-                        if allowed_channels:
-                            allowed_channels = json.loads(allowed_channels)
-                            if chnl.id in allowed_channels:
-                                admin_log.info('Chan found in config')
-                                await ctx.send(f'{channel} is already in the list of allowed channels. Skipping...')
-                            else:
-                                admin_log.info('Chan not found in config')
-                                allowed_channels = allowed_channels.append(chnl.id)
-                                await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
-                                                              'where guild_id = $1', ctx.guild.id,
-                                                              json.dumps(allowed_channels))
-                                added = f'{added}\n{channel}'
-                        else:
-                            admin_log.info('Config is empty')
-                            allowed_channels = [chnl.id]
-                            await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
-                                                          'where guild_id = $1', ctx.guild.id,
-                                                          json.dumps(allowed_channels))
-                            added = f'{added}\n{channel}'
+                admin_log.info(channels)
+                allowed_channels = await self.bot.db_con.fetchval('select allowed_channels from guild_config '
+                                                                  'where guild_id = $1', ctx.guild.id)
+                if allowed_channels == 'null':
+                    allowed_channels = None
+
+                channels = [discord.utils.get(ctx.guild.channels, name=channel)
+                            for channel in channels if channel is not None]
+
+                if allowed_channels and channels:
+                    allowed_channels += [channel for channel in channels if channel not in allowed_channels]
+                    await self.bot.db_con.execute('update guild_config set allowed_channels = $2 where guild_id = $1',
+                                                  ctx.guild.id, json.dumps(allowed_channels))
+                else:
+                    admin_log.info('Config is empty')
+                    allowed_channels = [channel.id for channel in channels]
+                    await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
+                                                  'where guild_id = $1', ctx.guild.id,
+                                                  json.dumps(allowed_channels))
+                    added = f'{added}\n{channel}'
                 if added != '':
                     await ctx.send(f'The following channels have been added to the allowed channel list: {added}')
                 await ctx.message.add_reaction('✅')
