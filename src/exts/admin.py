@@ -159,16 +159,17 @@ class Admin:
                 if allowed_channels == 'null':
                     allowed_channels = None
 
-                channels = [discord.utils.get(ctx.guild.channels, name=channel)
+                channels = [discord.utils.get(ctx.guild.channels, name=channel).id
                             for channel in channels if channel is not None]
 
                 if allowed_channels and channels:
+                    allowed_channels = [int(channel) for channel in allowed_channels]
                     allowed_channels += [channel for channel in channels if channel not in allowed_channels]
                     await self.bot.db_con.execute('update guild_config set allowed_channels = $2 where guild_id = $1',
                                                   ctx.guild.id, json.dumps(allowed_channels))
                 elif channels:
                     admin_log.info('Config is empty')
-                    allowed_channels = [channel.id for channel in channels]
+                    allowed_channels = [channel for channel in channels]
                     await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
                                                   'where guild_id = $1', ctx.guild.id,
                                                   json.dumps(allowed_channels))
