@@ -256,7 +256,7 @@ class Utils:
                         msg = ''
                         admin_roles = []
                         roles = await self.bot.db_con.fetchval(f'select admin_roles,rcon_admin_roles from guild_config '
-                                                               f'where $1', ctx.guild.id)
+                                                               f'where = $1', ctx.guild.id)
                         request_id = await self.bot.db_con.fetchval(f'select id from admin_requests where '
                                                                     f'issuing_member_id = $1 and request_time = $2',
                                                                     ctx.author.id, ctx.message.created_at)
