@@ -178,7 +178,7 @@ class Admin:
                     return
 
                 if channels:
-                    channel_str = '\n'.join(channels)
+                    channel_str = '\n'.join([str(channel) for channel in channels])
                     await ctx.send('The following channels have been added to the allowed channel list: '
                                    f'{channel_str}')
                 await ctx.message.add_reaction('✅')
