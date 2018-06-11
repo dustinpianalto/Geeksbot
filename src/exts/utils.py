@@ -367,7 +367,7 @@ class Utils:
                     except ValueError:
                         await ctx.send(f'{request_id} is not a valid request id.')
                     else:
-                        request = await self.bot.db_con.fetchval(f'select * from admin_requests where id = $1',
+                        request = await self.bot.db_con.fetchrow(f'select * from admin_requests where id = $1',
                                                                  request_id)
                         if request:
                             if request[3] == ctx.guild.id:
