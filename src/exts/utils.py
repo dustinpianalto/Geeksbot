@@ -254,17 +254,12 @@ class Utils:
                     if channel:
                         chan = discord.utils.get(ctx.guild.channels, id=channel)
                         msg = ''
-                        admin_roles = []
                         roles = await self.bot.db_con.fetchval(f'select admin_roles,rcon_admin_roles from guild_config '
                                                                f'where guild_id = $1', ctx.guild.id)
                         request_id = await self.bot.db_con.fetchval(f'select id from admin_requests where '
                                                                     f'issuing_member_id = $1 and request_time = $2',
                                                                     ctx.author.id, ctx.message.created_at)
-                        for item in roles:
-                            i = json.loads(item)
-                            for j in i:
-                                if i[j] not in admin_roles:
-                                    admin_roles.append(i[j])
+                        admin_roles = json.loads(roles).values()
                         for role in admin_roles:
                             msg = '{0} {1}'.format(msg, discord.utils.get(ctx.guild.roles, id=role).mention)
                         msg += f"New Request ID: {request_id} " \
