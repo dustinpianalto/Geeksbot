@@ -159,17 +159,17 @@ class Admin:
                 if allowed_channels == 'null':
                     allowed_channels = None
 
-                channels = [discord.utils.get(ctx.guild.channels, name=channel).id
+                channels = [discord.utils.get(ctx.guild.channels, name=channel)
                             for channel in channels if channel is not None]
 
                 if allowed_channels and channels:
                     allowed_channels = [int(channel) for channel in json.loads(allowed_channels)]
-                    allowed_channels += [channel for channel in channels if channel not in allowed_channels]
+                    allowed_channels += [channel.id for channel in channels if channel.id not in allowed_channels]
                     await self.bot.db_con.execute('update guild_config set allowed_channels = $2 where guild_id = $1',
                                                   ctx.guild.id, json.dumps(allowed_channels))
                 elif channels:
                     admin_log.info('Config is empty')
-                    allowed_channels = [channel for channel in channels]
+                    allowed_channels = [channel.id for channel in channels]
                     await self.bot.db_con.execute('update guild_config set allowed_channels = $2 '
                                                   'where guild_id = $1', ctx.guild.id,
                                                   json.dumps(allowed_channels))
@@ -178,7 +178,7 @@ class Admin:
                     return
 
                 if channels:
-                    channel_str = '\n'.join([str(channel) for channel in channels])
+                    channel_str = '\n'.join([str(channel.name) for channel in channels])
                     await ctx.send('The following channels have been added to the allowed channel list: '
                                    f'{channel_str}')
                 await ctx.message.add_reaction('✅')
