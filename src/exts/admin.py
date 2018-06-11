@@ -177,8 +177,9 @@ class Admin:
                     return
 
                 if channels:
+                    channel_str = '\n'.join(channels)
                     await ctx.send('The following channels have been added to the allowed channel list: '
-                                   f'{"\n".join(channels)}')
+                                   f'{channel_str}')
                 await ctx.message.add_reaction('✅')
             else:
                 await ctx.send(f'You are not authorized to run this command.')
