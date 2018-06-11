@@ -164,7 +164,8 @@ class Admin:
 
                 if allowed_channels and channels:
                     allowed_channels = [int(channel) for channel in json.loads(allowed_channels)]
-                    allowed_channels += [channel.id for channel in channels if channel.id not in allowed_channels]
+                    channels = [channel.id for channel in channels if channel.id not in allowed_channels]
+                    allowed_channels += channels
                     await self.bot.db_con.execute('update guild_config set allowed_channels = $2 where guild_id = $1',
                                                   ctx.guild.id, json.dumps(allowed_channels))
                 elif channels:
