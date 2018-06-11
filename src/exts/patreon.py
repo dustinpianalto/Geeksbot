@@ -20,6 +20,7 @@ class Patreon:
         if await self.bot.db_con.fetchval('select patreon_enabled from guild_config where guild_id = $1', ctx.guild.id):
             patreon_info = await self.bot.db_con.fetchval('select patreon_message,patreon_links from guild_config '
                                                           'where guild_id = $1', ctx.guild.id)
+            print(patreon_info)
             message = patreon_info[0].replace('\\n', '\n')
             patreon_links = json.loads(patreon_info[1])
             for key in patreon_links:
