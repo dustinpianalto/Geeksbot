@@ -194,7 +194,7 @@ class Admin:
         else:
             await ctx.send('This command must be run from inside a guild.')
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def view_code(self, ctx, code_name):
         pag = utils.Paginator(self.bot, prefix='```py', suffix='```')
