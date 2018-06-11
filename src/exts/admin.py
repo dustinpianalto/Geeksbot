@@ -165,8 +165,8 @@ class Admin:
                 if allowed_channels and channels:
                     allowed_channels = [int(channel) for channel in json.loads(allowed_channels)]
                     existing_channels = [channel for channel in channels if channel.id in allowed_channels]
-                    channels = [channel.id for channel in channels if channel.id not in allowed_channels]
-                    allowed_channels += channels
+                    channels_add = [channel for channel in channels if channel.id not in allowed_channels]
+                    allowed_channels += [channel.id for channel in channels if channel.id not in allowed_channels]
                     await self.bot.db_con.execute('update guild_config set allowed_channels = $2 where guild_id = $1',
                                                   ctx.guild.id, json.dumps(allowed_channels))
                 elif channels:
@@ -184,7 +184,7 @@ class Admin:
                     await ctx.send(f'The following channels were skipped because they are already in the config:\n'
                                    f'{channel_str}\n')
                 if channels:
-                    channel_str = '\n'.join([str(channel.name) for channel in channels])
+                    channel_str = '\n'.join([str(channel.name) for channel in channels_add])
                     await ctx.send('The following channels have been added to the allowed channel list:\n'
                                    f'{channel_str}\n')
                 await ctx.message.add_reaction('✅')
