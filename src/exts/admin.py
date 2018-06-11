@@ -153,6 +153,7 @@ class Admin:
             if await checks.is_admin(self.bot, ctx):
                 channels = channels.lower().replace(' ', '').split(',')
                 existing_channels = list()
+                channels_add = list()
                 admin_log.info(channels)
                 allowed_channels = await self.bot.db_con.fetchval('select allowed_channels from guild_config '
                                                                   'where guild_id = $1', ctx.guild.id)
@@ -183,7 +184,7 @@ class Admin:
                     channel_str = '\n'.join([str(channel.name) for channel in existing_channels])
                     await ctx.send(f'The following channels were skipped because they are already in the config:\n'
                                    f'{channel_str}\n')
-                if channels:
+                if channels_add:
                     channel_str = '\n'.join([str(channel.name) for channel in channels_add])
                     await ctx.send('The following channels have been added to the allowed channel list:\n'
                                    f'{channel_str}\n')
