@@ -194,6 +194,7 @@ class Admin:
         else:
             await ctx.send('This command must be run from inside a guild.')
 
+# TODO Fix view_code
     @commands.command(hidden=True)
     @commands.is_owner()
     async def view_code(self, ctx, code_name):
