@@ -186,8 +186,8 @@ class Utils:
         msg = await ctx.send(embed=em)
         time1 = ctx.message.created_at
         time = (msg.created_at - time1).total_seconds() * 1000
-        em.description = f'''Response Time: **{math.ceil(time)}ms**
-        Discord Latency: **{math.ceil(self.bot.latency*1000)}ms**'''
+        em.description = f'Response Time: **{math.ceil(time)}ms**\n' \
+                         f'Discord Latency: **{math.ceil(self.bot.latency*1000)}ms**'
         await msg.edit(embed=em)
 
         if mode == 'comp':
@@ -216,8 +216,8 @@ class Utils:
                         time = time.total_seconds()
                         times.append(time)
                         value = f"Message Sent:" \
-                                f"{datetime.strftime(self.bot.ping_times[i]['snd'].created_at, '%H:%M:%S.%f')}" \
-                                f"Response Received: {datetime.strftime(now, '%H:%M:%S.%f')}" \
+                                f"{datetime.strftime(self.bot.ping_times[i]['snd'].created_at, '%H:%M:%S.%f')}\n" \
+                                f"Response Received: {datetime.strftime(now, '%H:%M:%S.%f')}\n" \
                                 f"Total Time: {math.ceil(time * 1000)}ms"
                         await self.bot.ping_times[i]['rec'].delete()
                         em.add_field(name=f'Ping Test {i}', value=value, inline=True)
