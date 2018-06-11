@@ -18,11 +18,11 @@ class Patreon:
     async def get_patreon_links(self, ctx, target: discord.Member=None):
         """Prints Patreon information for creators on the server."""
         if await self.bot.db_con.fetchval('select patreon_enabled from guild_config where guild_id = $1', ctx.guild.id):
-            patreon_info = await self.bot.db_con.fetchval('select patreon_message,patreon_links from guild_config '
+            patreon_info = await self.bot.db_con.fetchrow('select patreon_message,patreon_links from guild_config '
                                                           'where guild_id = $1', ctx.guild.id)
             print(patreon_info)
-            message = patreon_info[0].replace('\\n', '\n')
-            patreon_links = json.loads(patreon_info[1])
+            message = patreon_info.patreon_mesage.replace('\\n', '\n')
+            patreon_links = json.loads(patreon_info.patreon_links)
             for key in patreon_links:
                 message = message + '\n{0}: {1}'.format(key, patreon_links[key])
             if target is None:
