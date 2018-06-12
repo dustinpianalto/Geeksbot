@@ -16,7 +16,7 @@ class Git:
 
     @commands.group(case_insensitive=True, invoke_without_command=True)
     async def git(self, ctx):
-        """Run help git for more info"""
+        """Shows my Git link"""
         em = discord.Embed(style='rich',
                            title=f'Here is where you can find my code',
                            url='https://github.com/dustinpianalto/Geeksbot/tree/development',
@@ -29,6 +29,7 @@ class Git:
     @git.command()
     @commands.is_owner()
     async def pull(self, ctx):
+        """Pulls updates from GitHub rebasing branch."""
         pag = Paginator(self.bot, max_line_length=44, embed=True)
         pag.set_embed_meta(title='Git Pull',
                            color=self.bot.embed_color,
@@ -47,6 +48,7 @@ class Git:
     @git.command()
     @commands.is_owner()
     async def status(self, ctx):
+        """Gets status of current branch."""
         pag = Paginator(self.bot, max_line_length=44, max_lines=30, embed=True)
         pag.set_embed_meta(title='Git Status',
                            color=self.bot.embed_color,
