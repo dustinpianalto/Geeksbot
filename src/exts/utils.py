@@ -54,15 +54,15 @@ class Utils:
         msg = await self.bot.wait_for('message', timeout=5, check=check)
         self.bot.ping_times[i]['rec'] = msg
 
-    @commands.command()
+    @commands.command(hidden=True)
     async def channel_ping(self, ctx, wait_time: float=10, message: str='=bump', channel: int=265828729970753537):
         await ctx.send('Starting Background Process.')
         self.bot.loop.create_task(self._4_hour_ping(channel, message, wait_time))
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def sysinfo(self, ctx):
-        """WIP Gets current system status for the server that Geeksbot is running on."""
+        """Gets system status for my server."""
         await ctx.send(f'```ml\n'
                        f'CPU Percentages: {psutil.cpu_percent(percpu=True)}\n'
                        f'Memory Usage: {psutil.virtual_memory().percent}%\n'
@@ -178,7 +178,10 @@ class Utils:
     @commands.command()
     @commands.cooldown(1, 5, type=commands.BucketType.user)
     async def ping(self, ctx, mode='normal', count: int=2):
-        """Check the Bot\'s connection to Discord"""
+        """Check the Bot\'s connection to Discord
+
+        For more detailed information set the <mode> as comp and it will test the ping
+        <count> number of times."""
         em = discord.Embed(style='rich',
                            title=f'Pong 🏓',
                            color=discord.Colour.green()
@@ -234,7 +237,7 @@ class Utils:
 
     @commands.group(case_insensitive=True)
     async def admin(self, ctx):
-        """Run help admin for more info"""
+        """Group for Admin help requests"""
         pass
 
     @admin.command(name='new', aliases=['nr'])
@@ -278,7 +281,7 @@ class Utils:
     @admin.command(name='list', aliases=['lr'])
     @commands.cooldown(1, 5, type=commands.BucketType.user)
     async def list_admin_requests(self, ctx, assigned_to: discord.Member=None):
-        """Returns a list of all active Admin help requests for this guild
+        """List of all active Admin help requests
 
         If a user runs this command it will return all the requests that they have submitted and are still open.
             - The [assigned_to] argument is ignored but will still give an error if an incorrect value is entered.
@@ -391,7 +394,8 @@ class Utils:
     @commands.command(name='weather', aliases=['wu'])
     @commands.cooldown(5, 15, type=commands.BucketType.default)
     async def get_weather(self, ctx, *, location='palmer ak'):
-        """Gets the weather data for the location provided,
+        """Gets the weather data for the location given
+
         If no location is included then it will get the weather for the Bot's home location.
         """
         try:
@@ -428,7 +432,8 @@ class Utils:
     @commands.command(name='localtime', aliases=['time', 'lt'])
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def get_localtime(self, ctx, timezone: str='Anchorage'):
-        """Shows the current time localized to the timezone given
+        """Shows the current time in the timezone given
+
         This defaults to the Bot's local timezone of Anchorage Alaska USA if none are given."""
 
         em = discord.Embed()
@@ -457,6 +462,13 @@ class Utils:
     @commands.command(name='gettimein', aliases=['timein', 'gti'])
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def get_time_in_timezone(self, ctx,  timezone: str='US/Eastern', *, time: str=None):
+        """Convert the time provided to given timezone
+
+        Attempts to process the given time and timezone and convert into the given timezone.
+        Example: g$gti CET Friday June 15 2018 US/Alaska
+            This will be processed into a datetime with US/Alaska set as the timezone and will
+            convert it into CET timezone and return both times."""
+
         em = discord.Embed()
 
         if time is None:
@@ -516,7 +528,7 @@ class Utils:
     @commands.command(name='purge', aliases=['clean', 'erase'])
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def purge_messages(self, ctx, number: int=20, member: discord.Member=None):
-        """Gives Admin the ability to quickly clear messages from a channel
+        """Purge messages from the current channel
         By default this will only purge messages sent by Geeksbot and any messages that appear to
         have called Geeksbot (aka start with one of the Geeksbot's prefixes for this Guild)
         If you want to purge messages from a different user you must provide a number and member
@@ -560,7 +572,9 @@ class Utils:
     @commands.command(name='purge_all', aliases=['cls', 'clear'])
     @commands.cooldown(1, 3, type=commands.BucketType.user)
     async def purge_all(self, ctx, number: int=20, contents: str='all'):
-        """Will delete all of the last <number> of messages from the channel
+        """Purge all messages from the current channel
+
+        Will delete all of the last <number> of messages from the channel
         If <contents> is not 'all' then only messages containing <contents>
         will be deleted."""
         if await checks.is_admin(self.bot, ctx):
@@ -591,6 +605,8 @@ class Utils:
 
     @commands.command(hidden=True, name='sheets')
     async def google_sheets(self, ctx, member: discord.Member):
+        """Access Google Sheets and looks for the member"""
+
         if await checks.is_admin(self.bot, ctx):
             scope = ['https://spreadsheets.google.com/feeds',
                      'https://www.googleapis.com/auth/drive']
@@ -616,7 +632,10 @@ class Utils:
 
     @commands.command(name='iss')
     async def iss_loc(self, ctx):
-        """WIP Locates the International Space Station and display on a map"""
+        """Locate the International Space Station
+
+        Gets the location of the ISS and display on a
+        Blue Marble map."""
         def gen_image(iss_loc):
             lat = iss_loc['latitude']
             lon = iss_loc['longitude']
@@ -641,6 +660,8 @@ class Utils:
     @commands.command(name='location', aliases=['loc', 'map'])
     async def map_location(self, ctx, *, location):
         """WIP Displays the given location on a map
+
+        Searches for the location provided and plots the Lat Long on a map.
         Note: This is SLOW!!! Be prepared to wait up to a minute for the result"""
 
         def draw_map(m, scale=1):
