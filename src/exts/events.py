@@ -150,13 +150,13 @@ class BotEvents:
 
     # noinspection PyMethodMayBeStatic
     async def on_command_error(self, ctx, error):
-        pag = utils.Paginator(ctx.bot)
-        import traceback
-        if ctx.channel.id == 418452585683484680 and type(error) == commands.errors.CommandNotFound:
-            return
-        pag.add(''.join(traceback.format_exception(type(error), error, error.__traceback__)))
-        for page in pag.pages():
-            await ctx.send(page)
+        pag = utils.Paginator(ctx.bot, embed=True, max_line_length=48)
+        pag.set_embed_meta(title=f'Command Error',
+                           color=self.bot.error_color,
+                           thumbnail=f'{ctx.guild.me.avatar_url}')
+        pag.add(error)
+        book = utils.Book(pag, (None, ctx.channel, self.bot, ctx.message))
+        await book.create_book()
 
     async def on_guild_join(self, guild):
         with open(f"{config_dir}{default_guild_config_file}", 'r') as file:
