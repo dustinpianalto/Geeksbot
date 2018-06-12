@@ -44,7 +44,7 @@ emojis: Dict[str, str] = {
 class Geeksbot(commands.Bot):
     def __init__(self, **kwargs):
         kwargs["command_prefix"] = self.get_custom_prefix
-        self.description = 'I am Geeksbot Dev! Fear me!\n  I might just break and take you with me :P'
+        self.description = 'I am Geeksbot! Fear me!'
         kwargs['description'] = self.description
         super().__init__(**kwargs)
         self.aio_session = aiohttp.ClientSession(loop=self.loop)
@@ -56,13 +56,14 @@ class Geeksbot(commands.Bot):
         self.infected = {}
         self.TOKEN = self.bot_secrets['token']
         self.embed_color = discord.Colour.from_rgb(49, 107, 111)
+        self.error_color = discord.Colour.from_rgb(142, 29, 31)
         del self.bot_secrets['token']
         self.db_con = database.DatabaseConnection(**self.bot_secrets['db_con'])
-        self.default_prefix = 'g~'
+        self.default_prefix = 'g$'
         self.voice_chans = {}
         self.spam_list = {}
         self.owner_id = 351794468870946827
-        self.__version__ = 'v1.0.0b2'
+        self.__version__ = 'v1.0.0'
         self.gcs_service = build('customsearch', 'v1', developerKey=self.bot_secrets['google_search_key'])
         self.tpe = futures.ThreadPoolExecutor()
         self.geo_api = '2d4e419c2be04c8abe91cb5dd1548c72'
