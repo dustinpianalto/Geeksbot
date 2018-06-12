@@ -94,22 +94,22 @@ class Admin:
 
     @commands.group(case_insensitive=True)
     async def set(self, ctx):
-        """Run help set for more info"""
+        """Group for setting configuration options"""
         pass
 
     @commands.group(case_insensitive=True)
     async def add(self, ctx):
-        """Run help set for more info"""
+        """Group for adding items to guild config"""
         pass
 
     @commands.group(case_insensitive=True)
     async def remove(self, ctx):
-        """Run help set for more info"""
+        """Group for removing items from guild config"""
         pass
 
     @set.command(name='admin_chan', aliases=['ac', 'admin_chat', 'admin chat'])
     async def _admin_channel(self, ctx, channel: discord.TextChannel=None):
-        """Sets the channel for admin specific notifications"""
+        """Sets the admin notification channel"""
         if ctx.guild:
             if await checks.is_admin(self.bot, ctx):
                 if channel is not None:
@@ -119,7 +119,8 @@ class Admin:
 
     @set.command(name='channel_lockdown', aliases=['lockdown', 'restrict_access', 'cl'])
     async def _channel_lockdown(self, ctx, config='true'):
-        """Toggles the channel lockdown restricting Geeksbot to only access channels defined in allowed_channels
+        """Toggles the channel lockdown restriction
+        When this is active Geeksbot can only respond in channels defined in allowed_channels
         If you run this before configuring allowed_channels it will tell you to run that command first."""
         if ctx.guild:
             if await checks.is_admin(self.bot, ctx):
@@ -146,7 +147,7 @@ class Admin:
 
     @add.command(name='allowed_channels', aliases=['channel', 'ac'])
     async def _allowed_channels(self, ctx, *, channels):
-        """Allows Admin to restrict what channels Geeksbot is allowed to access
+        """Defines channels Geeksbot can respond in
         This only takes effect if channel_lockdown is enabled.
         If one of the channels passed is not found then it is ignored."""
         if ctx.guild:
@@ -206,7 +207,7 @@ class Admin:
     @add.command(aliases=['prefix', 'p'])
     @commands.cooldown(1, 5, type=commands.BucketType.guild)
     async def add_prefix(self, ctx, *, prefix=None):
-        """Adds a guild specific prefix to the guild config
+        """Adds a custom prefix for the current guild
         Note: This overwrites the default of g$. If you would
         like to keep using g$ you will need to add it to the
         Guild config as well."""
@@ -239,7 +240,7 @@ class Admin:
     @remove.command(aliases=['prefix', 'p'])
     @commands.cooldown(1, 5, type=commands.BucketType.guild)
     async def remove_prefix(self, ctx, *, prefix=None):
-        """Removes a guild specific prefix from the guild config
+        """Removes custom prefix from the current guild
         If the last prefix is removed then Geeksbot will default
         Back to g$"""
         if ctx.guild:
@@ -278,7 +279,7 @@ class Admin:
     @commands.cooldown(1, 5, type=commands.BucketType.guild)
     @commands.check(checks.is_guild_owner)
     async def _add_admin_role(self, ctx, role=None):
-        """The Guild owner can add a role to the admin list
+        """Adds role to the admin list for current guild
         Allowing members of that role to run admin commands
         on the current guild."""
         role = discord.utils.get(ctx.guild.roles, name=role)
@@ -299,7 +300,7 @@ class Admin:
     @commands.cooldown(1, 5, type=commands.BucketType.guild)
     @commands.check(checks.is_guild_owner)
     async def _remove_admin_role(self, ctx, role=None):
-        """The Guild owner can remove a role from the admin list"""
+        """Removes role from admin list in current guild"""
         role = discord.utils.get(ctx.guild.roles, name=role)
         if role is not None:
             roles = json.loads(await self.bot.db_con.fetchval('select admin_roles from guild_config '

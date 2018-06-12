@@ -89,7 +89,7 @@ class Fun:
     @commands.command()
     @commands.cooldown(1, 5, type=commands.BucketType.user)
     async def fact(self, ctx, number: int):
-        """Returns the given factorial up to 20,000"""
+        """Returns the given factorial up to 20,000!"""
         if 0 < number < 20001:
             n = 1990
             with ctx.channel.typing():
