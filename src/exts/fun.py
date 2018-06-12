@@ -33,6 +33,9 @@ class Fun:
     @commands.command()
     @commands.cooldown(1, 30, type=commands.BucketType.user)
     async def infect(self, ctx, member: discord.Member, emoji):
+        """Infects a user with the given emoji
+
+        Every time the user sends a message that I am also in I will react to that message with said emoji."""
         if member.id == self.bot.user.id and ctx.author.id != owner_id:
             await ctx.send(f'You rolled a Critical Fail...\nInfection bounces off and rebounds on the attacker.')
             member = ctx.author
@@ -48,6 +51,7 @@ class Fun:
     @commands.command()
     @commands.cooldown(1, 5, type=commands.BucketType.user)
     async def heal(self, ctx, member: discord.Member):
+        """Removes infection from user."""
         if ctx.author == member and ctx.author.id != owner_id:
             await ctx.send('You can\'t heal yourself silly...')
         else:
@@ -65,6 +69,7 @@ class Fun:
     @commands.command()
     @commands.cooldown(1, 5, type=commands.BucketType.user)
     async def slap(self, ctx, member: discord.Member):
+        """IRC Style Trout Slap"""
         trout = await self.bot.db_con.fetchval("select code from geeksbot_emojis where id = 449083238766477312")
         if member.id == self.bot.user.id and ctx.author.id != owner_id:
             await ctx.send(f'You rolled a Critical Fail...\nThe trout bounces off and rebounds on the attacker.')
@@ -84,6 +89,7 @@ class Fun:
     @commands.command()
     @commands.cooldown(1, 5, type=commands.BucketType.user)
     async def fact(self, ctx, number: int):
+        """Returns the given factorial up to 20,000"""
         if 0 < number < 20001:
             n = 1990
             with ctx.channel.typing():
@@ -150,6 +156,7 @@ class Fun:
 
     @commands.command(name='explode', aliases=['splode'])
     async def explode_user(self, ctx, member: discord.Member=None):
+        """Trolls user by punching them to oblivion."""
         if member is None or member.id == 396588996706304010:
             member = ctx.author
 
