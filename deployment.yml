@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geeksbot
+  namespace: default
+  labels:
+    app: geeksbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geeksbot
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 120
+  template:
+    metadata:
+      labels:
+        app: geeksbot
+    spec:
+      containers:
+        - name: geeksbot
+          image: <IMAGE>
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: geeksbot
+                  key: database_url
+            - name: DISCORD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: geeksbot
+                  key: discord_token
