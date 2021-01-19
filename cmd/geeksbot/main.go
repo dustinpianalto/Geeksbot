@@ -8,6 +8,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustinpianalto/disgoman"
+	"github.com/dustinpianalto/geeksbot/internal/exts"
 )
 
 func main() {
