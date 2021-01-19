@@ -9,7 +9,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustinpianalto/disgoman"
-	"github.com/dustinpianalto/goff/internal/discord_utils"
+	"github.com/dustinpianalto/geeksbot/internal/discord_utils"
 )
 
 var PingCommand = &disgoman.Command{
