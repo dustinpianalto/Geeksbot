@@ -5,7 +5,7 @@ BEGIN;
         prefixes varchar(10)[],
         PRIMARY KEY(id)
     );
-    CREATE TYPE IF NOT EXISTS role_type as ENUM (
+    CREATE TYPE role_type as ENUM (
         'normal',
         'moderator',
         'admin',
@@ -25,7 +25,7 @@ BEGIN;
         id varchar(30),
         guild_id varchar(30),
         admin boolean,
-        default boolean,
+        default_channel boolean,
         new_patron boolean,
         PRIMARY KEY(id),
         CONSTRAINT fk_guild
@@ -45,7 +45,7 @@ BEGIN;
         id varchar(30),
         created_at timestamp,
         modified_at timestamp,
-        content varchar(2000)
+        content varchar(2000),
         previous_content varchar(2000)[],
         channel_id varchar(30),
         author_id varchar(30),
@@ -89,7 +89,7 @@ BEGIN;
                 REFERENCES roles(id)
                 ON DELETE SET NULL,
         CONSTRAINT fk_tier
-            FOREIGN_KEY(next_tier)
+            FOREIGN KEY(next_tier)
                 REFERENCES patreon_tier(id)
                 ON DELETE SET NULL
     );
