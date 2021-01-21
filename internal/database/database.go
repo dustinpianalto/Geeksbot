@@ -36,7 +36,7 @@ func ConnectDatabase(dbConnString string) {
 	if err != nil {
 		log.Fatal(fmt.Errorf("cannot create db driver: %w", err))
 	}
-	m, err := migrate.NewWithInstance("go-bindata", d, "postgres", instance)
+	m, err := migrate.NewWithInstance("go-bindatafoo", d, "postgres", instance)
 	if err != nil {
 		log.Fatal(fmt.Errorf("cannot create migration instance: %w", err))
 	}
