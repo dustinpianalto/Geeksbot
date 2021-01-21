@@ -30,16 +30,19 @@ func ConnectDatabase(dbConnString string) {
 	db.SetConnMaxLifetime(300)
 	d, err := bindata.WithInstance(s)
 	if err != nil {
-		log.Fatal(fmt.Errorf("Cannot load migrations: %w", err))
+		log.Fatal(fmt.Errorf("cannot load migrations: %w", err))
 	}
 	instance, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
-		log.Fatal(fmt.Errorf("Cannot create db driver: %w", err))
+		log.Fatal(fmt.Errorf("cannot create db driver: %w", err))
 	}
 	m, err := migrate.NewWithInstance("go-bindata", d, "postgres", instance)
 	if err != nil {
-		log.Fatal(fmt.Errorf("Cannot create migration instance: %w", err))
+		log.Fatal(fmt.Errorf("cannot create migration instance: %w", err))
 	}
-	m.Up()
+	err = m.Up()
+	if err != nil {
+		log.Fatal(fmt.Errorf("error running migrations: %w", err))
+	}
 	log.Println("Migrations Run")
 }
