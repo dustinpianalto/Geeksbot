@@ -33,7 +33,6 @@ jobs:
             go get -u github.com/go-bindata/go-bindata/...
             /home/runner/work/Geeksbot/bin/go-bindata -pkg migrations -o $GITHUB_WORKSPACE/internal/database/migrations/bindata.go $GITHUB_WORKSPACE/internal/database/migrations/
             head $GITHUB_WORKSPACE/internal/database/migrations/bindata.go
-            george
 
       - name: Build container image
         env:
