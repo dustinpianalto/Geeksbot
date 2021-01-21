@@ -18,6 +18,5 @@ WORKDIR /bin
 
 COPY --from=dev /go/bin/geeksbot ./geeksbot
 COPY --from=dev /go/bin/go-bindata ./go-bindata
-COPY --from=dev /go/src/Geeksbot/internal/database/migrations/* ./internal/database/migrations/
 
 CMD [ "geeksbot" ]
