@@ -8,6 +8,7 @@ RUN go mod download
 
 COPY . .
 RUN go install github.com/dustinpianalto/geeksbot/...
+RUN go get -u github.com/go-bindata/go-bindata/...
 
 CMD [ "go", "run", "cmd/geeksbot/main.go"]
 
@@ -16,6 +17,7 @@ from alpine
 WORKDIR /bin
 
 COPY --from=dev /go/bin/geeksbot ./geeksbot
+COPY --from=dev /go/bin/go-bindata ./go-bindata
 COPY --from=dev /go/src/Geeksbot/internal/database/migrations/* ./internal/database/migrations/
 
 CMD [ "geeksbot" ]
