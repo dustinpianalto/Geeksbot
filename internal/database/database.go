@@ -42,7 +42,7 @@ func ConnectDatabase(dbConnString string) {
 	}
 	err = m.Up()
 	if err != nil {
-		log.Fatal(fmt.Errorf("error running migrations: %w", err))
+		log.Fatal(err)
 	}
 	log.Println("Migrations Run")
 }
