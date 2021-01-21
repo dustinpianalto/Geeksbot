@@ -8,6 +8,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustinpianalto/disgoman"
+	"github.com/dustinpianalto/geeksbot/internal/database"
 	"github.com/dustinpianalto/geeksbot/internal/exts"
 )
 
@@ -25,7 +26,7 @@ func main() {
 		Intents: discordgo.MakeIntent(discordgo.IntentsAll),
 	}
 
-	//postgres.ConnectDatabase(os.Getenv("DATABASE_URL"))
+	database.ConnectDatabase(os.Getenv("DATABASE_URL"))
 	//postgres.InitializeDatabase()
 	//utils.LoadTestData()
 
