@@ -41,4 +41,5 @@ func ConnectDatabase(dbConnString string) {
 		log.Fatal(fmt.Errorf("Cannot create migration instance: %w", err))
 	}
 	m.Up()
+	log.Println("Migrations Run")
 }
