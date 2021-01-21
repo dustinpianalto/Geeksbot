@@ -21,6 +21,17 @@ jobs:
         id: get_version
         uses: battila7/get-version-action@v2.0.0
 
+      - name: Setup Golang 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+      
+      - name: Install go-bindata
+        run: go get -u github.com/go-bindata/go-bindata
+
+      - name: Build migrations
+        run: go-bindata -pkg migrations -o $GITHUB_WORKSPACE/internal/database/migrations/bindata.go $GITHUB_WORKSPACE/internal/database/migrations/
+
       - name: Build container image
         env:
           IMAGE_TAG: ${{ steps.get_version.outputs.version-without-v }}

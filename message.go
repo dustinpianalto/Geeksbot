@@ -5,7 +5,7 @@ import "github.com/bwmarrin/discordgo"
 type Message struct {
 	ID              string
 	CreatedAt       int64
-	ModifiedAd      int64
+	ModifiedAt      int64
 	Content         string
 	PreviousContent []string
 	Channel         *Channel

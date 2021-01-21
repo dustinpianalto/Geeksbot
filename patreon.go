@@ -4,6 +4,7 @@ type PatreonCreator struct {
 	ID      int
 	Creator string
 	Link    string
+	Guild   *Guild
 }
 
 type PatreonTier struct {
@@ -26,4 +27,5 @@ type PatreonService interface {
 	CreatePatreonTier(t *PatreonTier) (*PatreonTier, error)
 	UpdatePatreonTier(t *PatreonTier) (*PatreonTier, error)
 	DeletePatreonTier(t *PatreonTier) error
+	GuildPatreonCreators(g *Guild) ([]*PatreonCreator, error)
 }
