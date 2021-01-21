@@ -16,6 +16,6 @@ from alpine
 WORKDIR /bin
 
 COPY --from=dev /go/bin/geeksbot ./geeksbot
-COPY --from=dev /go/src/Geeksbot/internal/database/migrations/* ./
+COPY --from=dev /go/src/Geeksbot/internal/database/migrations/* ./internal/database/migrations/
 
 CMD [ "geeksbot" ]
