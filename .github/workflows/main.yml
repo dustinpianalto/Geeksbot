@@ -26,13 +26,12 @@ jobs:
         with:
           go-version: 1.15
       
-      - name: Install go-bindata
+      - name: Install go-bindata and build migrations
         uses: cedrickring/golang-action@1.6.0
         with:
-          args: go get -u github.com/go-bindata/go-bindata/...
-
-      - name: Build migrations
-        run: go-bindata -pkg migrations -o $GITHUB_WORKSPACE/internal/database/migrations/bindata.go $GITHUB_WORKSPACE/internal/database/migrations/
+          args: |
+            go get -u github.com/go-bindata/go-bindata/...
+            go-bindata -pkg migrations -o $GITHUB_WORKSPACE/internal/database/migrations/bindata.go $GITHUB_WORKSPACE/internal/database/migrations/
 
       - name: Build container image
         env:
