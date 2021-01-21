@@ -31,7 +31,7 @@ jobs:
           GOPATH: /home/runner/work/Geeksbot/
         run: |
             go get -u github.com/go-bindata/go-bindata/...
-            go-bindata -pkg migrations -o $GITHUB_WORKSPACE/internal/database/migrations/bindata.go $GITHUB_WORKSPACE/internal/database/migrations/
+            /home/runner/work/Geeksbot/bin/go-bindata -pkg migrations -o $GITHUB_WORKSPACE/internal/database/migrations/bindata.go $GITHUB_WORKSPACE/internal/database/migrations/
 
       - name: Build container image
         env:
