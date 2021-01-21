@@ -27,7 +27,7 @@ jobs:
           go-version: 1.15
       
       - name: Install go-bindata
-        run: go get -u github.com/go-bindata/go-bindata
+        run: go get -u github.com/go-bindata/go-bindata/...
 
       - name: Build migrations
         run: go-bindata -pkg migrations -o $GITHUB_WORKSPACE/internal/database/migrations/bindata.go $GITHUB_WORKSPACE/internal/database/migrations/
