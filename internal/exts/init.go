@@ -1,11 +1,11 @@
 package exts
 
 import (
-	"github.com/dustinpianalto/disgoman"
+	"github.com/dustinpianalto/geeksbot"
 	"github.com/dustinpianalto/geeksbot/internal/exts/utils"
 )
 
-func AddCommandHandlers(h *disgoman.CommandManager) {
+func AddCommandHandlers(g *geeksbot.Geeksbot) {
 	// Arguments:
 	// name - command name - string
 	// desc - command description - string
@@ -14,9 +14,9 @@ func AddCommandHandlers(h *disgoman.CommandManager) {
 	// perms - permissisions required - anpan.Permission (int)
 	// type - command type, sets where the command is available
 	// run - function to run - func(anpan.Context, []string) / CommandRunFunc
-	_ = h.AddCommand(utils.UserCommand)
-	_ = h.AddCommand(utils.SayCommand)
-	_ = h.AddCommand(utils.GitCommand)
-	_ = h.AddCommand(utils.InviteCommand)
-	_ = h.AddCommand(utils.PingCommand)
+	_ = g.AddCommand(utils.UserCommand)
+	_ = g.AddCommand(utils.SayCommand)
+	_ = g.AddCommand(utils.GitCommand)
+	_ = g.AddCommand(utils.InviteCommand)
+	_ = g.AddCommand(utils.PingCommand)
 }

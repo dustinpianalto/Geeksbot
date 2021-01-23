@@ -18,7 +18,7 @@ type PatreonTier struct {
 
 type PatreonService interface {
 	PatreonCreatorByID(id int) (PatreonCreator, error)
-	PatreonCreatorByName(name string) (PatreonCreator, error)
+	PatreonCreatorByName(name string, guild Guild) (PatreonCreator, error)
 	CreatePatreonCreator(c PatreonCreator) (PatreonCreator, error)
 	UpdatePatreonCreator(c PatreonCreator) (PatreonCreator, error)
 	DeletePatreonCreator(c PatreonCreator) error

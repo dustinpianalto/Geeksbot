@@ -8,6 +8,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustinpianalto/disgoman"
+	"github.com/dustinpianalto/geeksbot"
 	"github.com/dustinpianalto/geeksbot/internal/database"
 	"github.com/dustinpianalto/geeksbot/internal/exts"
 )
@@ -27,11 +28,6 @@ func main() {
 	}
 
 	database.ConnectDatabase(os.Getenv("DATABASE_URL"))
-	//postgres.InitializeDatabase()
-	//utils.LoadTestData()
-
-	//us := &postgres.UserService{DB: postgres.DB}
-	//gs := &postgres.GuildService{DB: postgres.DB}
 
 	owners := []string{
 		"351794468870946827",
@@ -47,20 +43,22 @@ func main() {
 		CheckPermissions: false,
 	}
 
+	geeksbot := geeksbot.Geeksbot{
+		GuildService:   database.GuildService,
+		UserService:    database.UserService,
+		ChannelService: database.ChannelService,
+		MessageService: database.MessageService,
+		PatreonService: database.PatreonService,
+		RequestService: database.RequestService,
+		ServerService:  database.ServerService,
+		CommandManager: manager,
+	}
+
 	// Add Command Handlers
-	exts.AddCommandHandlers(&manager)
-	//services.InitalizeServices(us, gs)
+	exts.AddCommandHandlers(&geeksbot)
 
-	//if _, ok := handler.Commands["help"]; !ok {
-	//	handler.AddDefaultHelpCommand()
-	//}
-
-	dg.AddHandler(manager.OnMessage)
-	dg.AddHandler(manager.StatusManager.OnReady)
-	//dg.AddHandler(guild_management.OnMessageUpdate)
-	//dg.AddHandler(guild_management.OnMessageDelete)
-	//dg.AddHandler(user_management.OnGuildMemberAddLogging)
-	//dg.AddHandler(user_management.OnGuildMemberRemoveLogging)
+	dg.AddHandler(geeksbot.OnMessage)
+	dg.AddHandler(geeksbot.StatusManager.OnReady)
 
 	err = dg.Open()
 	if err != nil {
@@ -69,10 +67,7 @@ func main() {
 	}
 
 	// Start the Error handler in a goroutine
-	go ErrorHandler(manager.ErrorChannel)
-
-	// Start the Logging handler in a goroutine
-	//go logging.LoggingHandler(logging.LoggingChannel)
+	go ErrorHandler(geeksbot.ErrorChannel)
 
 	log.Println("The Bot is now running.")
 	sc := make(chan os.Signal, 1)

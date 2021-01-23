@@ -17,8 +17,8 @@ var (
 	UserService    userService
 	ChannelService channelService
 	MessageService messageService
-	PatreonService patreonService
 	RequestService requestService
+	PatreonService patreonService
 	ServerService  serverService
 )
 
@@ -52,4 +52,16 @@ func ConnectDatabase(dbConnString string) {
 		log.Fatal(err)
 	}
 	log.Println("Migrations Run")
+	initServices()
+	log.Println("Services Initialized")
+}
+
+func initServices() {
+	GuildService = guildService{db: db}
+	UserService = userService{db: db}
+	ChannelService = channelService{db: db}
+	MessageService = messageService{db: db}
+	PatreonService = patreonService{db: db}
+	RequestService = requestService{db: db}
+	ServerService = serverService{db: db}
 }
