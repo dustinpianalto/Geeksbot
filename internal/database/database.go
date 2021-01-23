@@ -49,7 +49,11 @@ func ConnectDatabase(dbConnString string) {
 	}
 	err = m.Up()
 	if err != nil {
-		log.Fatal(err)
+		if err.Error() == "no change" {
+			log.Println(err)
+		} else {
+			log.Fatal(err)
+		}
 	}
 	log.Println("Migrations Run")
 	initServices()
