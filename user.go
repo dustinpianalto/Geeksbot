@@ -11,8 +11,8 @@ type User struct {
 }
 
 type UserService interface {
-	User(id string) (*User, error)
-	CreateUser(u *User) (*User, error)
-	DeleteUser(u *User) error
-	UpdateUser(u *User) (*User, error)
+	User(id string) (User, error)
+	CreateUser(u User) (User, error)
+	DeleteUser(u User) error
+	UpdateUser(u User) (User, error)
 }

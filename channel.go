@@ -9,9 +9,9 @@ type Channel struct {
 }
 
 type ChannelService interface {
-	Channel(id string) (*Channel, error)
-	CreateChannel(c *Channel) (*Channel, error)
-	DeleteChannel(c *Channel) error
-	GuildChannels(g *Guild) ([]*Channel, error)
-	UpdateChannel(c *Channel) (*Channel, error)
+	Channel(id string) (Channel, error)
+	CreateChannel(c Channel) (Channel, error)
+	DeleteChannel(c Channel) error
+	GuildChannels(g Guild) ([]Channel, error)
+	UpdateChannel(c Channel) (Channel, error)
 }

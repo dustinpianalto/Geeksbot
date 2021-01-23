@@ -12,7 +12,14 @@ import (
 )
 
 var (
-	db *sql.DB
+	db             *sql.DB
+	GuildService   guildService
+	UserService    userService
+	ChannelService channelService
+	MessageService messageService
+	PatreonService patreonService
+	RequestService requestService
+	ServerService  serverService
 )
 
 func ConnectDatabase(dbConnString string) {
