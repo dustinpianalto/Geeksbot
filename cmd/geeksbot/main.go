@@ -8,9 +8,9 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustinpianalto/disgoman"
-	"github.com/dustinpianalto/geeksbot"
 	"github.com/dustinpianalto/geeksbot/internal/database"
 	"github.com/dustinpianalto/geeksbot/internal/exts"
+	"github.com/dustinpianalto/geeksbot/internal/services"
 )
 
 func main() {
@@ -28,6 +28,7 @@ func main() {
 	}
 
 	database.ConnectDatabase(os.Getenv("DATABASE_URL"))
+	services.InitializeServices()
 
 	owners := []string{
 		"351794468870946827",
@@ -43,22 +44,11 @@ func main() {
 		CheckPermissions: false,
 	}
 
-	geeksbot := geeksbot.Geeksbot{
-		GuildService:   database.GuildService,
-		UserService:    database.UserService,
-		ChannelService: database.ChannelService,
-		MessageService: database.MessageService,
-		PatreonService: database.PatreonService,
-		RequestService: database.RequestService,
-		ServerService:  database.ServerService,
-		CommandManager: manager,
-	}
-
 	// Add Command Handlers
-	exts.AddCommandHandlers(&geeksbot)
+	exts.AddCommandHandlers(&manager)
 
-	dg.AddHandler(geeksbot.OnMessage)
-	dg.AddHandler(geeksbot.StatusManager.OnReady)
+	dg.AddHandler(manager.OnMessage)
+	dg.AddHandler(manager.StatusManager.OnReady)
 
 	err = dg.Open()
 	if err != nil {
@@ -67,7 +57,7 @@ func main() {
 	}
 
 	// Start the Error handler in a goroutine
-	go ErrorHandler(geeksbot.ErrorChannel)
+	go ErrorHandler(manager.ErrorChannel)
 
 	log.Println("The Bot is now running.")
 	sc := make(chan os.Signal, 1)

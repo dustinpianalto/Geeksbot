@@ -1,11 +1,11 @@
 package exts
 
 import (
-	"github.com/dustinpianalto/geeksbot"
+	"github.com/dustinpianalto/disgoman"
 	"github.com/dustinpianalto/geeksbot/internal/exts/utils"
 )
 
-func AddCommandHandlers(g *geeksbot.Geeksbot) {
+func AddCommandHandlers(g *disgoman.CommandManager) {
 	// Arguments:
 	// name - command name - string
 	// desc - command description - string
@@ -15,6 +15,7 @@ func AddCommandHandlers(g *geeksbot.Geeksbot) {
 	// type - command type, sets where the command is available
 	// run - function to run - func(anpan.Context, []string) / CommandRunFunc
 	_ = g.AddCommand(utils.UserCommand)
+	_ = g.AddCommand(utils.AddUserCommand)
 	_ = g.AddCommand(utils.SayCommand)
 	_ = g.AddCommand(utils.GitCommand)
 	_ = g.AddCommand(utils.InviteCommand)

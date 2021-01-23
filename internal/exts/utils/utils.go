@@ -9,7 +9,9 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustinpianalto/disgoman"
+	"github.com/dustinpianalto/geeksbot"
 	"github.com/dustinpianalto/geeksbot/internal/discord_utils"
+	"github.com/dustinpianalto/geeksbot/internal/services"
 )
 
 var PingCommand = &disgoman.Command{
@@ -244,5 +246,36 @@ func userCommandFunc(ctx disgoman.Context, args []string) {
 			Message: "Couldn't send the user embed",
 			Error:   err,
 		}
+	}
+}
+
+var AddUserCommand = &disgoman.Command{
+	Name:                "user",
+	Aliases:             nil,
+	Description:         "Get user info",
+	OwnerOnly:           false,
+	Hidden:              false,
+	RequiredPermissions: 0,
+	Invoke:              addUserCommandFunc,
+}
+
+func addUserCommandFunc(ctx disgoman.Context, args []string) {
+	if ctx.Message.Author.ID == ctx.CommandManager.Owners[0] {
+		user := geeksbot.User{
+			ID:       ctx.Message.Author.ID,
+			IsActive: true,
+			IsStaff:  true,
+			IsAdmin:  true,
+		}
+		user, err := services.UserService.CreateUser(user)
+		if err != nil {
+			ctx.CommandManager.ErrorChannel <- disgoman.CommandError{
+				Context: ctx,
+				Message: "Error with adding user",
+				Error:   err,
+			}
+			return
+		}
+		ctx.Session.MessageReactionAdd(ctx.Channel.ID, ctx.Message.ID, "✅")
 	}
 }
