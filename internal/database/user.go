@@ -20,7 +20,12 @@ func (s userService) User(id string) (geeksbot.User, error) {
 
 func (s userService) CreateUser(u geeksbot.User) (geeksbot.User, error) {
 	queryString := "INSERT INTO users (id, steam_id, active, staff, admin) VALUES ($1, $2, $3, $4, $5)"
-	_, err := s.db.Exec(queryString, u.ID, u.SteamID, u.IsActive, u.IsStaff, u.IsAdmin)
+	var err error
+	if u.SteamID.Valid {
+		_, err = s.db.Exec(queryString, u.ID, u.SteamID.String, u.IsActive, u.IsStaff, u.IsAdmin)
+	} else {
+		_, err = s.db.Exec(queryString, u.ID, nil, u.IsActive, u.IsStaff, u.IsAdmin)
+	}
 	return u, err
 }
 
