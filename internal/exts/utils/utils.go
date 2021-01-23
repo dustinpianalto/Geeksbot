@@ -250,7 +250,7 @@ func userCommandFunc(ctx disgoman.Context, args []string) {
 }
 
 var AddUserCommand = &disgoman.Command{
-	Name:                "user",
+	Name:                "adduser",
 	Aliases:             nil,
 	Description:         "Get user info",
 	OwnerOnly:           false,
