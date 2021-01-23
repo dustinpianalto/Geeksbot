@@ -263,7 +263,6 @@ func addUserCommandFunc(ctx disgoman.Context, args []string) {
 	if ctx.Message.Author.ID == ctx.CommandManager.Owners[0] {
 		user := geeksbot.User{
 			ID:       ctx.Message.Author.ID,
-			SteamID:  "",
 			IsActive: true,
 			IsStaff:  true,
 			IsAdmin:  true,
