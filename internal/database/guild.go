@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/dustinpianalto/geeksbot"
+	"github.com/lib/pq"
 )
 
 type guildService struct {
@@ -15,7 +16,7 @@ func (s guildService) Guild(id string) (geeksbot.Guild, error) {
 	var g geeksbot.Guild
 	queryString := "SELECT id, new_patron_message, prefixes FROM guilds WHERE id = $1"
 	row := s.db.QueryRow(queryString, id)
-	err := row.Scan(&g.ID, &g.NewPatronMessage, &g.Prefixes)
+	err := row.Scan(&g.ID, &g.NewPatronMessage, pq.Array(&g.Prefixes))
 	if err != nil {
 		return geeksbot.Guild{}, err
 	}
@@ -24,7 +25,7 @@ func (s guildService) Guild(id string) (geeksbot.Guild, error) {
 
 func (s guildService) CreateGuild(g geeksbot.Guild) (geeksbot.Guild, error) {
 	queryString := "INSERT INTO guilds (id, new_patron_message, prefixes) VALUES ($1, $2, $3)"
-	_, err := s.db.Exec(queryString, g.ID, g.NewPatronMessage, g.Prefixes)
+	_, err := s.db.Exec(queryString, g.ID, g.NewPatronMessage, pq.Array(g.Prefixes))
 	return g, err
 }
 
@@ -36,7 +37,7 @@ func (s guildService) DeleteGuild(g geeksbot.Guild) error {
 
 func (s guildService) UpdateGuild(g geeksbot.Guild) (geeksbot.Guild, error) {
 	queryString := "UPDATE guilds SET new_patron_message = $2, prefixes = $3 WHERE id = $1"
-	_, err := s.db.Exec(queryString, g.ID, g.NewPatronMessage, g.Prefixes)
+	_, err := s.db.Exec(queryString, g.ID, g.NewPatronMessage, pq.Array(g.Prefixes))
 	return g, err
 }
 
