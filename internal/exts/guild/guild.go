@@ -8,6 +8,7 @@ import (
 	"github.com/dustinpianalto/geeksbot"
 	"github.com/dustinpianalto/geeksbot/internal/discord_utils"
 	"github.com/dustinpianalto/geeksbot/internal/services"
+	"github.com/dustinpianalto/geeksbot/internal/utils"
 )
 
 var AddPrefixCommand = &disgoman.Command{
@@ -39,6 +40,7 @@ func addPrefixCommandFunc(ctx disgoman.Context, args []string) {
 		}
 	} else {
 		guild.Prefixes = append(guild.Prefixes, args...)
+		guild.Prefixes = utils.RemoveDuplicateStrings(guild.Prefixes)
 		guild, err = services.GuildService.UpdateGuild(guild)
 		if err != nil {
 			discord_utils.SendErrorMessage(ctx, "Error adding prefixes to guild.", err)
@@ -92,6 +94,8 @@ func removePrefixCommandFunc(ctx disgoman.Context, args []string) {
 				}
 			}
 		}
+		removed = utils.RemoveDuplicateStrings(removed)
+		guild.Prefixes = utils.RemoveDuplicateStrings(guild.Prefixes)
 		guild, err = services.GuildService.UpdateGuild(guild)
 		if err != nil {
 			discord_utils.SendErrorMessage(ctx, "Error removing prefixes from guild.", err)
