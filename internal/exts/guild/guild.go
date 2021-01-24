@@ -2,6 +2,7 @@ package guild
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/dustinpianalto/disgoman"
 	"github.com/dustinpianalto/geeksbot"
@@ -87,6 +88,7 @@ func removePrefixCommandFunc(ctx disgoman.Context, args []string) {
 					l--
 					i--
 					removed = append(removed, a)
+					log.Println(a)
 				}
 			}
 		}
