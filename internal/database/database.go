@@ -27,7 +27,8 @@ func ConnectDatabase(dbConnString string) {
 		func(name string) ([]byte, error) {
 			return migrations.Asset(name)
 		})
-	db, err := sql.Open("postgres", dbConnString)
+	var err error
+	db, err = sql.Open("postgres", dbConnString)
 	if err != nil {
 		log.Fatal(fmt.Errorf("Can't connect to the database: %w", err))
 	}
