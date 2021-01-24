@@ -12,19 +12,22 @@ BEGIN;
         ALTER COLUMN created_at SET NOT NULL,
         ALTER COLUMN content SET NOT NULL,
         ALTER COLUMN channel_id SET NOT NULL,
-        ALTER COLUMN author_id SET NOT NULL,
+        ALTER COLUMN author_id SET NOT NULL;
+    ALTER TABLE messages
         DROP COLUMN embed,
         DROP COLUMN previous_embeds;
     ALTER TABLE patreon_creator
-        RENAME TO patreon_creators,
         ALTER COLUMN creator SET NOT NULL,
         ALTER COLUMN link SET NOT NULL,
         ALTER COLUMN guild_id SET NOT NULL;
+    ALTER TABLE patreon_creator
+        RENAME TO patreon_creators;
     ALTER TABLE patreon_tier
-        RENAME TO patreon_tiers,
         ALTER COLUMN name SET NOT NULL,
         ALTER COLUMN creator SET NOT NULL,
         ALTER COLUMN role SET NOT NULL;
+    ALTER TABLE patreon_tier
+        RENAME TO patreon_tiers;
     ALTER TABLE requests
         ALTER COLUMN author_id SET NOT NULL,
         ALTER COLUMN channel_id SET NOT NULL,
