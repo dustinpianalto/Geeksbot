@@ -1,8 +1,10 @@
 package geeksbot
 
+import "database/sql"
+
 type User struct {
 	ID       string
-	SteamID  string
+	SteamID  sql.NullString
 	IsActive bool
 	IsStaff  bool
 	IsAdmin  bool
