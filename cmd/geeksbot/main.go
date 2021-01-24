@@ -72,7 +72,11 @@ func main() {
 }
 
 func getPrefixes(guildID string) []string {
-	return []string{"G.", "g."}
+	guild, err := services.GuildService.Guild(guildID)
+	if err != nil || len(guild.Prefixes) == 0 {
+		return []string{"G$", "g$"}
+	}
+	return guild.Prefixes
 }
 
 func ErrorHandler(ErrorChan chan disgoman.CommandError) {
