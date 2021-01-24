@@ -81,7 +81,7 @@ func removePrefixCommandFunc(ctx disgoman.Context, args []string) {
 		}
 	} else {
 		for _, a := range args {
-			l := len(guild.Prefixes) - 1
+			l := len(guild.Prefixes)
 			for i := 0; i < l; i++ {
 				if a == guild.Prefixes[i] {
 					guild.Prefixes = append(guild.Prefixes[:i], guild.Prefixes[i+1:]...)
