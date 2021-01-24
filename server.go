@@ -6,11 +6,11 @@ type Server struct {
 	IPAddr          string
 	Port            int
 	Password        string
-	AlertsChannel   Channel
+	AlertsChannel   *Channel
 	Guild           Guild
-	InfoChannel     Channel
-	InfoMessage     Message
-	SettingsMessage Message
+	InfoChannel     *Channel
+	InfoMessage     *Message
+	SettingsMessage *Message
 }
 
 type ServerService interface {

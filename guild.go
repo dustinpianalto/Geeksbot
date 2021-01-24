@@ -1,8 +1,10 @@
 package geeksbot
 
+import "database/sql"
+
 type Guild struct {
 	ID               string
-	NewPatronMessage string
+	NewPatronMessage sql.NullString
 	Prefixes         []string
 }
 

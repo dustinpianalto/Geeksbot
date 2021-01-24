@@ -14,10 +14,10 @@ type serverService struct {
 func (s serverService) ServerByID(id int) (geeksbot.Server, error) {
 	var server geeksbot.Server
 	var guildID string
-	var aChanID string
-	var iChanID string
-	var iMsgID string
-	var sMsgID string
+	var aChanID sql.NullString
+	var iChanID sql.NullString
+	var iMsgID sql.NullString
+	var sMsgID sql.NullString
 	queryString := `SELECT id, name, ip_address, port, password, alerts_channel_id, 
 						guild_id, info_channel_id, info_message_id, settings_message_id
 						FROM servers WHERE id = $1`
@@ -31,27 +31,43 @@ func (s serverService) ServerByID(id int) (geeksbot.Server, error) {
 	if err != nil {
 		return geeksbot.Server{}, err
 	}
-	alertChannel, err := ChannelService.Channel(aChanID)
-	if err != nil {
-		return geeksbot.Server{}, err
+	if !aChanID.Valid {
+		server.AlertsChannel = nil
+	} else {
+		alertChannel, err := ChannelService.Channel(aChanID.String)
+		if err != nil {
+			return geeksbot.Server{}, err
+		}
+		server.AlertsChannel = &alertChannel
 	}
-	infoChannel, err := ChannelService.Channel(iChanID)
-	if err != nil {
-		return geeksbot.Server{}, err
+	if !iChanID.Valid {
+		server.InfoChannel = nil
+	} else {
+		infoChannel, err := ChannelService.Channel(iChanID.String)
+		if err != nil {
+			return geeksbot.Server{}, err
+		}
+		server.InfoChannel = &infoChannel
 	}
-	infoMessage, err := MessageService.Message(iMsgID)
-	if err != nil {
-		return geeksbot.Server{}, err
+	if !iMsgID.Valid {
+		server.InfoMessage = nil
+	} else {
+		infoMessage, err := MessageService.Message(iMsgID.String)
+		if err != nil {
+			return geeksbot.Server{}, err
+		}
+		server.InfoMessage = &infoMessage
 	}
-	settingsMessage, err := MessageService.Message(sMsgID)
-	if err != nil {
-		return geeksbot.Server{}, err
+	if !sMsgID.Valid {
+		server.SettingsMessage = nil
+	} else {
+		settingsMessage, err := MessageService.Message(sMsgID.String)
+		if err != nil {
+			return geeksbot.Server{}, err
+		}
+		server.SettingsMessage = &settingsMessage
 	}
 	server.Guild = guild
-	server.AlertsChannel = alertChannel
-	server.InfoChannel = infoChannel
-	server.InfoMessage = infoMessage
-	server.SettingsMessage = settingsMessage
 	return server, nil
 }
 

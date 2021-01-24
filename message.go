@@ -1,9 +1,11 @@
 package geeksbot
 
+import "database/sql"
+
 type Message struct {
 	ID              string
 	CreatedAt       int64
-	ModifiedAt      int64
+	ModifiedAt      sql.NullTime
 	Content         string
 	PreviousContent []string
 	Channel         Channel

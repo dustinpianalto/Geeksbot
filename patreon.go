@@ -1,5 +1,7 @@
 package geeksbot
 
+import "database/sql"
+
 type PatreonCreator struct {
 	ID      int
 	Creator string
@@ -10,7 +12,7 @@ type PatreonCreator struct {
 type PatreonTier struct {
 	ID          int
 	Name        string
-	Description string
+	Description sql.NullString
 	Creator     PatreonCreator
 	Role        Role
 	NextTier    *PatreonTier

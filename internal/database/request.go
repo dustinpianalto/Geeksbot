@@ -16,7 +16,7 @@ func (s requestService) Request(id int64) (geeksbot.Request, error) {
 	var aID string
 	var cID string
 	var gID string
-	var uID string
+	var uID sql.NullString
 	var mID string
 	queryString := `SELECT id, author_id, channel_id, guild_id, content, requested_at, completed,
 						completed_at, completed_by, message_id, completed_message
@@ -39,9 +39,14 @@ func (s requestService) Request(id int64) (geeksbot.Request, error) {
 	if err != nil {
 		return geeksbot.Request{}, err
 	}
-	completedBy, err := UserService.User(uID)
-	if err != nil {
-		return geeksbot.Request{}, err
+	if !uID.Valid {
+		r.CompletedBy = nil
+	} else {
+		completedBy, err := UserService.User(uID.String)
+		if err != nil {
+			return geeksbot.Request{}, err
+		}
+		r.CompletedBy = &completedBy
 	}
 	message, err := MessageService.Message(mID)
 	if err != nil {
@@ -50,7 +55,6 @@ func (s requestService) Request(id int64) (geeksbot.Request, error) {
 	r.Author = author
 	r.Guild = guild
 	r.Channel = channel
-	r.CompletedBy = completedBy
 	r.Message = message
 	return r, nil
 }

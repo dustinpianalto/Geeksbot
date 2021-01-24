@@ -1,6 +1,9 @@
 package geeksbot
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type Request struct {
 	ID               int64
@@ -10,10 +13,10 @@ type Request struct {
 	Content          string
 	RequestedAt      time.Time
 	Completed        bool
-	CompletedAt      time.Time
-	CompletedBy      User
+	CompletedAt      sql.NullTime
+	CompletedBy      *User
 	Message          Message
-	CompletedMessage string
+	CompletedMessage sql.NullString
 }
 
 type Comment struct {
