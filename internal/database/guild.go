@@ -99,3 +99,15 @@ func (s guildService) DeleteRole(r geeksbot.Role) error {
 	_, err := s.db.Exec(queryString, r.ID)
 	return err
 }
+
+func (s guildService) GetOrCreateGuild(id string) (geeksbot.Guild, error) {
+	guild, err := s.Guild(id)
+	if err == sql.ErrNoRows {
+		guild = geeksbot.Guild{
+			ID:       id,
+			Prefixes: []string{},
+		}
+		guild, err = s.CreateGuild(guild)
+	}
+	return guild, err
+}

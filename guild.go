@@ -24,4 +24,5 @@ type GuildService interface {
 	Role(id string) (Role, error)
 	UpdateRole(r Role) (Role, error)
 	DeleteRole(r Role) error
+	GetOrCreateGuild(id string) (Guild, error)
 }

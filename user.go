@@ -15,4 +15,5 @@ type UserService interface {
 	CreateUser(u User) (User, error)
 	DeleteUser(u User) error
 	UpdateUser(u User) (User, error)
+	GetOrCreateUser(id string) (User, error)
 }

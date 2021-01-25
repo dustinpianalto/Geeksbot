@@ -66,3 +66,21 @@ func (s channelService) GuildChannels(g geeksbot.Guild) ([]geeksbot.Channel, err
 	}
 	return channels, nil
 }
+
+func (s channelService) GetOrCreateChannel(id string, guild_id string) (geeksbot.Channel, error) {
+	channel, err := s.Channel(id)
+	if err == sql.ErrNoRows {
+		guild, err := GuildService.GetOrCreateGuild(guild_id)
+		if err != nil {
+			return geeksbot.Channel{}, err
+		}
+		channel, err = s.CreateChannel(geeksbot.Channel{
+			ID:        id,
+			Guild:     guild,
+			Admin:     false,
+			Default:   false,
+			NewPatron: false,
+		})
+	}
+	return channel, err
+}

@@ -14,4 +14,5 @@ type ChannelService interface {
 	DeleteChannel(c Channel) error
 	GuildChannels(g Guild) ([]Channel, error)
 	UpdateChannel(c Channel) (Channel, error)
+	GetOrCreateChannel(id string, guild_id string) (Channel, error)
 }

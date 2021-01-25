@@ -36,3 +36,16 @@ func (s userService) UpdateUser(u geeksbot.User) (geeksbot.User, error) {
 	_, err := s.db.Exec(queryString, u.ID, u.SteamID, u.IsActive, u.IsStaff, u.IsAdmin)
 	return u, err
 }
+
+func (s userService) GetOrCreateUser(id string) (geeksbot.User, error) {
+	user, err := s.User(id)
+	if err == sql.ErrNoRows {
+		user, err = s.CreateUser(geeksbot.User{
+			ID:       id,
+			IsActive: true,
+			IsAdmin:  false,
+			IsStaff:  false,
+		})
+	}
+	return user, err
+}

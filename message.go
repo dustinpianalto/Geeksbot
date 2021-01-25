@@ -1,10 +1,13 @@
 package geeksbot
 
-import "database/sql"
+import (
+	"database/sql"
+	"time"
+)
 
 type Message struct {
 	ID              string
-	CreatedAt       int64
+	CreatedAt       time.Time
 	ModifiedAt      sql.NullTime
 	Content         string
 	PreviousContent []string
