@@ -1,8 +1,10 @@
 package requests
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/dustinpianalto/disgoman"
 	"github.com/dustinpianalto/geeksbot"
@@ -59,5 +61,43 @@ func requestCommandFunc(ctx disgoman.Context, args []string) {
 	if err != nil {
 		discord_utils.SendErrorMessage(ctx, "Error creating the request", err)
 		return
+	}
+	channels, err := services.ChannelService.GuildChannels(guild)
+	if err == nil {
+		var mentionRolesString string
+		roles, err := services.GuildService.GuildRoles(guild)
+		if err == nil {
+			for _, r := range roles {
+				if r.RoleType == "admin" || r.RoleType == "moderator" {
+					mentionRolesString += fmt.Sprintf("<@&%s> ", r.ID)
+				}
+			}
+		}
+		for _, c := range channels {
+			if c.Admin {
+				_, _ = ctx.Session.ChannelMessageSend(c.ID,
+					fmt.Sprintf("%s\n"+
+						"New Request ID %d "+
+						"%s has requested assistance: \n"+
+						"```\n%s\n```\n"+
+						"Requested At: %s\n"+
+						"In: %s",
+						mentionRolesString,
+						request.ID,
+						ctx.Message.Author.Mention,
+						request.Content,
+						request.RequestedAt.UTC().Format(time.UnixDate),
+						ctx.Channel.Mention(),
+					),
+				)
+			}
+		}
+	}
+	_, err = ctx.Send(fmt.Sprintf("%s The admin have recieved your request.\n "+
+		"If you would like to close or add a comment to this request please reference ID `%v`",
+		ctx.Message.Author.Mention, request.ID,
+	))
+	if err != nil {
+		discord_utils.SendErrorMessage(ctx, "There was an error sending the message. The request was created.", err)
 	}
 }

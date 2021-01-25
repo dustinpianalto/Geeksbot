@@ -3,6 +3,7 @@ package exts
 import (
 	"github.com/dustinpianalto/disgoman"
 	"github.com/dustinpianalto/geeksbot/internal/exts/guild"
+	"github.com/dustinpianalto/geeksbot/internal/exts/requests"
 	"github.com/dustinpianalto/geeksbot/internal/exts/utils"
 )
 
@@ -23,4 +24,5 @@ func AddCommandHandlers(g *disgoman.CommandManager) {
 	_ = g.AddCommand(utils.PingCommand)
 	_ = g.AddCommand(guild.AddPrefixCommand)
 	_ = g.AddCommand(guild.RemovePrefixCommand)
+	_ = g.AddCommand(requests.RequestCommand)
 }
