@@ -29,7 +29,7 @@ func (s channelService) Channel(id string) (geeksbot.Channel, error) {
 }
 
 func (s channelService) CreateChannel(c geeksbot.Channel) (geeksbot.Channel, error) {
-	queryString := "INSERT INTO channels (id, guild_id, admin, default_channel, new_patron VALUES ($1, $2, $3, $4, $5))"
+	queryString := "INSERT INTO channels (id, guild_id, admin, default_channel, new_patron) VALUES ($1, $2, $3, $4, $5)"
 	_, err := s.db.Exec(queryString, c.ID, c.Guild.ID, c.Admin, c.Default, c.NewPatron)
 	return c, err
 }
