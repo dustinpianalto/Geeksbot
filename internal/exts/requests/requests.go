@@ -31,12 +31,12 @@ func requestCommandFunc(ctx disgoman.Context, args []string) {
 	requestMsg := strings.Join(args, " ")
 	author, err := services.UserService.GetOrCreateUser(ctx.Message.Author.ID)
 	if err != nil {
-		discord_utils.SendErrorMessage(ctx, "Error creating the request", err)
+		discord_utils.SendErrorMessage(ctx, "Error creating the request. Could not get user.", err)
 		return
 	}
 	channel, err := services.ChannelService.GetOrCreateChannel(ctx.Message.ChannelID, ctx.Guild.ID)
 	if err != nil {
-		discord_utils.SendErrorMessage(ctx, "Error creating the request", err)
+		discord_utils.SendErrorMessage(ctx, "Error creating the request. Could not get channel.", err)
 		return
 	}
 	int64ID, _ := strconv.ParseInt(ctx.Message.ID, 10, 64)
