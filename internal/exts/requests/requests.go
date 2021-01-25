@@ -84,7 +84,7 @@ func requestCommandFunc(ctx disgoman.Context, args []string) {
 						"In: %s",
 						mentionRolesString,
 						request.ID,
-						ctx.Message.Author.Mention,
+						ctx.Message.Author.Mention(),
 						request.Content,
 						request.RequestedAt.UTC().Format(time.UnixDate),
 						ctx.Channel.Mention(),
