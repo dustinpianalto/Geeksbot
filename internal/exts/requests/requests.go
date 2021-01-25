@@ -95,7 +95,7 @@ func requestCommandFunc(ctx disgoman.Context, args []string) {
 	}
 	_, err = ctx.Send(fmt.Sprintf("%s The admin have recieved your request.\n "+
 		"If you would like to close or add a comment to this request please reference ID `%v`",
-		ctx.Message.Author.Mention, request.ID,
+		ctx.Message.Author.Mention(), request.ID,
 	))
 	if err != nil {
 		discord_utils.SendErrorMessage(ctx, "There was an error sending the message. The request was created.", err)
