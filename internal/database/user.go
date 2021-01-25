@@ -12,7 +12,7 @@ type userService struct {
 
 func (s userService) User(id string) (geeksbot.User, error) {
 	var user geeksbot.User
-	queryString := "SELECT id, steam_id, active, staff, admin WHERE id = $1"
+	queryString := "SELECT id, steam_id, active, staff, admin FROM users WHERE id = $1"
 	row := s.db.QueryRow(queryString, id)
 	err := row.Scan(&user.ID, &user.SteamID, &user.IsActive, &user.IsStaff, &user.IsAdmin)
 	return user, err
