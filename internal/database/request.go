@@ -124,6 +124,14 @@ func (s requestService) CreateRequest(r geeksbot.Request) (geeksbot.Request, err
 							completed, completed_at, completed_by, message_id, completed_message)
 						VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`
 	var id int64
+	var completedByID sql.NullString
+	if r.CompletedBy == nil {
+		completedByID.String = ""
+		completedByID.Valid = false
+	} else {
+		completedByID.String = r.CompletedBy.ID
+		completedByID.Valid = true
+	}
 	err := s.db.QueryRow(queryString,
 		r.Author.ID,
 		r.Channel.ID,
@@ -132,7 +140,7 @@ func (s requestService) CreateRequest(r geeksbot.Request) (geeksbot.Request, err
 		r.RequestedAt,
 		r.Completed,
 		r.CompletedAt,
-		r.CompletedBy.ID,
+		completedByID,
 		r.Message.ID,
 		r.CompletedMessage).Scan(&id)
 	if err != nil {
