@@ -26,5 +26,6 @@ func AddCommandHandlers(g *disgoman.CommandManager) {
 	_ = g.AddCommand(guild.RemovePrefixCommand)
 	_ = g.AddCommand(guild.AddModeratorRoleCommand)
 	_ = g.AddCommand(guild.AddAdminRoleCommand)
+	_ = g.AddCommand(guild.RemoveModRoleCommand)
 	_ = g.AddCommand(requests.RequestCommand)
 }
