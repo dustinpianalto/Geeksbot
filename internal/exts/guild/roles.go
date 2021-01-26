@@ -2,6 +2,7 @@ package guild
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/dustinpianalto/disgoman"
 	"github.com/dustinpianalto/geeksbot"
@@ -21,6 +22,7 @@ var AddModeratorRoleCommand = &disgoman.Command{
 
 func addModeratorRoleCommandFunc(ctx disgoman.Context, args []string) {
 	var count int
+	added := make(map[string]bool)
 	guild, err := services.GuildService.GetOrCreateGuild(ctx.Guild.ID)
 	if err != nil {
 		discord_utils.SendErrorMessage(ctx, "Something went wrong getting the guild", err)
@@ -29,7 +31,13 @@ func addModeratorRoleCommandFunc(ctx disgoman.Context, args []string) {
 	roles := append(args, ctx.Message.MentionRoles...)
 	if len(roles) > 0 {
 		for _, id := range roles {
-			_, err := services.GuildService.CreateRole(geeksbot.Role{
+			if strings.HasPrefix(id, "<@&") && strings.HasSuffix(id, ">") {
+				continue
+			}
+			if _, ok := added[id]; ok {
+				continue
+			}
+			_, err := services.GuildService.CreateOrUpdateRole(geeksbot.Role{
 				ID:       id,
 				RoleType: "moderator",
 				Guild:    guild,
@@ -38,9 +46,11 @@ func addModeratorRoleCommandFunc(ctx disgoman.Context, args []string) {
 				discord_utils.SendErrorMessage(ctx, fmt.Sprintf("There was a problem adding <@&%s>", id), err)
 				continue
 			}
+			added[id] = true
 			count++
 			_, _ = ctx.Send(fmt.Sprintf("Added <@&%s> as a moderator role.", id))
 		}
+		_, _ = ctx.Send(fmt.Sprintf("Added %d moderator roles.", count))
 	} else {
 		_, _ = ctx.Send("Please include at least one role to make a moderator role.")
 	}
@@ -58,6 +68,7 @@ var AddAdminRoleCommand = &disgoman.Command{
 
 func addAdminRoleCommandFunc(ctx disgoman.Context, args []string) {
 	var count int
+	added := make(map[string]bool)
 	guild, err := services.GuildService.GetOrCreateGuild(ctx.Guild.ID)
 	if err != nil {
 		discord_utils.SendErrorMessage(ctx, "Something went wrong getting the guild", err)
@@ -66,7 +77,13 @@ func addAdminRoleCommandFunc(ctx disgoman.Context, args []string) {
 	roles := append(args, ctx.Message.MentionRoles...)
 	if len(roles) > 0 {
 		for _, id := range roles {
-			_, err := services.GuildService.CreateRole(geeksbot.Role{
+			if strings.HasPrefix(id, "<@&") && strings.HasSuffix(id, ">") {
+				continue
+			}
+			if _, ok := added[id]; ok {
+				continue
+			}
+			_, err := services.GuildService.CreateOrUpdateRole(geeksbot.Role{
 				ID:       id,
 				RoleType: "admin",
 				Guild:    guild,
@@ -75,9 +92,11 @@ func addAdminRoleCommandFunc(ctx disgoman.Context, args []string) {
 				discord_utils.SendErrorMessage(ctx, fmt.Sprintf("There was a problem adding <@&%s>", id), err)
 				continue
 			}
+			added[id] = true
 			count++
 			_, _ = ctx.Send(fmt.Sprintf("Added <@&%s> as an admin role.", id))
 		}
+		_, _ = ctx.Send(fmt.Sprintf("Added %d admin roles.", count))
 	} else {
 		_, _ = ctx.Send("Please include at least one role to make an admin role.")
 	}
