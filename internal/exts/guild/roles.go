@@ -28,7 +28,7 @@ func addModeratorRoleCommandFunc(ctx disgoman.Context, args []string) {
 	}
 	roles := append(args, ctx.Message.MentionRoles...)
 	if len(roles) > 0 {
-		for _, id := range ctx.Message.MentionRoles {
+		for _, id := range roles {
 			_, err := services.GuildService.CreateRole(geeksbot.Role{
 				ID:       id,
 				RoleType: "moderator",
