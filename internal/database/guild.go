@@ -113,8 +113,8 @@ func (s guildService) GetOrCreateGuild(id string) (geeksbot.Guild, error) {
 }
 
 func (s guildService) CreateOrUpdateRole(r geeksbot.Role) (geeksbot.Role, error) {
-	role, err := s.Role(r.ID)
-	if err.Error() == `pq: duplicate key value violates unique constraint "roles_pkey"` {
+	role, err := s.CreateRole(r)
+	if err != nil && err.Error() == `pq: duplicate key value violates unique constraint "roles_pkey"` {
 		role, err = s.UpdateRole(r)
 	}
 	return role, err
