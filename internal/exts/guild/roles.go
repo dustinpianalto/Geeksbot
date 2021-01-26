@@ -37,6 +37,9 @@ func addModeratorRoleCommandFunc(ctx disgoman.Context, args []string) {
 			if _, ok := added[id]; ok {
 				continue
 			}
+			if _, err = ctx.Session.State.Role(ctx.Guild.ID, id); err != nil {
+				_, _ = ctx.Send(fmt.Sprintf("%s does not reference a valid role for this guild.", id))
+			}
 			_, err := services.GuildService.CreateOrUpdateRole(geeksbot.Role{
 				ID:       id,
 				RoleType: "moderator",
@@ -82,6 +85,9 @@ func addAdminRoleCommandFunc(ctx disgoman.Context, args []string) {
 			}
 			if _, ok := added[id]; ok {
 				continue
+			}
+			if _, err = ctx.Session.State.Role(ctx.Guild.ID, id); err != nil {
+				_, _ = ctx.Send(fmt.Sprintf("%s does not reference a valid role for this guild.", id))
 			}
 			_, err := services.GuildService.CreateOrUpdateRole(geeksbot.Role{
 				ID:       id,
