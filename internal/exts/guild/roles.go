@@ -45,3 +45,40 @@ func addModeratorRoleCommandFunc(ctx disgoman.Context, args []string) {
 		_, _ = ctx.Send("Please include at least one role to make a moderator role.")
 	}
 }
+
+var AddAdminRoleCommand = &disgoman.Command{
+	Name:                "addAdmin",
+	Aliases:             []string{"addAdminRole"},
+	Description:         "Add a role which is allowed to run admin commands",
+	OwnerOnly:           false,
+	Hidden:              false,
+	RequiredPermissions: disgoman.PermissionManageServer,
+	Invoke:              addAdminRoleCommandFunc,
+}
+
+func addAdminRoleCommandFunc(ctx disgoman.Context, args []string) {
+	var count int
+	guild, err := services.GuildService.GetOrCreateGuild(ctx.Guild.ID)
+	if err != nil {
+		discord_utils.SendErrorMessage(ctx, "Something went wrong getting the guild", err)
+		return
+	}
+	roles := append(args, ctx.Message.MentionRoles...)
+	if len(roles) > 0 {
+		for _, id := range roles {
+			_, err := services.GuildService.CreateRole(geeksbot.Role{
+				ID:       id,
+				RoleType: "admin",
+				Guild:    guild,
+			})
+			if err != nil {
+				discord_utils.SendErrorMessage(ctx, fmt.Sprintf("There was a problem adding <@&%s>", id), err)
+				continue
+			}
+			count++
+			_, _ = ctx.Send(fmt.Sprintf("Added <@&%s> as an admin role.", id))
+		}
+	} else {
+		_, _ = ctx.Send("Please include at least one role to make an admin role.")
+	}
+}
