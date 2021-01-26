@@ -111,3 +111,9 @@ func (s guildService) GetOrCreateGuild(id string) (geeksbot.Guild, error) {
 	}
 	return guild, err
 }
+
+func (s guildService) CreateOrUpdateRole(r geeksbot.Role) (geeksbot.Role, error) {
+	queryString := "INSERT INTO roles (id, role_type, guild_id) VALUES ($1, $2, $3)"
+	_, err := s.db.Exec(queryString, r.ID, r.RoleType, r.Guild.ID)
+	return r, err
+}
