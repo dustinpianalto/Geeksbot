@@ -138,8 +138,10 @@ func removeModRoleCommandFunc(ctx disgoman.Context, args []string) {
 				continue
 			}
 			if _, err = ctx.Session.State.Role(ctx.Guild.ID, id); err != nil {
-				_, _ = ctx.Send(fmt.Sprintf("%s does not reference a valid role for this guild.", id))
-				continue
+				if _, err := services.GuildService.Role(id); err != nil {
+					_, _ = ctx.Send(fmt.Sprintf("%s does not reference a valid role for this guild.", id))
+					continue
+				}
 			}
 			_, err := services.GuildService.CreateOrUpdateRole(geeksbot.Role{
 				ID:       id,
