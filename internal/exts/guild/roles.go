@@ -8,6 +8,7 @@ import (
 	"github.com/dustinpianalto/geeksbot"
 	"github.com/dustinpianalto/geeksbot/internal/discord_utils"
 	"github.com/dustinpianalto/geeksbot/internal/services"
+	"github.com/dustinpianalto/geeksbot/internal/utils"
 )
 
 var AddModeratorRoleCommand = &disgoman.Command{
@@ -54,7 +55,7 @@ func addModeratorRoleCommandFunc(ctx disgoman.Context, args []string) {
 			count++
 			_, _ = ctx.Send(fmt.Sprintf("Added <@&%s> as a moderator role.", id))
 		}
-		_, _ = ctx.Send(fmt.Sprintf("Added %d moderator roles.", count))
+		_, _ = ctx.Send(fmt.Sprintf("Added %d moderator %s.", count, utils.PluralizeString("role", count)))
 	} else {
 		_, _ = ctx.Send("Please include at least one role to make a moderator role.")
 	}
@@ -104,7 +105,7 @@ func addAdminRoleCommandFunc(ctx disgoman.Context, args []string) {
 			count++
 			_, _ = ctx.Send(fmt.Sprintf("Added <@&%s> as an admin role.", id))
 		}
-		_, _ = ctx.Send(fmt.Sprintf("Added %d admin roles.", count))
+		_, _ = ctx.Send(fmt.Sprintf("Added %d admin %s.", count, utils.PluralizeString("role", count)))
 	} else {
 		_, _ = ctx.Send("Please include at least one role to make an admin role.")
 	}
@@ -138,8 +139,15 @@ func removeModRoleCommandFunc(ctx disgoman.Context, args []string) {
 				continue
 			}
 			if _, err = ctx.Session.State.Role(ctx.Guild.ID, id); err != nil {
-				if _, err := services.GuildService.Role(id); err != nil {
+				if r, err := services.GuildService.Role(id); err != nil {
 					_, _ = ctx.Send(fmt.Sprintf("%s does not reference a valid role for this guild.", id))
+					continue
+				} else {
+					err = services.GuildService.DeleteRole(r)
+					if err != nil {
+						discord_utils.SendErrorMessage(ctx, "Something went wrong deleting the role", err)
+					}
+					_, _ = ctx.Send(fmt.Sprintf("Deleted <@&%s> as a no longer a valid role.", id))
 					continue
 				}
 			}
@@ -149,14 +157,14 @@ func removeModRoleCommandFunc(ctx disgoman.Context, args []string) {
 				Guild:    guild,
 			})
 			if err != nil {
-				discord_utils.SendErrorMessage(ctx, fmt.Sprintf("There was a problem adding <@&%s>", id), err)
+				discord_utils.SendErrorMessage(ctx, fmt.Sprintf("There was a problem updating <@&%s>", id), err)
 				continue
 			}
 			added[id] = true
 			count++
 			_, _ = ctx.Send(fmt.Sprintf("Set <@&%s> as a normal role.", id))
 		}
-		_, _ = ctx.Send(fmt.Sprintf("Set %d roles to normal.", count))
+		_, _ = ctx.Send(fmt.Sprintf("Set %d %s to normal.", count, utils.PluralizeString("role", count)))
 	} else {
 		_, _ = ctx.Send("Please include at least one role to remove from the moderator or admin lists.")
 	}

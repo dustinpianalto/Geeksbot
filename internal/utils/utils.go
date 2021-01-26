@@ -12,3 +12,10 @@ func RemoveDuplicateStrings(s []string) []string {
 	}
 	return o
 }
+
+func PluralizeString(s string, i int) string {
+	if i == 1 {
+		return s
+	}
+	return s + "s"
+}
