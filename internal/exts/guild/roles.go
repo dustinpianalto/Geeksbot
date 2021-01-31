@@ -2,6 +2,7 @@ package guild
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -290,16 +291,26 @@ func selfAssignRoleCommandFunc(ctx disgoman.Context, args []string) {
 	roles := append(args, ctx.Message.MentionRoles...)
 	if len(roles) > 0 {
 		for _, id := range roles {
+			var roleID string
 			if strings.HasPrefix(id, "<@&") && strings.HasSuffix(id, ">") {
 				continue
+			} else if _, err := strconv.Atoi(id); err == nil {
+				roleID = id
+			} else {
+				for _, role := range ctx.Guild.Roles {
+					if id == role.Name {
+						roleID = role.ID
+					}
+				}
 			}
+
 			if _, ok := added[id]; ok {
 				continue
 			}
 			var role *discordgo.Role
 			var err error
-			if role, err = ctx.Session.State.Role(ctx.Guild.ID, id); err != nil {
-				discord_utils.SendErrorMessage(ctx, fmt.Sprintf("%s does not reference a valid role for this guild", id), err)
+			if role, err = ctx.Session.State.Role(ctx.Guild.ID, roleID); err != nil {
+				discord_utils.SendErrorMessage(ctx, fmt.Sprintf("%s does not reference a valid role for this guild", roleID), err)
 				return
 			}
 			if memberHasRole(ctx.Member, role.ID) {
@@ -339,8 +350,17 @@ func unAssignRoleCommandFunc(ctx disgoman.Context, args []string) {
 	roles := append(args, ctx.Message.MentionRoles...)
 	if len(roles) > 0 {
 		for _, id := range roles {
+			var roleID string
 			if strings.HasPrefix(id, "<@&") && strings.HasSuffix(id, ">") {
 				continue
+			} else if _, err := strconv.Atoi(id); err == nil {
+				roleID = id
+			} else {
+				for _, role := range ctx.Guild.Roles {
+					if id == role.Name {
+						roleID = role.ID
+					}
+				}
 			}
 			if _, ok := removed[id]; ok {
 				continue
@@ -348,8 +368,8 @@ func unAssignRoleCommandFunc(ctx disgoman.Context, args []string) {
 
 			var role *discordgo.Role
 			var err error
-			if role, err = ctx.Session.State.Role(ctx.Guild.ID, id); err != nil {
-				discord_utils.SendErrorMessage(ctx, fmt.Sprintf("%s does not reference a valid role for this guild", id), err)
+			if role, err = ctx.Session.State.Role(ctx.Guild.ID, roleID); err != nil {
+				discord_utils.SendErrorMessage(ctx, fmt.Sprintf("%s does not reference a valid role for this guild", roleID), err)
 				return
 			}
 			if !memberHasRole(ctx.Member, role.ID) {
