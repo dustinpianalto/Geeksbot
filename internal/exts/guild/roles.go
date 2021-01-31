@@ -278,7 +278,7 @@ func removeSelfAssignableRoleCommandFunc(ctx disgoman.Context, args []string) {
 
 var SelfAssignRoleCommand = &disgoman.Command{
 	Name:                "giverole",
-	Aliases:             []string{"iwant", "givetome"},
+	Aliases:             []string{"iwant", "givetome", "addrole"},
 	Description:         "Assigns a person the passed in role if it is self assignable",
 	OwnerOnly:           false,
 	Hidden:              false,
@@ -298,7 +298,7 @@ func selfAssignRoleCommandFunc(ctx disgoman.Context, args []string) {
 				roleID = id
 			} else {
 				for _, role := range ctx.Guild.Roles {
-					if id == role.Name {
+					if strings.ToLower(id) == strings.ToLower(role.Name) {
 						roleID = role.ID
 					}
 				}
@@ -357,7 +357,7 @@ func unAssignRoleCommandFunc(ctx disgoman.Context, args []string) {
 				roleID = id
 			} else {
 				for _, role := range ctx.Guild.Roles {
-					if id == role.Name {
+					if strings.ToLower(id) == strings.ToLower(role.Name) {
 						roleID = role.ID
 					}
 				}
