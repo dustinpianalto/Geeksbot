@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/dustinpianalto/geeksbot"
-	"github.com/dustinpianalto/geeksbot/internal/database"
+	"github.com/dustinpianalto/geeksbot/pkg/database"
 )
 
 var (

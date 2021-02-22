@@ -8,9 +8,9 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustinpianalto/disgoman"
-	"github.com/dustinpianalto/geeksbot/internal/database"
 	"github.com/dustinpianalto/geeksbot/internal/exts"
-	"github.com/dustinpianalto/geeksbot/internal/services"
+	"github.com/dustinpianalto/geeksbot/pkg/database"
+	"github.com/dustinpianalto/geeksbot/pkg/services"
 )
 
 func main() {

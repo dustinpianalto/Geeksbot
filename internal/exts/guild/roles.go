@@ -9,8 +9,8 @@ import (
 	"github.com/dustinpianalto/disgoman"
 	"github.com/dustinpianalto/geeksbot"
 	"github.com/dustinpianalto/geeksbot/internal/discord_utils"
-	"github.com/dustinpianalto/geeksbot/internal/services"
 	"github.com/dustinpianalto/geeksbot/internal/utils"
+	"github.com/dustinpianalto/geeksbot/pkg/services"
 )
 
 var AddModeratorRoleCommand = &disgoman.Command{

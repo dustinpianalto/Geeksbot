@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/dustinpianalto/geeksbot/internal/database/migrations"
+	"github.com/dustinpianalto/geeksbot/pkg/database/migrations"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	bindata "github.com/golang-migrate/migrate/v4/source/go_bindata"
