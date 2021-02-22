@@ -101,3 +101,44 @@ func requestCommandFunc(ctx disgoman.Context, args []string) {
 		discord_utils.SendErrorMessage(ctx, "There was an error sending the message. The request was created.", err)
 	}
 }
+
+var CloseCommand = &disgoman.Command{
+	Name:                "close",
+	Aliases:             nil,
+	Description:         "Close a request and mark it as completed.",
+	OwnerOnly:           false,
+	Hidden:              false,
+	RequiredPermissions: 0,
+	Invoke:              closeCommandFunc,
+}
+
+func closeCommandFunc(ctx disgoman.Context, args []string) {
+	var ids []int64
+	for _, a := range args {
+		a = strings.Trim(a, ",")
+		id, err := strconv.ParseInt(a, 10, 64)
+		if err != nil {
+			discord_utils.SendErrorMessage(ctx, fmt.Sprintf("%s is not a valid request id", a), err)
+			continue
+		}
+		ids = append(ids, id)
+	}
+	if len(ids) == 0 {
+		discord_utils.SendErrorMessage(ctx, "No requests to close", nil)
+		return
+	}
+	guild, err := services.GuildService.GetOrCreateGuild(ctx.Guild.ID)
+	if err != nil {
+		discord_utils.SendErrorMessage(ctx, "Error getting Guild from the database", err)
+		return
+	}
+	requestMsg := strings.Join(args, " ")
+	closer, err := services.UserService.GetOrCreateUser(ctx.Message.Author.ID)
+	if err != nil {
+		discord_utils.SendErrorMessage(ctx, "Error creating the request. Could not get user.", err)
+		return
+	}
+	int64ID, _ := strconv.ParseInt(ctx.Message.ID, 10, 64)
+	s := discord_utils.ParseSnowflake(int64ID)
+
+}
