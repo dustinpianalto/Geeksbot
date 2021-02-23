@@ -9,6 +9,7 @@ import (
 	"github.com/dustinpianalto/disgoman"
 	"github.com/dustinpianalto/geeksbot"
 	"github.com/dustinpianalto/geeksbot/internal/discord_utils"
+	"github.com/dustinpianalto/geeksbot/internal/utils"
 	"github.com/dustinpianalto/geeksbot/pkg/services"
 )
 
@@ -247,4 +248,6 @@ func listCommandFunc(ctx disgoman.Context, args []string) {
 			channelName,
 		))
 	}
+
+	_, _ = ctx.Send(fmt.Sprintf("There are currently %d open %s", len(requests), utils.PluralizeString("request", len(requests))))
 }
