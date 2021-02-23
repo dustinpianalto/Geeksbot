@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/dustinpianalto/geeksbot"
+	"github.com/lib/pq"
 )
 
 type messageService struct {
@@ -21,7 +22,7 @@ func (s messageService) Message(id string) (geeksbot.Message, error) {
 						WHERE m.id = $1`
 	row := s.db.QueryRow(queryString, id)
 	err := row.Scan(&m.ID, &m.CreatedAt, &m.ModifiedAt, &m.Content,
-		&m.PreviousContent, &channel_id, &author_id)
+		pq.Array(&m.PreviousContent), &channel_id, &author_id)
 	if err != nil {
 		return geeksbot.Message{}, err
 	}
