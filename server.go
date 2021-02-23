@@ -11,6 +11,9 @@ type Server struct {
 	InfoChannel     *Channel
 	InfoMessage     *Message
 	SettingsMessage *Message
+	FTPPort         int
+	FTPUser         string
+	FTPPass         string
 }
 
 type ServerService interface {

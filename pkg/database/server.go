@@ -19,11 +19,12 @@ func (s serverService) ServerByID(id int) (geeksbot.Server, error) {
 	var iMsgID sql.NullString
 	var sMsgID sql.NullString
 	queryString := `SELECT id, name, ip_address, port, password, alerts_channel_id, 
-						guild_id, info_channel_id, info_message_id, settings_message_id
+						guild_id, info_channel_id, info_message_id, settings_message_id,
+						ftp_port, ftp_username, ftp_password
 						FROM servers WHERE id = $1`
 	row := s.db.QueryRow(queryString, id)
 	err := row.Scan(&server.ID, &server.Name, &server.IPAddr, &server.Port, &server.Password,
-		&aChanID, &guildID, &iChanID, &iMsgID, &sMsgID)
+		&aChanID, &guildID, &iChanID, &iMsgID, &server.FTPPort, &server.FTPUser, &server.FTPPass, &sMsgID)
 	if err != nil {
 		return geeksbot.Server{}, err
 	}
@@ -115,7 +116,8 @@ func (s serverService) DeleteServer(server geeksbot.Server) error {
 func (s serverService) UpdateServer(server geeksbot.Server) (geeksbot.Server, error) {
 	queryString := `UPDATE servers SET name = $2, ip_address = $3, port = $4, password = $5,
 						alerts_channel_id = $6, info_channel_id = $7, info_message_id = $8,
-						settings_message_id = $9 WHERE id = $1`
+						settings_message_id = $9, ftp_port = $10, ftp_username = $11,
+						ftp_password = $12 WHERE id = $1`
 	_, err := s.db.Exec(queryString,
 		server.Name,
 		server.IPAddr,
@@ -125,6 +127,9 @@ func (s serverService) UpdateServer(server geeksbot.Server) (geeksbot.Server, er
 		server.InfoChannel.ID,
 		server.InfoMessage.ID,
 		server.SettingsMessage.ID,
+		server.FTPPort,
+		server.FTPUser,
+		server.FTPPass,
 	)
 	return server, err
 }
