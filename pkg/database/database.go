@@ -23,10 +23,6 @@ var (
 )
 
 func ConnectDatabase(dbConnString string) {
-	s := bindata.Resource(migrations.AssetNames(),
-		func(name string) ([]byte, error) {
-			return migrations.Asset(name)
-		})
 	var err error
 	db, err = sql.Open("postgres", dbConnString)
 	if err != nil {
@@ -36,6 +32,15 @@ func ConnectDatabase(dbConnString string) {
 	db.SetMaxOpenConns(75)
 	db.SetMaxIdleConns(5)
 	db.SetConnMaxLifetime(300)
+	initServices()
+	log.Println("Services Initialized")
+}
+
+func RunMigrations() {
+	s := bindata.Resource(migrations.AssetNames(),
+		func(name string) ([]byte, error) {
+			return migrations.Asset(name)
+		})
 	d, err := bindata.WithInstance(s)
 	if err != nil {
 		log.Fatal(fmt.Errorf("cannot load migrations: %w", err))
@@ -57,8 +62,7 @@ func ConnectDatabase(dbConnString string) {
 		}
 	}
 	log.Println("Migrations Run")
-	initServices()
-	log.Println("Services Initialized")
+
 }
 
 func initServices() {
