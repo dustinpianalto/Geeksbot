@@ -17,5 +17,8 @@ func PluralizeString(s string, i int) string {
 	if i == 1 {
 		return s
 	}
+	if s == "is" {
+		return "are"
+	}
 	return s + "s"
 }

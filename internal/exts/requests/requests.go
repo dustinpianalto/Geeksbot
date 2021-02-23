@@ -249,5 +249,5 @@ func listCommandFunc(ctx disgoman.Context, args []string) {
 		))
 	}
 
-	_, _ = ctx.Send(fmt.Sprintf("There are currently %d open %s", len(requests), utils.PluralizeString("request", len(requests))))
+	_, _ = ctx.Send(fmt.Sprintf("There %s currently %d open %s", utils.PluralizeString("is", len(requests)), len(requests), utils.PluralizeString("request", len(requests))))
 }
