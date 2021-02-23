@@ -26,8 +26,8 @@ jobs:
           GOPATH: /home/runner/work/Geeksbot/
         run: |
             go get -u github.com/go-bindata/go-bindata/...
-            /home/runner/work/Geeksbot/bin/go-bindata -pkg migrations -prefix $GITHUB_WORKSPACE/internal/database/migrations/ -o $GITHUB_WORKSPACE/internal/database/migrations/bindata.go $GITHUB_WORKSPACE/internal/database/migrations/
-            head $GITHUB_WORKSPACE/internal/database/migrations/bindata.go
+            /home/runner/work/Geeksbot/bin/go-bindata -pkg migrations -prefix $GITHUB_WORKSPACE/pkg/database/migrations/ -o $GITHUB_WORKSPACE/pkg/database/migrations/bindata.go $GITHUB_WORKSPACE/pkg/database/migrations/
+            head $GITHUB_WORKSPACE/pkg/database/migrations/bindata.go
 
       - name: Build container image
         env:
@@ -43,7 +43,9 @@ jobs:
         run: doctl registry login --expiry-seconds 600
 
       - name: Push image to DigitalOcean Container Registry
-        run: docker push registry.digitalocean.com/djpianalto/geeksbot
+        run: docker push registry.digitalocean.com/djpianalto/geeksbot:$IMAGE_TAG
+        env:
+          IMAGE_TAG: ${{ steps.get_version.outputs.version-without-v }}
 
       - name: Update deployment file
         run: TAG=${{ steps.get_version.outputs.version-without-v }} && sed -i 's|<IMAGE>|registry.digitalocean.com/djpianalto/geeksbot:'${TAG}'|' $GITHUB_WORKSPACE/deployment.yml
