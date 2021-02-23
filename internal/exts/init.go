@@ -32,4 +32,6 @@ func AddCommandHandlers(g *disgoman.CommandManager) {
 	_ = g.AddCommand(guild.SelfAssignRoleCommand)
 	_ = g.AddCommand(guild.UnAssignRoleCommand)
 	_ = g.AddCommand(requests.RequestCommand)
+	_ = g.AddCommand(requests.CloseCommand)
+	_ = g.AddCommand(requests.ListCommand)
 }
