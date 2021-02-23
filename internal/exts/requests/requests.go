@@ -235,7 +235,7 @@ func listCommandFunc(ctx disgoman.Context, args []string) {
 
 		_, _ = ctx.Send(fmt.Sprintf("```md\n"+
 			"< Request ID            Requested By >\n"+
-			"< %11s %-23s >\n"+
+			"< %-11d %23s >\n"+
 			"%s\n\n"+
 			"Comments: Not Implemented Yet\n"+
 			"Requested At: %s\n"+
