@@ -24,7 +24,7 @@ func (s serverService) ServerByID(id int) (geeksbot.Server, error) {
 						FROM servers WHERE id = $1`
 	row := s.db.QueryRow(queryString, id)
 	err := row.Scan(&server.ID, &server.Name, &server.IPAddr, &server.Port, &server.Password,
-		&aChanID, &guildID, &iChanID, &iMsgID, &server.FTPPort, &server.FTPUser, &server.FTPPass, &sMsgID)
+		&aChanID, &guildID, &iChanID, &iMsgID, &sMsgID, &server.FTPPort, &server.FTPUser, &server.FTPPass)
 	if err != nil {
 		return geeksbot.Server{}, err
 	}
