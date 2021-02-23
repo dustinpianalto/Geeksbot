@@ -19,7 +19,7 @@ func (s requestService) Request(id int64) (geeksbot.Request, error) {
 	var uID sql.NullString
 	var mID string
 	queryString := `SELECT id, author_id, channel_id, guild_id, content, requested_at, completed,
-						completed_at, completed_by, message_id, completed_message
+						completed_at, completed_by, message_id, completed_message FROM requests
 						WHERE id = $1`
 	row := s.db.QueryRow(queryString, id)
 	err := row.Scan(&r.ID, &aID, &cID, &gID, &r.Content, &r.RequestedAt, &r.Completed,
@@ -168,7 +168,7 @@ func (s requestService) Comment(id int64) (geeksbot.Comment, error) {
 	var c geeksbot.Comment
 	var aID string
 	var rID int64
-	queryString := "SELECT id, author_id, request_id, comment_at, content WHERE id = $1"
+	queryString := "SELECT id, author_id, request_id, comment_at, content FROM comments WHERE id = $1"
 	row := s.db.QueryRow(queryString, id)
 	err := row.Scan(&c.ID, &aID, &rID, &c.CommentAt, &c.Content)
 	if err != nil {
