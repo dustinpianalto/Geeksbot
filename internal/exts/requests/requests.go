@@ -248,7 +248,7 @@ func listCommandFunc(ctx disgoman.Context, args []string) {
 			commentCount = 0
 		}
 		_, _ = ctx.Send(fmt.Sprintf("```md\n"+
-			"< Request ID            Requested By >\n"+
+			"< Request ID             Requested By >\n"+
 			"< %-11d %23s >\n"+
 			"%s\n\n"+
 			"Comments: %d\n"+
@@ -288,7 +288,7 @@ func commentCommandFunc(ctx disgoman.Context, args []string) {
 		discord_utils.SendErrorMessage(ctx, "Please include the ID of the request to update.", err)
 		return
 	}
-	message := strings.Join(args[1:len(args)-1], " ")
+	message := strings.Join(args[1:len(args)], " ")
 	author, err := services.UserService.GetOrCreateUser(ctx.Message.Author.ID)
 	if err != nil {
 		discord_utils.SendErrorMessage(ctx, "Sorry, there was an issue finding your user account", err)
@@ -318,7 +318,7 @@ func commentCommandFunc(ctx disgoman.Context, args []string) {
 		var commentString string
 		var commentStrings []string
 		commentString = fmt.Sprintf("Comment added:\n```md\n"+
-			"< Request ID            Requested By >\n"+
+			"< Request ID             Requested By >\n"+
 			"< %-11d %23s >\n"+
 			"%s\n\n"+
 			"Comments: Not Implemented Yet\n"+
@@ -345,6 +345,7 @@ func commentCommandFunc(ctx disgoman.Context, args []string) {
 				commentStrings = append(commentStrings, commentString)
 				commentString = ""
 			}
+			commentString += cs
 		}
 		commentStrings = append(commentStrings, commentString)
 		for _, c := range channels {
@@ -408,14 +409,16 @@ func viewCommandFunc(ctx disgoman.Context, args []string) {
 		discord_utils.SendErrorMessage(ctx, "You are not authorized to view that request", nil)
 		return
 	}
-	comments, _ := services.RequestService.RequestComments(request)
+	comments, err := services.RequestService.RequestComments(request)
+	if err != nil {
+		discord_utils.SendErrorMessage(ctx, "There was an error getting the comments.", err)
+	}
 	var commentString string
 	var commentStrings []string
-	commentString = fmt.Sprintf("Comment added:\n```md\n"+
-		"< Request ID            Requested By >\n"+
+	commentString = fmt.Sprintf("```md\n"+
+		"< Request ID             Requested By >\n"+
 		"< %-11d %23s >\n"+
 		"%s\n\n"+
-		"Comments: Not Implemented Yet\n"+
 		"Requested At: %s\n"+
 		"In: %s\n"+
 		"```",
@@ -426,10 +429,6 @@ func viewCommandFunc(ctx disgoman.Context, args []string) {
 		discord_utils.GetChannelName(ctx, request.Channel.ID),
 	)
 	for _, c := range comments {
-		if err != nil {
-			log.Println(err)
-			continue
-		}
 		cs := fmt.Sprintf("```md\n%s\n- %s At %s\n```\n",
 			c.Content,
 			discord_utils.GetDisplayName(ctx, c.Author.ID),
@@ -439,6 +438,7 @@ func viewCommandFunc(ctx disgoman.Context, args []string) {
 			commentStrings = append(commentStrings, commentString)
 			commentString = ""
 		}
+		commentString += cs
 	}
 	commentStrings = append(commentStrings, commentString)
 	for _, c := range commentStrings {
