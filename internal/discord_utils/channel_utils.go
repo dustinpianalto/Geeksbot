@@ -2,10 +2,10 @@ package discord_utils
 
 import "github.com/dustinpianalto/disgoman"
 
-func GetChannelName(ctx disgoman.Context, id string) (string, error) {
+func GetChannelName(ctx disgoman.Context, id string) string {
 	channel, err := ctx.Session.Channel(id)
 	if err != nil {
-		return "", err
+		return ""
 	}
-	return channel.Name, nil
+	return channel.Name
 }

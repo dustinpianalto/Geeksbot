@@ -34,4 +34,6 @@ func AddCommandHandlers(g *disgoman.CommandManager) {
 	_ = g.AddCommand(requests.RequestCommand)
 	_ = g.AddCommand(requests.CloseCommand)
 	_ = g.AddCommand(requests.ListCommand)
+	_ = g.AddCommand(requests.ViewCommand)
+	_ = g.AddCommand(requests.CommentCommand)
 }
