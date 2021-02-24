@@ -2,6 +2,7 @@ package requests
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -250,4 +251,97 @@ func listCommandFunc(ctx disgoman.Context, args []string) {
 	}
 
 	_, _ = ctx.Send(fmt.Sprintf("```There %s currently %d open %s```", utils.PluralizeString("is", len(requests)), len(requests), utils.PluralizeString("request", len(requests))))
+}
+
+var CommentCommand = &disgoman.Command{
+	Name:                "comment",
+	Aliases:             []string{"update", "add_comment"},
+	Description:         "Add a comment to an existing request.",
+	OwnerOnly:           false,
+	Hidden:              false,
+	RequiredPermissions: 0,
+	Invoke:              commentCommandFunc,
+}
+
+func commentCommandFunc(ctx disgoman.Context, args []string) {
+	guild, err := services.GuildService.GetOrCreateGuild(ctx.Guild.ID)
+	if err != nil {
+		discord_utils.SendErrorMessage(ctx, "Error getting Guild from the database", err)
+		return
+	}
+	id, err := strconv.ParseInt(args[0], 10, 64)
+	if err != nil {
+		discord_utils.SendErrorMessage(ctx, "Please include the ID of the request to update.", err)
+		return
+	}
+	message := strings.Join(args[1:len(args)-1], " ")
+	author, err := services.UserService.GetOrCreateUser(ctx.Message.Author.ID)
+	if err != nil {
+		discord_utils.SendErrorMessage(ctx, "Sorry, there was an issue finding your user account", err)
+		return
+	}
+	request, err := services.RequestService.Request(id)
+	if err != nil || request.Guild.ID != guild.ID {
+		discord_utils.SendErrorMessage(ctx, fmt.Sprintf("%d is not a valid request for this guild", id), err)
+		return
+	}
+	int64ID, _ := strconv.ParseInt(ctx.Message.ID, 10, 64)
+	s := discord_utils.ParseSnowflake(int64ID)
+	comment := geeksbot.Comment{
+		Author:    author,
+		Request:   request,
+		CommentAt: s.CreationTime,
+		Content:   message,
+	}
+	comment, err = services.RequestService.CreateComment(comment)
+	if err != nil {
+		discord_utils.SendErrorMessage(ctx, "There was a problem adding your comment", err)
+		return
+	}
+	channels, err := services.ChannelService.GuildChannels(guild)
+	if err == nil {
+		comments, _ := services.RequestService.RequestComments(request)
+		var commentString string
+		var commentStrings []string
+		displayName, _ := discord_utils.GetDisplayName(ctx, request.Author.ID)
+		channelName, _ := discord_utils.GetChannelName(ctx, request.Channel.ID)
+		commentString = fmt.Sprintf("Comment added:\n```md\n"+
+			"< Request ID            Requested By >\n"+
+			"< %-11d %23s >\n"+
+			"%s\n\n"+
+			"Comments: Not Implemented Yet\n"+
+			"Requested At: %s\n"+
+			"In: %s\n"+
+			"```",
+			request.ID,
+			displayName,
+			request.Content,
+			request.RequestedAt.Format("2006-01-02 15:04:05 MST"),
+			channelName,
+		)
+		for _, c := range comments {
+			cAuthorName, err := discord_utils.GetDisplayName(ctx, c.Author.ID)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			cs := fmt.Sprintf("```md\n%s\n- %s At %s\n```\n",
+				c.Content,
+				cAuthorName,
+				c.CommentAt.Format("2006-01-02 15:04:05 MST"),
+			)
+			if len(commentString+cs) >= 2000 {
+				commentStrings = append(commentStrings, commentString)
+				commentString = ""
+			}
+		}
+		for _, c := range channels {
+			if c.Admin {
+				for _, s := range commentStrings {
+					_, _ = ctx.Session.ChannelMessageSend(c.ID, s)
+				}
+			}
+		}
+	}
+	_, err = ctx.Send(fmt.Sprintf("%s your comment has been added.", ctx.Message.Author.Mention()))
 }
