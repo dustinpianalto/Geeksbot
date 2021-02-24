@@ -74,7 +74,7 @@ func (s serverService) ServerByID(id int) (geeksbot.Server, error) {
 
 func (s serverService) ServerByName(name string, guild geeksbot.Guild) (geeksbot.Server, error) {
 	var id int
-	queryString := "SELECT id FROM servers WHERE name = $1 AND guild_id = $2"
+	queryString := "SELECT id FROM servers WHERE LOWER(name) = LOWER($1) AND guild_id = $2"
 	row := s.db.QueryRow(queryString, name, guild.ID)
 	err := row.Scan(&id)
 	if err != nil {
