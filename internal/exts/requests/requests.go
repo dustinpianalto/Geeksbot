@@ -346,6 +346,7 @@ func commentCommandFunc(ctx disgoman.Context, args []string) {
 				commentString = ""
 			}
 		}
+		commentStrings = append(commentStrings, commentString)
 		for _, c := range channels {
 			if c.Admin {
 				for _, s := range commentStrings {
@@ -365,7 +366,7 @@ func commentCommandFunc(ctx disgoman.Context, args []string) {
 			request.ID,
 			discord_utils.GetChannelName(ctx, ctx.Channel.ID),
 			request.Content,
-			comment.Content,
+			message,
 		))
 
 }
@@ -439,6 +440,7 @@ func viewCommandFunc(ctx disgoman.Context, args []string) {
 			commentString = ""
 		}
 	}
+	commentStrings = append(commentStrings, commentString)
 	for _, c := range commentStrings {
 		_, _ = ctx.Send(c)
 	}
