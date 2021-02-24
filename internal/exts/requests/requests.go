@@ -79,7 +79,7 @@ func requestCommandFunc(ctx disgoman.Context, args []string) {
 			if c.Admin {
 				_, _ = ctx.Session.ChannelMessageSend(c.ID,
 					fmt.Sprintf("%s\n"+
-						"New Request ID %d "+
+						"New Request ID %d\n"+
 						"%s has requested assistance: \n"+
 						"```\n%s\n```\n"+
 						"Requested At: %s\n"+
@@ -154,7 +154,7 @@ func closeCommandFunc(ctx disgoman.Context, args []string) {
 			continue
 		}
 		if request.Author != closer && !closer.IsStaff && !closer.IsAdmin {
-			if !discord_utils.IsGuildMod(ctx, closer) || !discord_utils.IsGuildAdmin(ctx, closer) {
+			if !discord_utils.IsGuildMod(ctx, closer) && !discord_utils.IsGuildAdmin(ctx, closer) {
 				discord_utils.SendErrorMessage(ctx, fmt.Sprintf("You are not authorized to close %d", id), nil)
 				continue
 			}
