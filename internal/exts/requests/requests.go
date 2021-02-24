@@ -328,7 +328,7 @@ func commentCommandFunc(ctx disgoman.Context, args []string) {
 			request.ID,
 			discord_utils.GetDisplayName(ctx, request.Author.ID),
 			request.Content,
-			request.RequestedAt.Format("2006-01-02 15:04:05 MST"),
+			request.RequestedAt.Format("2006-01-02 15:04:05"),
 			discord_utils.GetChannelName(ctx, request.Channel.ID),
 		)
 		for _, c := range comments {
@@ -339,7 +339,7 @@ func commentCommandFunc(ctx disgoman.Context, args []string) {
 			cs := fmt.Sprintf("```md\n%s\n- %s At %s\n```\n",
 				c.Content,
 				discord_utils.GetDisplayName(ctx, c.Author.ID),
-				c.CommentAt.Format("2006-01-02 15:04:05 MST"),
+				c.CommentAt.Format("2006-01-02 15:04:05"),
 			)
 			if len(commentString+cs) >= 2000 {
 				commentStrings = append(commentStrings, commentString)
@@ -355,6 +355,8 @@ func commentCommandFunc(ctx disgoman.Context, args []string) {
 				}
 			}
 		}
+	} else {
+		log.Println(err)
 	}
 	_, err = ctx.Send(fmt.Sprintf("%s your comment has been added.", ctx.Message.Author.Mention()))
 	dmChannel, err := ctx.Session.UserChannelCreate(request.Author.ID)
@@ -425,14 +427,14 @@ func viewCommandFunc(ctx disgoman.Context, args []string) {
 		request.ID,
 		discord_utils.GetDisplayName(ctx, request.Author.ID),
 		request.Content,
-		request.RequestedAt.Format("2006-01-02 15:04:05 MST"),
+		request.RequestedAt.Format("2006-01-02 15:04:05"),
 		discord_utils.GetChannelName(ctx, request.Channel.ID),
 	)
 	for _, c := range comments {
 		cs := fmt.Sprintf("```md\n%s\n- %s At %s\n```\n",
 			c.Content,
 			discord_utils.GetDisplayName(ctx, c.Author.ID),
-			c.CommentAt.Format("2006-01-02 15:04:05 MST"),
+			c.CommentAt.Format("2006-01-02 15:04:05"),
 		)
 		if len(commentString+cs) >= 2000 {
 			commentStrings = append(commentStrings, commentString)
