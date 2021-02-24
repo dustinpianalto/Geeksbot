@@ -12,9 +12,9 @@ import (
 )
 
 var ListplayersCommand = &disgoman.Command{
-	Name:                "request",
+	Name:                "listplayers",
 	Aliases:             nil,
-	Description:         "Submit a request for the guild staff",
+	Description:         "List the players currently connected to a ARK server.",
 	OwnerOnly:           false,
 	Hidden:              false,
 	RequiredPermissions: 0,
