@@ -11,7 +11,7 @@ import (
 	"github.com/gorcon/rcon"
 )
 
-var listplayersCommand = &disgoman.Command{
+var ListplayersCommand = &disgoman.Command{
 	Name:                "request",
 	Aliases:             nil,
 	Description:         "Submit a request for the guild staff",
@@ -44,7 +44,18 @@ func listplayersCommandFunc(ctx disgoman.Context, args []string) {
 		for _, server := range servers {
 			go listplayers(ctx, server)
 		}
+		return
 	}
+	serverName := strings.Join(args, " ")
+	server, err := services.ServerService.ServerByName(serverName, guild)
+	if err != nil {
+		discord_utils.SendErrorMessage(ctx,
+			fmt.Sprintf("Could not find **%s** in this guild.", serverName),
+			err,
+		)
+		return
+	}
+	listplayers(ctx, server)
 }
 
 func listplayers(ctx disgoman.Context, server geeksbot.Server) {

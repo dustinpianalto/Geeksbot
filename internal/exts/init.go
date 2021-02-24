@@ -2,6 +2,7 @@ package exts
 
 import (
 	"github.com/dustinpianalto/disgoman"
+	"github.com/dustinpianalto/geeksbot/internal/exts/arcon"
 	"github.com/dustinpianalto/geeksbot/internal/exts/guild"
 	"github.com/dustinpianalto/geeksbot/internal/exts/requests"
 	"github.com/dustinpianalto/geeksbot/internal/exts/utils"
@@ -36,4 +37,5 @@ func AddCommandHandlers(g *disgoman.CommandManager) {
 	_ = g.AddCommand(requests.ListCommand)
 	_ = g.AddCommand(requests.ViewCommand)
 	_ = g.AddCommand(requests.CommentCommand)
+	_ = g.AddCommand(arcon.ListplayersCommand)
 }
