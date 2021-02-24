@@ -98,6 +98,6 @@ func listplayers(ctx disgoman.Context, server geeksbot.Server) {
 		}
 	}
 	_, _ = ctx.Session.ChannelMessageEdit(ctx.Channel.ID, msg.ID,
-		fmt.Sprintf("**%s:**\n%s", server.Name, strings.Join(players, "\n")),
+		fmt.Sprintf("**%s:**%s", server.Name, strings.Join(players, "\n")),
 	)
 }
