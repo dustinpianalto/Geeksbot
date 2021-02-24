@@ -154,7 +154,7 @@ func (s requestService) UpdateRequest(r geeksbot.Request) (geeksbot.Request, err
 	queryString := `UPDATE requests SET 
 						completed = $2, completed_at = $3, completed_by = $4, completed_message = $5
 						WHERE id = $1`
-	_, err := s.db.Exec(queryString, r.ID, r.Completed, r.CompletedAt, r.CompletedBy, r.CompletedMessage)
+	_, err := s.db.Exec(queryString, r.ID, r.Completed, r.CompletedAt, r.CompletedBy.ID, r.CompletedMessage)
 	return r, err
 }
 
