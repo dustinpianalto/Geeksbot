@@ -49,3 +49,14 @@ func (s userService) GetOrCreateUser(id string) (geeksbot.User, error) {
 	}
 	return user, err
 }
+
+func (s userService) GetBySteamID(steamID string) (geeksbot.User, error) {
+	var id string
+	queryString := "SELECT id FROM users WHERE steam_id = $1"
+	err := s.db.QueryRow(queryString, steamID).Scan(&id)
+	if err != nil {
+		return geeksbot.User{}, err
+	}
+	user, err := s.User(id)
+	return user, err
+}

@@ -16,4 +16,5 @@ type UserService interface {
 	DeleteUser(u User) error
 	UpdateUser(u User) (User, error)
 	GetOrCreateUser(id string) (User, error)
+	GetBySteamID(steamID string) (User, error)
 }
