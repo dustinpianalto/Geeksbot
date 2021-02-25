@@ -38,4 +38,5 @@ func AddCommandHandlers(g *disgoman.CommandManager) {
 	_ = g.AddCommand(requests.ViewCommand)
 	_ = g.AddCommand(requests.CommentCommand)
 	_ = g.AddCommand(arcon.ListplayersCommand)
+	_ = g.AddCommand(arcon.BroadcastCommand)
 }
