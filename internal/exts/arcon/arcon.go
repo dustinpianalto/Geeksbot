@@ -126,7 +126,7 @@ func broadcastCommandFunc(ctx disgoman.Context, args []string) {
 	if !discord_utils.IsGuildAdmin(ctx, author) && !discord_utils.IsGuildMod(ctx, author) {
 		return
 	}
-	message := strings.Join(args[1:len(args)-1], " ")
+	message := strings.Join(args[1:len(args)], " ")
 	if strings.ToLower(args[0]) == "all" {
 		servers, err := services.ServerService.GuildServers(guild)
 		if err != nil {

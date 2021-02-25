@@ -8,6 +8,7 @@ require (
 	github.com/go-bindata/go-bindata v3.1.2+incompatible // indirect
 	github.com/golang-migrate/migrate v3.5.4+incompatible // indirect
 	github.com/golang-migrate/migrate/v4 v4.14.1
+	github.com/gorcon/rcon v1.3.1
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/lib/pq v1.8.0
 )
