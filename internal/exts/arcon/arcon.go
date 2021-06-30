@@ -2,6 +2,7 @@ package arcon
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/dustinpianalto/disgoman"
@@ -170,6 +171,7 @@ func broadcast(ctx disgoman.Context, server geeksbot.Server, message string) {
 		)
 		return
 	}
+	log.Printf(response)
 	if response == "Server recieved, But no response!!" {
 		_, _ = ctx.Session.ChannelMessageEdit(ctx.Channel.ID, msg.ID,
 			fmt.Sprintf("**%s Broadcast Successful**", server.Name),
