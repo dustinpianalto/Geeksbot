@@ -172,7 +172,7 @@ func broadcast(ctx disgoman.Context, server geeksbot.Server, message string) {
 		return
 	}
 	log.Printf("%#v", response)
-	if response == "Server recieved, But no response!!\n" {
+	if response == "Server recieved, But no response!! \n " {
 		_, _ = ctx.Session.ChannelMessageEdit(ctx.Channel.ID, msg.ID,
 			fmt.Sprintf("**%s Broadcast Successful**", server.Name),
 		)
