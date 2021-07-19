@@ -34,3 +34,5 @@ spec:
                 secretKeyRef:
                   name: geeksbot
                   key: discord_token
+      nodeSelector:
+        geeks:"yes"
