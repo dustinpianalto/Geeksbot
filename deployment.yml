@@ -35,4 +35,4 @@ spec:
                   name: geeksbot
                   key: discord_token
       nodeSelector:
-        geeks:"yes"
+        geeks: "yes"
