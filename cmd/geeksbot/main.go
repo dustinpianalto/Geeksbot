@@ -28,7 +28,7 @@ func main() {
 	}
 
 	database.ConnectDatabase(os.Getenv("DATABASE_URL"))
-	database.RunMigrations()
+	//database.RunMigrations()
 	services.InitializeServices()
 
 	owners := []string{
