@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: geeksbot
-  namespace: default
+  namespace: discord-bots
   labels:
     app: geeksbot
 spec:
@@ -23,6 +23,13 @@ spec:
       containers:
         - name: geeksbot
           image: <IMAGE>
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "1"
+            limits:
+              memory: "1Gi"
+              cpu: "2"
           env:
             - name: DATABASE_URL
               valueFrom:
@@ -34,5 +41,5 @@ spec:
                 secretKeyRef:
                   name: geeksbot
                   key: discord_token
-      nodeSelector:
-        geeks: "yes"
+      imagePullSecrets:
+        - name: registry-2
