@@ -1,0 +1,13 @@
+BEGIN;
+    DROP TABLE IF EXISTS servers;
+    DROP TABLE IF EXISTS comments;
+    DROP TABLE IF EXISTS requests;
+    DROP TABLE IF EXISTS patreon_tier;
+    DROP TABLE IF EXISTS patreon_creator;
+    DROP TABLE IF EXISTS messages;
+    DROP TABLE IF EXISTS users;
+    DROP TABLE IF EXISTS channels;
+    DROP TABLE IF EXISTS roles;
+    DROP TYPE IF EXISTS role_types;
+    DROP TABLE IF EXISTS guilds;
+COMMIT;

@@ -9,6 +9,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustinpianalto/disgoman"
 	"github.com/dustinpianalto/geeksbot/internal/exts"
+	"github.com/dustinpianalto/geeksbot/pkg/database"
+	"github.com/dustinpianalto/geeksbot/pkg/services"
 )
 
 func main() {
@@ -25,12 +27,9 @@ func main() {
 		Intents: discordgo.MakeIntent(discordgo.IntentsAll),
 	}
 
-	//postgres.ConnectDatabase(os.Getenv("DATABASE_URL"))
-	//postgres.InitializeDatabase()
-	//utils.LoadTestData()
-
-	//us := &postgres.UserService{DB: postgres.DB}
-	//gs := &postgres.GuildService{DB: postgres.DB}
+	database.ConnectDatabase(os.Getenv("DATABASE_URL"))
+	database.RunMigrations()
+	services.InitializeServices()
 
 	owners := []string{
 		"351794468870946827",
@@ -48,18 +47,9 @@ func main() {
 
 	// Add Command Handlers
 	exts.AddCommandHandlers(&manager)
-	//services.InitalizeServices(us, gs)
-
-	//if _, ok := handler.Commands["help"]; !ok {
-	//	handler.AddDefaultHelpCommand()
-	//}
 
 	dg.AddHandler(manager.OnMessage)
 	dg.AddHandler(manager.StatusManager.OnReady)
-	//dg.AddHandler(guild_management.OnMessageUpdate)
-	//dg.AddHandler(guild_management.OnMessageDelete)
-	//dg.AddHandler(user_management.OnGuildMemberAddLogging)
-	//dg.AddHandler(user_management.OnGuildMemberRemoveLogging)
 
 	err = dg.Open()
 	if err != nil {
@@ -69,9 +59,6 @@ func main() {
 
 	// Start the Error handler in a goroutine
 	go ErrorHandler(manager.ErrorChannel)
-
-	// Start the Logging handler in a goroutine
-	//go logging.LoggingHandler(logging.LoggingChannel)
 
 	log.Println("The Bot is now running.")
 	sc := make(chan os.Signal, 1)
@@ -86,7 +73,11 @@ func main() {
 }
 
 func getPrefixes(guildID string) []string {
-	return []string{"G.", "g."}
+	guild, err := services.GuildService.Guild(guildID)
+	if err != nil || len(guild.Prefixes) == 0 {
+		return []string{"G$", "g$"}
+	}
+	return guild.Prefixes
 }
 
 func ErrorHandler(ErrorChan chan disgoman.CommandError) {
