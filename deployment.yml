@@ -42,4 +42,4 @@ spec:
                   name: geeksbot
                   key: discord_token
       imagePullSecrets:
-        - name: registry-2
+        - name: registry-1
